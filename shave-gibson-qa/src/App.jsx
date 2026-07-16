@@ -183,21 +183,26 @@ function Innovation() {
   return (
     <section style={{ padding: '90px 0', background: COLORS.teal100 }} id="innovation">
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>Innovation Centre</div>
-        <h2 style={{ fontSize: 'clamp(24px,2.8vw,32px)', marginBottom: 24, fontWeight: 800, letterSpacing: '-0.015em' }}>Innovation starts long before production.</h2>
-        <p style={{ color: COLORS.muted, fontSize: 16, maxWidth: 600, marginBottom: 32, lineHeight: 1.6 }}>Our Innovation Centre combines creativity, engineering and technology to develop smarter packaging solutions.</p>
-        <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, background: COLORS.teal700, color: '#fff', border: 'none', cursor: 'pointer', marginBottom: 48 }}>Explore Innovation Centre →</button>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 24 }}>
-          {stats.map((card, i) => (
-            <div key={i} style={{ background: '#fff', borderRadius: 8, padding: 24, border: `1px solid ${COLORS.line}` }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 8, background: COLORS.teal100, display: 'flex', alignItems: 'center', justifyContent: 'center', color: COLORS.teal700, fontWeight: 800, fontSize: 16, flexShrink: 0 }}>{card.num}</div>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={COLORS.teal700} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: card.icon }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 50, alignItems: 'start' }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>Innovation Centre</div>
+            <h2 style={{ fontSize: 'clamp(24px,2.8vw,32px)', marginBottom: 24, fontWeight: 800, letterSpacing: '-0.015em' }}>Innovation starts long before production.</h2>
+            <p style={{ color: COLORS.muted, fontSize: 16, marginBottom: 32, lineHeight: 1.6 }}>Our Innovation Centre combines creativity, engineering and technology to develop smarter packaging solutions.</p>
+            <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, background: COLORS.teal700, color: '#fff', border: 'none', cursor: 'pointer' }}>Explore Innovation Centre →</button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
+            {stats.map((card, i) => (
+              <div key={i} style={{ background: '#fff', borderRadius: 8, padding: 24, border: `1px solid ${COLORS.line}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                  <div style={{ width: 48, height: 48, borderRadius: 6, background: COLORS.teal700, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: 18, flexShrink: 0 }}>{card.num}</div>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={COLORS.teal700} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: card.icon }} />
+                </div>
+                <div style={{ borderTop: `2px solid ${COLORS.teal700}`, marginBottom: 16, paddingTop: 16 }}></div>
+                <h4 style={{ fontSize: 14, fontWeight: 800, marginBottom: 8, color: COLORS.ink, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.title}</h4>
+                <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, margin: 0 }}>{card.desc}</p>
               </div>
-              <h4 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8, color: COLORS.ink }}>{card.title}</h4>
-              <p style={{ fontSize: 14, color: COLORS.muted, lineHeight: 1.6, margin: 0 }}>{card.desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -215,7 +220,7 @@ function Solutions() {
   return (
     <section style={{ padding: '90px 0' }} id="solutions">
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ marginBottom: 44 }}>
+        <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>What Drives Us</div>
           <h2 style={{ fontSize: 'clamp(26px,2.8vw,36px)', fontWeight: 800, letterSpacing: '-0.015em' }}>Our key<br /><span style={{ color: COLORS.teal700 }}>pillars.</span></h2>
         </div>
