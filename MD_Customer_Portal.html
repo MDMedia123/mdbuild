@@ -148,11 +148,11 @@
       <form onsubmit="handleLogin(event)">
         <div class="form-field" style="text-align:left;">
           <label>Email</label>
-          <input type="email" id="loginEmail" value="test@gmail.com" required>
+          <input type="email" id="loginEmail" placeholder="your@email.com" required>
         </div>
         <div class="form-field" style="text-align:left;">
           <label>Password</label>
-          <input type="password" id="loginPassword" value="test123" required>
+          <input type="password" id="loginPassword" placeholder="Your password" required>
         </div>
         <p id="loginError" style="color:var(--ink);font-size:12px;min-height:16px;margin:8px 0;text-align:center;"></p>
         <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:11px;">Sign in</button>
@@ -513,24 +513,40 @@
 </div>
 
 <script>
-  function handleLogin(e){
+  async function handleLogin(e){
     e.preventDefault();
     var email = document.getElementById('loginEmail').value.trim();
     var password = document.getElementById('loginPassword').value.trim();
     var errorEl = document.getElementById('loginError');
 
-    console.log('Login attempt:', { email, password });
+    const loginBtn = e.target.querySelector('button[type="submit"]');
+    loginBtn.disabled = true;
+    loginBtn.textContent = 'Signing in...';
 
-    // Test credentials
-    if(email === 'test@gmail.com' && password === 'test123'){
-      console.log('Login successful');
+    try {
+      const { data, error } = await mdSupabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        errorEl.textContent = error.message;
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign in';
+        return;
+      }
+
+      // Login successful
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('portalShell').style.display = 'flex';
       localStorage.setItem('portal_user', email);
       errorEl.textContent = '';
-    } else {
-      console.log('Login failed - invalid credentials');
-      errorEl.textContent = 'Invalid email or password';
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Sign in';
+    } catch (err) {
+      errorEl.textContent = 'An error occurred. Please try again.';
+      loginBtn.disabled = false;
+      loginBtn.textContent = 'Sign in';
     }
   }
 
@@ -570,12 +586,18 @@
   function closeSignOutModal(){
     document.getElementById('signOutModal').style.display = 'none';
   }
-  function confirmSignOut(){
+  async function confirmSignOut(){
+    try {
+      await mdSupabase.auth.signOut();
+    } catch (err) {
+      console.log('Sign out error:', err);
+    }
+
     localStorage.removeItem('portal_user');
     document.getElementById('portalShell').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('loginEmail').value = 'test@gmail.com';
-    document.getElementById('loginPassword').value = 'test123';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
     document.getElementById('loginError').textContent = '';
     document.getElementById('signOutModal').style.display = 'none';
   }

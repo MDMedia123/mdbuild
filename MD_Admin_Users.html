@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Management | MD Build Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="md_media_config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --ink: #1a2847;
+    --gold: #C1893D;
+    --gray-text: #6b7280;
+    --paper: #f9fafb;
+    --card: #ffffff;
+    --card-border: #e5e7eb;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+
+  header {
+    background: white;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 28px;
+    margin-bottom: 4px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+  }
+  header p {
+    font-size: 14px;
+    color: var(--gray-text);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 20px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: #b07a2f;
+  }
+  .btn-danger {
+    background: #ef4444;
+    color: white;
+  }
+  .btn-danger:hover {
+    background: #dc2626;
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-bottom: 40px; }
+  @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Form Section */
+  .card {
+    background: white;
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 24px;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(193, 137, 61, 0.1);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  /* Users Table */
+  .table-container {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th {
+    background: var(--paper);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-text);
+    border-bottom: 1px solid var(--card-border);
+    text-transform: uppercase;
+  }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--card-border);
+    font-size: 14px;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover {
+    background: var(--paper);
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--gray-text);
+  }
+
+  .message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .message.success {
+    background: #dcfce7;
+    color: #166534;
+    border: 1px solid #86efac;
+  }
+  .message.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>User Management</h1>
+    <p>Create and manage family member accounts</p>
+  </div>
+</header>
+
+<div class="container">
+  <div id="message" class="message" style="display: none;"></div>
+
+  <div class="grid">
+    <!-- Create User Form -->
+    <div class="card">
+      <h2>Create New User</h2>
+      <form id="createUserForm" onsubmit="handleCreateUser(event)">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="userName" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="userEmail" placeholder="john@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="userPassword" placeholder="Minimum 8 characters" required>
+        </div>
+        <div class="btn-group">
+          <button type="submit" class="btn btn-primary">Create User</button>
+          <button type="reset" class="btn" style="background: var(--card-border); color: var(--ink);">Clear</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <h2>User Stats</h2>
+      <div style="padding: 20px 0;">
+        <div style="margin-bottom: 24px;">
+          <div style="font-size: 12px; color: var(--gray-text); text-transform: uppercase; margin-bottom: 8px;">Total Users</div>
+          <div style="font-size: 32px; font-weight: 700; color: var(--gold);" id="totalUsers">0</div>
+        </div>
+        <div>
+          <div style="font-size: 12px; color: var(--gray-text); text-transform: uppercase; margin-bottom: 8px;">Last Created</div>
+          <div style="font-size: 14px;" id="lastCreated">—</div>
+        </div>
+      </div>
+      <p style="font-size: 13px; color: var(--gray-text); margin-top: 20px;">
+        💡 Each user can log into the Customer Portal with their email and password.
+      </p>
+    </div>
+  </div>
+
+  <!-- Users Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Created</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="usersTable">
+        <tr style="height: 200px; text-align: center;">
+          <td colspan="5" style="vertical-align: middle; color: var(--gray-text);">
+            Loading users...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  let supabase = mdSupabase;
+
+  // Load users on page load
+  window.addEventListener('load', loadUsers);
+
+  async function handleCreateUser(event) {
+    event.preventDefault();
+
+    const name = document.getElementById('userName').value;
+    const email = document.getElementById('userEmail').value;
+    const password = document.getElementById('userPassword').value;
+
+    if (password.length < 8) {
+      showMessage('Password must be at least 8 characters', 'error');
+      return;
+    }
+
+    try {
+      // Create user via Supabase Auth
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: email,
+        password: password,
+        email_confirm: true,
+        user_metadata: {
+          name: name
+        }
+      });
+
+      if (error) throw error;
+
+      showMessage(`User "${name}" created successfully!`, 'success');
+      document.getElementById('createUserForm').reset();
+      loadUsers();
+    } catch (err) {
+      showMessage('Error creating user: ' + err.message, 'error');
+    }
+  }
+
+  async function loadUsers() {
+    try {
+      const { data, error } = await supabase.auth.admin.listUsers();
+
+      if (error) throw error;
+
+      const tbody = document.getElementById('usersTable');
+
+      if (!data.users || data.users.length === 0) {
+        tbody.innerHTML = `
+          <tr style="height: 200px; text-align: center;">
+            <td colspan="5" style="vertical-align: middle; color: var(--gray-text);">
+              No users yet. Create one to get started!
+            </td>
+          </tr>
+        `;
+        document.getElementById('totalUsers').textContent = '0';
+        return;
+      }
+
+      tbody.innerHTML = data.users.map(user => {
+        const created = new Date(user.created_at).toLocaleDateString();
+        const name = user.user_metadata?.name || 'N/A';
+        const status = user.last_sign_in_at ? 'Active' : 'Pending';
+
+        return `
+          <tr>
+            <td>${name}</td>
+            <td><strong>${user.email}</strong></td>
+            <td style="color: var(--gray-text); font-size: 12px;">${created}</td>
+            <td><span class="status-badge">${status}</span></td>
+            <td>
+              <button class="btn btn-danger" onclick="deleteUser('${user.id}')" style="padding: 6px 12px; font-size: 12px;">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('totalUsers').textContent = data.users.length;
+
+      const latest = data.users[data.users.length - 1];
+      if (latest) {
+        document.getElementById('lastCreated').textContent = new Date(latest.created_at).toLocaleDateString();
+      }
+    } catch (err) {
+      showMessage('Error loading users: ' + err.message, 'error');
+    }
+  }
+
+  async function deleteUser(userId) {
+    if (!confirm('Are you sure? This cannot be undone.')) return;
+
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) throw error;
+
+      showMessage('User deleted successfully', 'success');
+      loadUsers();
+    } catch (err) {
+      showMessage('Error deleting user: ' + err.message, 'error');
+    }
+  }
+
+  function showMessage(text, type) {
+    const msgEl = document.getElementById('message');
+    msgEl.textContent = text;
+    msgEl.className = `message ${type}`;
+    msgEl.style.display = 'block';
+    setTimeout(() => msgEl.style.display = 'none', 4000);
+  }
+</script>
+
+</body>
+</html>

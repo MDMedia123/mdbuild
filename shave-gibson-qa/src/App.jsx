@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const COLORS = {
   teal900: '#0B4F4B',
@@ -13,21 +13,137 @@ const COLORS = {
 };
 
 export default function App() {
+  const [page, setPage] = useState('home');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.slice(1) || 'home';
+      setPage(hash === 'about' ? 'about' : 'home');
+    };
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
   return (
     <div style={{ width: '100%', fontFamily: "'Inter', sans-serif", color: COLORS.ink, background: COLORS.bg, lineHeight: 1.6, margin: 0, padding: 0 }}>
       <Header />
+      {page === 'about' ? <AboutPage /> : <HomePage />}
+      <Footer />
+    </div>
+  );
+}
+
+function HomePage() {
+  return (
+    <>
       <Hero />
       <PatternDivider />
       <Journey />
       <Industries />
       <Innovation />
+      <PatternDivider />
       <Solutions />
       <Machines />
       <WhyChoose />
       <Certifications />
       <CTA />
-      <Footer />
-    </div>
+    </>
+  );
+}
+
+function AboutPage() {
+  return (
+    <>
+      <section style={{ position: 'relative', height: '600px', overflow: 'hidden' }}>
+        <img src="/sg-facility-current.jpg" alt="Shave & Gibson Facility" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(14,110,104,0.7) 0%, rgba(14,110,104,0.4) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-end', padding: '60px 40px', maxWidth: 1240, margin: '0 auto' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#fff', marginBottom: 10, opacity: 0.9 }}>Our Story</div>
+          <h1 style={{ fontSize: 'clamp(36px,5vw,56px)', lineHeight: 1.06, textTransform: 'uppercase', fontWeight: 800, letterSpacing: '-0.015em', color: '#fff', maxWidth: 600 }}>Built on <span style={{ color: COLORS.teal400 }}>Excellence</span></h1>
+        </div>
+      </section>
+
+      <section style={{ padding: '80px 0', background: '#fff' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 50, alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 20 }}>Since 1981</div>
+              <p style={{ color: COLORS.muted, fontSize: 18, marginBottom: 24, lineHeight: 1.8 }}>Since opening our doors in 1981, Shave & Gibson has grown into one of South Africa's largest and most respected privately-owned manufacturers of folding carton packaging and high-security print solutions.</p>
+              <p style={{ color: COLORS.muted, fontSize: 16, lineHeight: 1.8 }}>For over four decades, our award-winning reputation has been built on four simple promises:<br /><br /><strong style={{ color: COLORS.ink }}>✓ Uncompromising quality</strong><br /><strong style={{ color: COLORS.ink }}>✓ Exceptional service</strong><br /><strong style={{ color: COLORS.ink }}>✓ Relentless innovation</strong><br /><strong style={{ color: COLORS.ink }}>✓ Committed to a sustainable future</strong></p>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', boxShadow: `0 40px 80px rgba(11,79,75,0.25)` }}>
+                <img src="/sg-facility-historical.jpg" alt="S&G Historical" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 20 }} />
+              </div>
+              <div style={{ position: 'absolute', bottom: -30, right: -30, width: 200, height: 200, background: COLORS.teal100, borderRadius: '50%', zIndex: -1 }} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <PatternDivider />
+
+      <InteractiveTimeline />
+
+      <PatternDivider />
+
+      <section style={{ padding: '80px 0' }}>
+        <div style={{ maxWidth: '100%', margin: 0 }}>
+          <div style={{ position: 'relative', height: '500px', overflow: 'hidden' }}>
+            <img src="/sg-team.jpg" alt="Shave & Gibson Team" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(11,79,75,0.6) 0%, transparent 50%)' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '60px 40px', maxWidth: 1240, margin: '0 auto', width: '100%' }}>
+              <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginBottom: 10 }}>Our People</div>
+              <h2 style={{ fontSize: 'clamp(32px,4vw,48px)', fontWeight: 800, letterSpacing: '-0.015em', color: '#fff' }}>Dedicated to <span style={{ color: COLORS.teal400 }}>Excellence</span></h2>
+            </div>
+          </div>
+          <div style={{ background: COLORS.teal700, color: '#fff', padding: '50px 40px', textAlign: 'center' }}>
+            <p style={{ fontSize: 18, maxWidth: 800, margin: '0 auto', lineHeight: 1.8 }}>Our team of talented and committed professionals is the heart of everything we do. With decades of combined experience in packaging and security printing, we're driven by a shared commitment to delivering excellence.</p>
+          </div>
+        </div>
+      </section>
+
+      <PatternDivider />
+
+      <section style={{ padding: '80px 0' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>Nationwide Presence</div>
+          <h2 style={{ fontSize: 'clamp(26px,2.8vw,36px)', fontWeight: 800, letterSpacing: '-0.015em', marginBottom: 50 }}>Our <span style={{ color: COLORS.teal700 }}>Locations</span></h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'start' }}>
+            <div style={{ background: COLORS.teal100, borderRadius: 20, padding: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400, color: COLORS.teal700, fontSize: 18, fontWeight: 600 }}>
+              [Interactive Map Coming Soon]
+            </div>
+            <div style={{ display: 'grid', gap: 14 }}>
+              {[
+                { facility: 'Bags manufacturing', location: 'Mobeni, Durban' },
+                { facility: 'Cartons manufacturing', location: 'Mobeni, Durban' },
+                { facility: 'SG displays manufacturing', location: 'Mobeni, Durban' },
+                { facility: 'Sales office & warehouse', location: 'Cape Town' },
+                { facility: 'Sales office', location: 'Johannesburg' },
+                { facility: 'Security printing division', location: 'Durban' },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 12, padding: '14px', borderRadius: 8, background: '#fff', border: `1px solid ${COLORS.line}`, transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 10px 30px rgba(14,110,104,0.15)`; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  <div style={{ background: COLORS.teal700, color: '#fff', padding: '14px 16px', borderRadius: 6, fontSize: 13, fontWeight: 700, textAlign: 'center' }}>{item.facility}</div>
+                  <div style={{ background: COLORS.ink, color: '#fff', padding: '14px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600, textAlign: 'center' }}>{item.location}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <PatternDivider />
+
+      <section style={{ background: COLORS.teal700, color: '#fff', padding: '100px 0', textAlign: 'center' }}>
+        <div style={{ maxWidth: 800, margin: '0 auto', padding: '0 40px' }}>
+          <h2 style={{ fontSize: 'clamp(32px,4vw,48px)', marginBottom: 24, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.015em' }}>Let's Build <span style={{ color: COLORS.teal400 }}>Together</span></h2>
+          <p style={{ fontSize: 18, marginBottom: 40, opacity: 0.9, lineHeight: 1.8 }}>Whether you're looking for innovative packaging solutions, high-security printing, or reliable partnership, we're ready to exceed your expectations.</p>
+          <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '16px 32px', fontWeight: 700, fontSize: 14, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, background: '#fff', color: COLORS.teal700, border: 'none', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Get in Touch Today →</button>
+        </div>
+      </section>
+    </>
   );
 }
 
@@ -37,7 +153,9 @@ function Header() {
   return (
     <header style={{ position: 'sticky', top: 0, zIndex: 50, background: `rgba(250,250,249,0.95)`, backdropFilter: 'blur(8px)', borderBottom: `1px solid ${COLORS.line}` }}>
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px', maxWidth: 1240, margin: '0 auto' }}>
-        <img src="/logo.png" alt="Shave & Gibson" style={{ height: 50, objectFit: 'contain' }} />
+        <a href="#home" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+          <img src="/logo.png" alt="Shave & Gibson" style={{ height: 50, objectFit: 'contain' }} />
+        </a>
         <div style={{ display: 'flex', gap: 26, fontSize: '12.5px', fontWeight: 600, letterSpacing: '0.03em', textTransform: 'uppercase', alignItems: 'center' }}>
           <a href="#solutions" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Solutions</a>
           <a href="#industries" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Industries</a>
@@ -181,7 +299,7 @@ function Innovation() {
   ];
 
   return (
-    <section style={{ padding: '90px 0', background: COLORS.teal100 }} id="innovation">
+    <section style={{ padding: '50px 0', background: COLORS.teal100 }} id="innovation">
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: 50, alignItems: 'start' }}>
           <div>
@@ -304,6 +422,82 @@ function CTA() {
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, border: '1.5px solid rgba(255,255,255,0.7)', color: '#fff', background: 'none', cursor: 'pointer' }}>Get in Touch</button>
           <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, background: '#fff', color: COLORS.teal700, border: 'none', cursor: 'pointer' }}>Request Quote</button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function InteractiveTimeline() {
+  const [active, setActive] = useState(0);
+
+  const events = [
+    { year: '1981', title: 'The Beginning', desc: 'Alan Gibson and Neville Shave purchase Group Print & Packaging' },
+    { year: '1995', title: 'Strategic Leap', desc: 'Acquisition of Stradprint & Security Printing Division' },
+    { year: '2005', title: 'New Era', desc: 'Acquired by Chairman Simon Downes for expansion' },
+  ];
+
+  return (
+    <section style={{ padding: '60px 0', background: COLORS.teal100 }}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
+        <div style={{ marginBottom: 40 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>Our Growth</div>
+          <h2 style={{ fontSize: 'clamp(24px,2.5vw,32px)', fontWeight: 800, letterSpacing: '-0.015em' }}>From humble beginnings to <span style={{ color: COLORS.teal700 }}>industry leader</span></h2>
+        </div>
+
+        <div style={{ position: 'relative', padding: '40px 0' }}>
+          {/* Timeline line */}
+          <div style={{ position: 'absolute', top: '40px', left: '60px', right: '60px', height: '3px', background: COLORS.teal400, zIndex: 0 }} />
+
+          {/* Timeline dots and events */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 30, position: 'relative', zIndex: 1 }}>
+            {events.map((event, i) => (
+              <div key={i} style={{ textAlign: 'center' }}>
+                {/* Clickable dot */}
+                <div
+                  onClick={() => setActive(i)}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: active === i ? COLORS.teal700 : '#fff',
+                    border: `3px solid ${COLORS.teal700}`,
+                    margin: '0 auto 24px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    transform: active === i ? 'scale(1.3)' : 'scale(1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (active !== i) {
+                      e.currentTarget.style.transform = 'scale(1.15)';
+                      e.currentTarget.style.background = COLORS.teal400;
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (active !== i) {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.background = '#fff';
+                    }
+                  }}
+                />
+
+                {/* Year label */}
+                <div style={{ fontSize: 24, fontWeight: 800, color: COLORS.teal700, marginBottom: 8 }}>{event.year}</div>
+
+                {/* Expandable content */}
+                <div
+                  style={{
+                    maxHeight: active === i ? '200px' : '0px',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.3s ease',
+                  }}
+                >
+                  <h3 style={{ fontSize: 16, fontWeight: 800, color: COLORS.ink, marginBottom: 8 }}>{event.title}</h3>
+                  <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6 }}>{event.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
