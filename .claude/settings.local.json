@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/mikedownes/SG_5S/**)",
+      "Bash(sed -i -e '1717s/rgba\\(0,0,0,0.4\\)/rgba\\(30,32,37,0.08\\)/' -e 's/#6B7899/#64748B/g' src/App.jsx)",
+      "Bash(grep -n \"location.search\\\\|URLSearchParams\\\\|jobId\\\\|job_id\\\\|NCR-\\\\|function renderTable\\\\|function openDrawer\\\\|function showJob\\\\|history.push\\\\|d-job\\\\|row.job\\\\|r.job\\\\b\" /c/Users/mikedownes/Downloads/qd_dump.html | head -60)",
+      "Bash(curl -s -o /tmp/page.html -w 'HTTP %{http_code}\\\\n' https://sg-5-s-a6e1.vercel.app/?cb=__TRACKED_VAR____CMDSUB_OUTPUT__)",
+      "Read(//tmp/**)",
+      "mcp__Claude_Browser__preview_start",
+      "Bash(awk ' *)",
+      "Bash(find \"/c/Users/mikedownes/AppData/Local/Packages/Claude_pzs8sxrjxfjjc/LocalCache/Roaming/Claude/local-agent-mode-sessions/f5d24f96-8554-4b45-aea4-44291c09cc44/b97f04a1-289a-47f7-bfb8-7e595e7024c8/\" -iname \"*MD*\" -o -iname \"*Business*\" 2>/dev/null)",
+      "Bash(python -m http.server 8792)",
+      "mcp__claude-in-chrome__navigate",
+      "mcp__claude-in-chrome__computer",
+      "mcp__claude-in-chrome__get_page_text",
+      "Bash(python -m http.server 8794)",
+      "Bash(python -m http.server 8800)",
+      "Bash(curl -s http://localhost:8800/MD_Media_Home.html)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8800/MD_Media_Home.html)",
+      "Bash(python -m http.server 8806)",
+      "PowerShell(netstat -ano)"
+    ]
+  }
+}

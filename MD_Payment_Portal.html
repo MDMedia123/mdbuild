@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Payment - MD Build</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="md_media_config.js"></script>
+  <style>
+    :root {
+      --ink: #1a1410;
+      --ink-soft: #5a5248;
+      --paper: #fafaf8;
+      --paper-dark: #f5f3f0;
+      --gold: #C1893D;
+      --gold-dark: #9d6e2f;
+      --border-light: #f0ede1;
+      --gray-text: #8a827a;
+      --red: #d64545;
+      --green: #2f8577;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+      color: var(--ink);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .payment-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+      padding: 40px;
+      margin-bottom: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--gray-text);
+    }
+
+    .security-badge {
+      text-align: center;
+      font-size: 12px;
+      color: var(--green);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .security-icon {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+    }
+
+    .order-summary {
+      background: var(--paper);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .summary-row.total {
+      border-top: 1px solid var(--border-light);
+      padding-top: 12px;
+      margin-top: 12px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .form-section {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink);
+      display: block;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      color: var(--ink);
+      background: white;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(193, 137, 61, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+    }
+
+    .pay-button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .pay-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(193, 137, 61, 0.3);
+    }
+
+    .pay-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .success-state {
+      display: none;
+      text-align: center;
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 32px;
+    }
+
+    .success-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .success-message {
+      font-size: 14px;
+      color: var(--gray-text);
+      margin-bottom: 24px;
+    }
+
+    .access-link {
+      display: inline-block;
+      background: var(--gold);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s;
+      margin-bottom: 16px;
+    }
+
+    .access-link:hover {
+      background: var(--gold-dark);
+    }
+
+    .error-message {
+      background: rgba(214, 69, 69, 0.1);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .footer-text {
+      text-align: center;
+      font-size: 12px;
+      color: var(--gray-text);
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .payment-card {
+        padding: 24px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="payment-card">
+    <div class="header">
+      <div class="logo">💳 Secure Checkout</div>
+      <div class="subtitle">Complete your purchase</div>
+    </div>
+
+    <div class="security-badge">
+      <span style="font-size: 14px;">🔒</span> Secured by Stripe
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" id="errorMessage"></div>
+
+    <!-- Payment Form -->
+    <div id="paymentForm">
+      <div class="order-summary">
+        <div class="summary-row">
+          <span>Order ID</span>
+          <span id="orderId" style="font-family: monospace; font-weight: 600;">-</span>
+        </div>
+        <div class="summary-row">
+          <span>Product</span>
+          <span id="productName">-</span>
+        </div>
+        <div class="summary-row">
+          <span>Customer Email</span>
+          <span id="customerEmail" style="font-size: 12px;">-</span>
+        </div>
+        <div class="summary-row total">
+          <span>Amount Due</span>
+          <span id="totalAmount" style="color: var(--gold);">$0.00</span>
+        </div>
+      </div>
+
+      <form id="cardForm">
+        <div class="form-section">
+          <label class="form-label">Card Holder Name</label>
+          <input type="text" class="form-input" placeholder="John Smith" value="John Smith" required>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Card Number</label>
+          <input type="text" class="form-input" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242" maxlength="19" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-section">
+            <label class="form-label">Exp Date (MM/YY)</label>
+            <input type="text" class="form-input" placeholder="12/26" value="12/26" maxlength="5" required>
+          </div>
+          <div class="form-section">
+            <label class="form-label">CVC</label>
+            <input type="text" class="form-input" placeholder="123" value="123" maxlength="4" required>
+          </div>
+        </div>
+
+        <button type="submit" class="pay-button" id="payButton">
+          <span id="buttonText">Pay $<span id="buttonAmount">0.00</span></span>
+          <div class="loading-spinner" id="spinner"></div>
+        </button>
+      </form>
+
+      <div class="footer-text">
+        🔐 Your payment information is secure and encrypted
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div class="success-state" id="successState">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Payment Successful!</div>
+      <div class="success-message">
+        Your order has been confirmed and you now have access to your product.
+      </div>
+      <a href="#" class="access-link" id="accessLink">Access Your Product</a>
+      <div style="text-align: center; font-size: 13px; color: var(--gray-text);">
+        Order ID: <span id="successOrderId" style="font-family: monospace; font-weight: 600;"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let orderId, amount, productSlug, customerEmail;
+
+  async function sendConfirmationEmail(orderId, email, productSlug, amountCents) {
+    try {
+      const productNames = {
+        'business-launch': 'MD Business Launch™',
+        'studios': 'MD Studios™'
+      };
+
+      const productName = productNames[productSlug] || productSlug;
+      const amountFormatted = (amountCents / 100).toFixed(2);
+
+      // Log email to database for demo (in production, integrate with SendGrid/Mailgun)
+      await mdSupabase.from('emails').insert([{
+        to: email,
+        subject: `Payment Confirmed - Your ${productName} Purchase`,
+        template: 'order_confirmation',
+        order_id: orderId,
+        product_name: productName,
+        amount: amountFormatted,
+        customer_email: email,
+        sent_at: new Date().toISOString()
+      }]);
+
+      console.log('Confirmation email logged for:', email);
+    } catch (err) {
+      console.error('Error logging email:', err);
+      // Don't fail the payment if email logging fails
+    }
+  }
+
+  async function init() {
+    const params = new URLSearchParams(window.location.search);
+    orderId = params.get('order');
+
+    if (!orderId) {
+      showError('Invalid order ID');
+      return;
+    }
+
+    try {
+      // Fetch order details from Supabase
+      const { data: orders, error } = await mdSupabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+
+      if (error || !orders) {
+        showError('Order not found');
+        return;
+      }
+
+      // Load order data
+      customerEmail = orders.customer_email;
+      amount = orders.amount_cents;
+      productSlug = orders.product_slug;
+
+      // Display product name based on slug
+      const productNames = {
+        'business-launch': 'MD Business Launch™',
+        'studios': 'MD Studios™'
+      };
+      const productName = productNames[productSlug] || productSlug;
+
+      // Update UI with order details
+      document.getElementById('orderId').textContent = orderId.substring(0, 8).toUpperCase();
+      document.getElementById('productName').textContent = productName;
+      document.getElementById('customerEmail').textContent = customerEmail;
+      document.getElementById('totalAmount').textContent = '$' + (amount / 100).toFixed(2);
+      document.getElementById('buttonAmount').textContent = (amount / 100).toFixed(2);
+      document.getElementById('accessLink').href = 'MD_Customer_Portal.html?order=' + orderId;
+      document.getElementById('successOrderId').textContent = orderId;
+
+      // Attach form handler
+      document.getElementById('cardForm').addEventListener('submit', handlePayment);
+    } catch (err) {
+      showError(err.message || 'An error occurred');
+    }
+  }
+
+  async function handlePayment(e) {
+    e.preventDefault();
+
+    const payButton = document.getElementById('payButton');
+    const buttonText = document.getElementById('buttonText');
+    const spinner = document.getElementById('spinner');
+
+    payButton.disabled = true;
+    buttonText.style.display = 'none';
+    spinner.style.display = 'block';
+
+    try {
+      // Simulate payment processing (2 second delay)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Update order status to "completed" in Supabase
+      const { error: updateError } = await mdSupabase
+        .from('orders')
+        .update({ status: 'completed' })
+        .eq('id', orderId);
+
+      if (updateError) throw updateError;
+
+      // Send confirmation email
+      await sendConfirmationEmail(orderId, customerEmail, productSlug, amount);
+
+
+      // Show success state
+      document.getElementById('paymentForm').style.display = 'none';
+      document.getElementById('successState').style.display = 'block';
+
+      // Redirect after 3 seconds
+      setTimeout(() => {
+        window.location.href = 'MD_Customer_Portal.html?order=' + orderId;
+      }, 3000);
+
+    } catch (err) {
+      payButton.disabled = false;
+      buttonText.style.display = 'inline';
+      spinner.style.display = 'none';
+      showError(err.message || 'Payment failed. Please try again.');
+    }
+  }
+
+  function showError(message) {
+    const errorEl = document.getElementById('errorMessage');
+    errorEl.textContent = message;
+    errorEl.classList.add('show');
+  }
+
+  window.addEventListener('load', init);
+</script>
+
+</body>
+</html>

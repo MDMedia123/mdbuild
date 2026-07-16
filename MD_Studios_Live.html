@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MD Studios — Creative Workspace</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="md_media_config.js"></script>
+  <style>
+    :root {
+      --ink: #1a1410;
+      --ink-soft: #5a5248;
+      --paper: #fafaf8;
+      --paper-dark: #f5f3f0;
+      --gold: #C1893D;
+      --gold-dark: #9d6e2f;
+      --border-light: #f0ede1;
+      --gray-text: #8a827a;
+      --purple: #8B5CF6;
+      --purple-light: #F3E8FF;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .header {
+      background: white;
+      border-bottom: 1px solid var(--border-light);
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .logo {
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-breadcrumb {
+      font-size: 13px;
+      color: var(--gray-text);
+    }
+
+    .nav-breadcrumb a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .sign-out-btn {
+      background: transparent;
+      border: 1px solid var(--border-light);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--ink);
+      transition: all 0.2s;
+    }
+
+    .sign-out-btn:hover {
+      background: var(--paper-dark);
+    }
+
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 260px;
+      height: 100vh;
+      background: white;
+      border-right: 1px solid var(--border-light);
+      padding: 20px;
+      overflow-y: auto;
+      padding-top: 80px;
+    }
+
+    .main-content {
+      margin-left: 260px;
+      padding: 40px 32px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+    }
+
+    .sidebar-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gray-text);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding: 0 12px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--ink-soft);
+      transition: all 0.2s;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-item:hover {
+      background: var(--paper-dark);
+      color: var(--ink);
+    }
+
+    .sidebar-item.active {
+      background: var(--purple-light);
+      color: var(--purple);
+      font-weight: 600;
+    }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .tool-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 28px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tool-card:hover {
+      border-color: var(--purple);
+      box-shadow: 0 8px 24px rgba(139, 92, 246, 0.08);
+      transform: translateY(-4px);
+    }
+
+    .tool-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .tool-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: var(--ink);
+    }
+
+    .tool-description {
+      font-size: 13px;
+      color: var(--gray-text);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .tool-button {
+      display: inline-block;
+      background: var(--purple);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    .tool-button:hover {
+      background: #7C3AED;
+    }
+
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--purple);
+      margin: 0 0 4px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--gray-text);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .resources-section {
+      background: var(--purple-light);
+      border-left: 4px solid var(--purple);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 32px;
+    }
+
+    .resources-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--purple);
+      margin: 0 0 12px;
+    }
+
+    .resource-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .resource-link {
+      font-size: 13px;
+      color: var(--purple);
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px solid var(--purple);
+    }
+
+    .resource-link:hover {
+      color: #7C3AED;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: var(--ink);
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--gray-text);
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 200px;
+      }
+
+      .main-content {
+        margin-left: 200px;
+      }
+
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 20px 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+      }
+
+      .header-left {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-section {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <a href="MD_Media_Home.html" class="logo">← MD BUILD</a>
+    <div class="nav-breadcrumb">MD Studios™ / Workspace</div>
+  </div>
+  <button class="sign-out-btn" onclick="window.location.href='MD_Customer_Portal.html'">← Back to Portal</button>
+</div>
+
+<aside class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-title">Creative Tools</div>
+    <div class="sidebar-item active" onclick="openTool('logo')">🎨 Logo Design</div>
+    <div class="sidebar-item" onclick="openTool('branding')">🏷️ Branding Kit</div>
+    <div class="sidebar-item" onclick="openTool('color')">🎨 Color Palette</div>
+    <div class="sidebar-item" onclick="openTool('typography')">✍️ Typography</div>
+    <div class="sidebar-item" onclick="openTool('social')">📱 Social Assets</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-title">Resources</div>
+    <div class="sidebar-item">📄 Templates</div>
+    <div class="sidebar-item">🎯 Brand Guide</div>
+    <div class="sidebar-item">📊 Asset Library</div>
+    <div class="sidebar-item">💬 Community</div>
+  </div>
+</aside>
+
+<main class="main-content">
+  <h1>MD Studios™</h1>
+  <p class="page-subtitle">Creative brand & design workspace for modern entrepreneurs</p>
+
+  <div class="resources-section">
+    <div class="resources-title">✨ Getting Started</div>
+    <div class="resource-links">
+      <a href="#" class="resource-link">Watch Tutorial</a>
+      <a href="#" class="resource-link">Brand Guidelines</a>
+      <a href="#" class="resource-link">Template Library</a>
+      <a href="#" class="resource-link">Get Inspired</a>
+    </div>
+  </div>
+
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-number">50+</div>
+      <div class="stat-label">Design Templates</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">1000+</div>
+      <div class="stat-label">Brand Assets</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">Unlimited</div>
+      <div class="stat-label">Exports & Downloads</div>
+    </div>
+  </div>
+
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="tool-icon">🎨</div>
+      <h3 class="tool-title">Logo Designer</h3>
+      <p class="tool-description">Create a professional logo from scratch or customize from our collection of designer-made templates.</p>
+      <button class="tool-button" onclick="openTool('logo-designer')">Open Tool →</button>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-icon">🏷️</div>
+      <h3 class="tool-title">Brand Kit</h3>
+      <p class="tool-description">Define and organize your brand colors, fonts, logos, and brand voice in one central location.</p>
+      <button class="tool-button" onclick="openTool('brand-kit')">Open Tool →</button>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-icon">🎯</div>
+      <h3 class="tool-title">Color Palette Generator</h3>
+      <p class="tool-description">Generate harmonious color palettes based on your brand personality and preferences.</p>
+      <button class="tool-button" onclick="openTool('color-palette')">Open Tool →</button>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-icon">✍️</div>
+      <h3 class="tool-title">Typography Guide</h3>
+      <p class="tool-description">Select and pair fonts that match your brand. Includes sizing, spacing, and hierarchy guides.</p>
+      <button class="tool-button" onclick="openTool('typography')">Open Tool →</button>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-icon">📱</div>
+      <h3 class="tool-title">Social Media Templates</h3>
+      <p class="tool-description">Pre-designed templates for Instagram, Facebook, LinkedIn, Twitter, and TikTok posts and stories.</p>
+      <button class="tool-button" onclick="openTool('social-templates')">Open Tool →</button>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-icon">📧</div>
+      <h3 class="tool-title">Email & Web Assets</h3>
+      <p class="tool-description">Email signatures, website headers, favicons, and other brand assets for your digital presence.</p>
+      <button class="tool-button" onclick="openTool('email-assets')">Open Tool →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  function openTool(toolId) {
+    alert(`🎨 Tool: ${toolId.replace('-', ' ')}\n\nThis is a demo. In production, this would open an interactive design tool with:\n\n• Drag-and-drop editor\n• Template library\n• Real-time preview\n• Export in multiple formats\n• Collaboration features`);
+  }
+</script>
+
+</body>
+</html>

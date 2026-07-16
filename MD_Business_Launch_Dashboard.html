@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MD Business Launch</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="md_media_config.js"></script>
+<!--
+  MD BUSINESS LAUNCH
+  How this works:
+  - The sidebar lists all 21 modules, grouped by stage. Click any of them to
+    jump straight there. "Continue" buttons move you through them in order.
+  - Click "Edit content" (bottom of sidebar) to unlock the text on this page.
+    Click any unlocked text to change it, then click "Edit content" again to
+    lock it back down.
+  - "Download PDF" opens your browser's print dialog with every module set
+    to print as its own landscape page, in order. Choose "Save as PDF".
+  - Everything here is plain HTML/CSS/JS in one file — open it in any
+    browser, or host it, and it works with no build step.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#212B42;
+    --ink-soft:#5B6478;
+    --paper:#FAFAF8;
+    --card:#FFFFFF;
+    --card-border:#F0EDE1;
+    --gold:#C1893D;
+    --gold-soft:#F5E8D3;
+    --gold-text:#8A5A1E;
+    --teal:#2F8577;
+    --teal-soft:#DFEEEA;
+    --teal-text:#1F5C51;
+    --gray-soft:#EFEDE4;
+    --gray-text:#6E6D62;
+    --shadow:0 8px 24px rgba(33,43,66,0.06);
+  }
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--paper);}
+  h1,h2,h3{font-family:'Poppins',system-ui,sans-serif;margin:0;}
+  .icon{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;}
+  .btn{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    border-radius:10px;padding:9px 16px;cursor:pointer;border:1px solid transparent;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn-ghost{background:transparent;border-color:var(--card-border);color:var(--ink);}
+  .btn-ghost:hover{background:var(--gray-soft);}
+  .btn-ghost.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .btn-gold{background:var(--gold);color:#fff;}
+  .btn-gold:hover{background:#AD7833;}
+  .card{
+    background:var(--card);border:1px solid var(--card-border);border-radius:16px;
+    box-shadow:var(--shadow);padding:16px 18px;margin-bottom:14px;
+  }
+  .card h3{font-size:15px;font-weight:600;margin-bottom:12px;}
+
+  /* app shell */
+  .app-shell{display:flex;align-items:flex-start;}
+  .sidebar{
+    width:220px;flex-shrink:0;background:#fff;border-right:1px solid var(--card-border);
+    padding:16px 12px;display:flex;flex-direction:column;gap:6px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .sidebar-brand{padding:2px 6px 16px;border-bottom:1px solid var(--card-border);margin-bottom:8px;}
+  .platform-mark{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+  .platform-icon{
+    width:18px;height:18px;border-radius:5px;background:var(--ink);color:#fff;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:8.5px;letter-spacing:0.3px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .platform-name{font-size:11px;font-weight:600;color:var(--gray-text);letter-spacing:0.2px;}
+  .product-title{font-size:19px;font-weight:600;line-height:1.2;margin-bottom:12px;}
+  .workspace-row{display:flex;align-items:center;gap:10px;}
+  .workspace-name{font-size:12.5px;color:var(--ink-soft);font-weight:500;}
+  .logo-slot{
+    width:32px;height:32px;border-radius:9px;border:1.5px dashed var(--card-border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+    background:var(--card);color:var(--gray-text);overflow:hidden;
+  }
+  .logo-slot:hover{border-color:var(--gold);color:var(--gold-text);}
+  .logo-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+  .logo-slot .icon{width:14px;height:14px;}
+  .sidebar-nav{display:flex;flex-direction:column;overflow-y:auto;flex:1;}
+  .nav-group-title{
+    width:100%;display:flex;align-items:center;justify-content:space-between;
+    font-size:10.5px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--gray-text);
+    margin:14px 0 6px;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .nav-group-title:hover{color:var(--ink);}
+  .nav-group-title .chevron{width:13px;height:13px;stroke-width:2.5;flex-shrink:0;transition:transform .15s ease;}
+  .nav-group.collapsed .nav-group-title .chevron{transform:rotate(-90deg);}
+  .nav-group.collapsed .nav-group-items{display:none;}
+  .nav-item{
+    display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:8px;
+    font-size:12.8px;color:var(--ink-soft);cursor:pointer;text-decoration:none;
+  }
+  .nav-item:hover{background:var(--gray-soft);}
+  .nav-item.active{background:var(--gold-soft);color:var(--gold-text);font-weight:600;}
+  .nav-item.home{font-weight:600;color:var(--ink);margin-bottom:4px;font-size:13.5px;}
+  .nav-item.disabled{opacity:0.5;}
+  .nav-item.disabled .nav-label{text-decoration:line-through;}
+  .nav-icon{width:16px;height:16px;flex-shrink:0;display:flex;}
+  .nav-icon .icon{width:16px;height:16px;}
+  .nav-label{flex:1;}
+  .nav-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-soft);flex-shrink:0;}
+  .nav-dot.done{background:var(--teal);}
+  .nav-toggle{
+    width:24px;height:14px;border-radius:8px;background:var(--gray-soft);
+    position:relative;flex-shrink:0;cursor:pointer;border:none;padding:0;
+  }
+  .nav-toggle::after{
+    content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;
+    border-radius:50%;background:#fff;transition:left .15s ease;
+  }
+  .nav-toggle.on{background:var(--teal);}
+  .nav-toggle.on::after{left:12px;}
+  .sidebar-footer{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--card-border);padding-top:14px;margin-top:10px;}
+  .sidebar-footer .btn{width:100%;justify-content:center;}
+
+  .content{flex:1;min-width:0;padding:24px 32px;max-width:980px;}
+  .page-section{display:none;}
+  .page-section.active{display:block;}
+
+  /* paywall */
+  #paywall{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;}
+  .paywall-card{max-width:420px;width:100%;background:var(--card);border:1px solid var(--card-border);border-radius:20px;box-shadow:var(--shadow);padding:40px 36px;text-align:center;}
+  .paywall-title{font-size:26px;font-weight:600;margin:20px 0 10px;}
+  .paywall-pitch{font-size:14px;color:var(--ink-soft);line-height:1.6;margin:0 0 24px;}
+  .paywall-price{font-size:34px;font-weight:600;color:var(--ink);margin-bottom:22px;}
+  .paywall-price span{font-size:13px;font-weight:500;color:var(--ink-soft);}
+  .paywall-buy{width:100%;justify-content:center;font-size:14px;padding:12px 16px;text-decoration:none;}
+  .paywall-divider{font-size:12px;color:var(--gray-text);margin:26px 0 12px;}
+  .paywall-license-row{display:flex;gap:8px;}
+  .paywall-license-row .num-input{flex:1;}
+  .paywall-error{font-size:12px;color:#A32D2D;min-height:16px;margin:10px 0 0;}
+  .paywall-dev{font-size:10.5px;color:var(--gray-soft);cursor:pointer;margin:18px 0 0;letter-spacing:0.5px;}
+  .paywall-dev:hover{color:var(--gray-text);}
+  @media print{ #paywall{display:none !important;} }
+
+  /* cover page - shared */
+  .cover-page{max-width:760px;margin:4vh auto 0;}
+  .cover-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:48px;}
+  .cover-brand .platform-name{font-size:12px;font-weight:600;color:var(--gray-text);letter-spacing:0.2px;}
+  .cover-title{font-size:38px;font-weight:600;text-align:center;margin-bottom:8px;}
+  .cover-sub{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-text);text-align:center;margin:0 0 28px;}
+  .cover-vision{font-size:15px;font-style:italic;color:var(--ink-soft);text-align:center;max-width:520px;margin:0 auto 40px;line-height:1.6;}
+  .cover-toc{border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border);padding:28px 0;margin-bottom:32px;}
+  .cover-toc h3{text-align:center;margin-bottom:22px;}
+  .cover-toc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;}
+  .toc-group-title{font-size:10.5px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
+  .toc-item{font-size:12.5px;color:var(--ink-soft);padding:3px 0;}
+  .cover-footer{text-align:center;font-size:13px;color:var(--ink-soft);font-weight:500;}
+  .logo-slot-cover{width:56px;height:56px;border-radius:16px;margin:0 auto 18px;cursor:default;}
+  .logo-slot-cover .icon{width:22px;height:22px;}
+
+  /* cover option A: bold poster */
+  .cover-a{background:var(--ink);color:#fff;border-radius:20px;padding:56px 48px 48px;}
+  .cover-a .platform-name{color:#C9CCD8;}
+  .cover-a .logo-slot-cover{border-color:rgba(255,255,255,0.35);color:#C9CCD8;background:rgba(255,255,255,0.08);}
+  .cover-a .cover-title{color:#fff;font-size:44px;}
+  .cover-a .cover-sub{color:var(--gold);}
+  .cover-a .cover-vision{color:#C9CCD8;}
+  .cover-a .cover-toc{background:#fff;border-radius:16px;padding:32px;border:none;color:var(--ink);}
+  .cover-a .cover-toc h3{color:var(--ink);}
+  .cover-a .cover-footer{color:var(--gold);}
+
+  /* cover option B: split panel */
+  .cover-b{display:flex;min-height:64vh;border-radius:20px;overflow:hidden;border:1px solid var(--card-border);max-width:900px;margin:2vh auto 0;}
+  .cover-b-left{background:var(--ink);color:#fff;flex:0 0 38%;padding:48px 36px;display:flex;flex-direction:column;justify-content:center;}
+  .cover-b-left .platform-mark{justify-content:flex-start;margin-bottom:36px;}
+  .cover-b-left .platform-name{color:#C9CCD8;}
+  .cover-b-left .logo-slot-cover{margin:0 0 18px;border-color:rgba(255,255,255,0.35);color:#C9CCD8;background:rgba(255,255,255,0.08);}
+  .cover-b-left h1{color:#fff;font-size:30px;text-align:left;margin-bottom:10px;}
+  .cover-b-left .cover-sub{color:var(--gold);text-align:left;margin:0 0 22px;}
+  .cover-b-left p.cover-vision{color:#C9CCD8;text-align:left;margin:0 0 32px;font-size:14px;max-width:none;}
+  .cover-b-left .cover-footer{color:var(--gold);text-align:left;font-size:12.5px;}
+  .cover-b-right{flex:1;background:#fff;padding:48px 40px;}
+  .cover-b-right h3{margin-bottom:24px;}
+  .cover-b-toc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;}
+
+  /* cover option C: warm editorial with icon contents */
+  .cover-c-rule{width:56px;height:3px;background:var(--gold);margin:0 auto 26px;border-radius:2px;}
+  .cover-c-quote{font-family:'Poppins',sans-serif;font-style:italic;font-size:16px;color:var(--ink-soft);text-align:center;max-width:540px;margin:0 auto 44px;line-height:1.6;}
+  .cover-c-toc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 32px;margin-bottom:36px;}
+  .cover-c-toc-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-soft);padding:6px 0;}
+  .cover-c-toc-icon{width:24px;height:24px;border-radius:50%;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .cover-c-toc-icon .icon{width:13px;height:13px;stroke:var(--gold-text);}
+
+  /* hero (dashboard) */
+  .hero{
+    background:var(--ink);color:#fff;border-radius:18px;
+    padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+    margin-bottom:20px;
+  }
+  .hero-left{max-width:640px;}
+  .hero-pill{
+    display:inline-block;font-size:12px;font-weight:600;color:var(--gold);
+    background:rgba(193,137,61,0.18);padding:4px 10px;border-radius:20px;margin-bottom:12px;
+  }
+  .hero h2{font-size:24px;font-weight:600;margin-bottom:8px;}
+  .hero p{font-size:14px;line-height:1.6;color:#C9CCD8;margin:0;}
+  .hero-right{flex-shrink:0;display:flex;align-items:center;gap:20px;}
+  .hero-icon{
+    width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-icon .icon{width:26px;height:26px;stroke:var(--gold);}
+
+  .row{display:flex;gap:14px;align-items:stretch;}
+  .row .card{margin-bottom:0;}
+
+  /* progress card */
+  .progress-panel{flex:1 1 62%;}
+  .progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .progress-head h3{margin:0;}
+  .progress-head span{font-size:13px;color:var(--ink-soft);}
+  .bar-track{background:var(--gray-soft);height:8px;border-radius:4px;overflow:hidden;}
+  .bar-fill{background:var(--gold);height:100%;width:0%;transition:width .2s ease;}
+  .quick-jump-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+  .chip{
+    position:relative;overflow:hidden;font-size:12.5px;font-weight:600;padding:7px 14px;
+    border-radius:20px;border:1px solid var(--card-border);color:var(--ink-soft);cursor:pointer;
+  }
+  .chip:hover{border-color:var(--gold);}
+  .chip-pct{margin-left:5px;font-weight:700;font-size:11px;opacity:0.75;}
+  .chip.complete{border-color:var(--gold);color:#fff;}
+  .chip.complete .chip-pct{display:none;}
+
+  /* per-stage-group breakdown chart, filling the space below the chips */
+  .group-chart{display:flex;align-items:flex-end;gap:14px;height:110px;margin-top:26px;padding-top:6px;}
+  .group-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .group-bar-track{width:100%;max-width:28px;flex:1;background:var(--gray-soft);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden;}
+  .group-bar-fill{width:100%;background:var(--gold);border-radius:6px;transition:height .25s ease;}
+  .group-bar-pct{font-size:10.5px;font-weight:700;color:var(--ink-soft);margin:6px 0 3px;}
+  .group-bar-label{font-size:10px;color:var(--gray-text);text-align:center;line-height:1.2;}
+
+  /* focus card */
+  .focus{flex:1 1 38%;display:flex;flex-direction:column;align-items:flex-start;position:relative;overflow:hidden;}
+  .focus-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .focus-icon{width:36px;height:36px;border-radius:50%;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .focus-icon .icon{width:18px;height:18px;stroke:var(--gold-text);}
+  .focus-title{font-size:17px;font-weight:600;margin:0 0 6px;}
+  .focus-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 18px;}
+  .focus-bottom{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:auto;}
+  .ring{width:56px;height:56px;}
+  .ring text{font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;fill:var(--ink);}
+
+  /* bottom row */
+  .card ul{margin:0;padding:0;list-style:none;}
+  .card li{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:6px 0;color:var(--ink-soft);}
+  .li-icon{width:22px;height:22px;border-radius:50%;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .li-icon .icon{width:12px;height:12px;stroke:var(--teal-text);}
+  .link-icon{width:22px;height:22px;border-radius:50%;background:var(--gray-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .link-icon .icon{width:11px;height:11px;stroke:var(--gray-text);}
+  .quote-card{display:flex;flex-direction:column;justify-content:center;}
+  .quote-card p{font-family:'Poppins',serif;font-style:italic;font-size:15px;line-height:1.5;color:var(--ink);margin:0;}
+  .quote-card span{font-size:12px;color:var(--ink-soft);margin-top:10px;display:block;}
+
+  /* stage pages */
+  .letterhead{display:flex;align-items:center;gap:9px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--card-border);}
+  .letterhead .logo-slot{width:24px;height:24px;border-radius:7px;cursor:default;}
+  .letterhead .logo-slot .icon{width:12px;height:12px;}
+  .letterhead-name{font-size:13px;font-weight:600;color:var(--ink);}
+  .letterhead-divider{color:var(--card-border);font-size:12px;}
+  .letterhead-doc{font-size:11.5px;color:var(--gray-text);letter-spacing:0.2px;}
+  .stage-kicker{font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
+  .stage-title{font-size:26px;font-weight:600;margin:0 0 10px;}
+  .stage-teach{font-size:14.5px;color:var(--ink-soft);line-height:1.6;max-width:720px;margin:0 0 22px;}
+  .stage-help-hint{
+    display:flex;gap:10px;align-items:flex-start;background:var(--teal-soft);color:var(--teal-text);
+    border-radius:12px;padding:12px 16px;font-size:12.5px;line-height:1.55;margin-bottom:20px;max-width:720px;
+  }
+  .stage-help-hint .icon{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+  .focus-checklist{list-style:none;margin:0;padding:0;}
+  .focus-item{padding:16px 0;border-bottom:1px solid var(--gray-soft);}
+  .focus-item:first-child{padding-top:0;}
+  .focus-item:last-child{border-bottom:none;padding-bottom:0;}
+  .focus-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .focus-item-check-label{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:var(--ink);cursor:pointer;flex:1;min-width:0;}
+  .focus-item-check-label input[type="checkbox"]{margin-top:3px;width:15px;height:15px;accent-color:var(--gold);flex-shrink:0;}
+  .focus-item-prompt{font-weight:600;}
+  .focus-info-btn{
+    width:20px;height:20px;border-radius:50%;border:1px solid var(--card-border);background:var(--gray-soft);
+    color:var(--gray-text);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;padding:0;margin-top:1px;
+  }
+  .focus-info-btn:hover{background:var(--gold-soft);color:var(--gold-text);border-color:var(--gold);}
+  .focus-info-btn.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+  .focus-info-btn .icon{width:11px;height:11px;stroke-width:2.5;}
+  .focus-item-guidance{display:none;font-size:13px;color:var(--ink-soft);line-height:1.6;margin:0 0 10px 25px;max-width:640px;}
+  .focus-item-guidance.show{display:block;}
+  .focus-item-answer{
+    display:block;margin-left:25px;width:calc(100% - 25px);min-height:74px;
+    border:1px solid var(--card-border);border-radius:10px;padding:10px 12px;
+    font-size:13.5px;font-family:'Inter',sans-serif;color:var(--ink);line-height:1.5;
+    resize:vertical;background:#fff;
+  }
+  .focus-item-answer:focus{outline:none;border-color:var(--gold);}
+  .stage-card-hint{font-size:12.5px;color:var(--gray-text);line-height:1.5;margin:-6px 0 12px;}
+  .notes-area{
+    display:block;width:100%;min-height:80px;border:1px solid var(--card-border);border-radius:10px;padding:12px 14px;
+    font-size:13.5px;color:var(--ink);line-height:1.5;font-family:'Inter',sans-serif;resize:vertical;background:#fff;
+  }
+  .notes-area:focus{outline:none;border-color:var(--gold);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .num-input{
+    border:1px solid var(--card-border);border-radius:10px;padding:9px 12px;font-size:14px;
+    font-family:'Inter',sans-serif;color:var(--ink);background:#fff;width:100%;
+  }
+  .num-input.small{width:90px;}
+  .calc-row{display:flex;gap:16px;flex-wrap:wrap;}
+  .calc-result{background:var(--teal-soft);color:var(--teal-text);border-radius:12px;padding:14px 18px;font-size:14px;font-weight:600;margin-top:6px;}
+  .resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px;}
+  .resource-list li{padding:5px 0;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+  .kpi-card{background:var(--paper);border-radius:12px;padding:14px 16px;}
+  .kpi-label{font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;}
+  .kpi-inputs{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+  .kpi-slash{color:var(--gray-text);}
+  .kpi-pct{font-size:12px;color:var(--gold-text);font-weight:600;margin-top:6px;}
+  .stage-nav{display:flex;justify-content:space-between;margin-top:8px;}
+
+  /* editable affordance */
+  body.edit-mode [contenteditable="true"]{
+    outline:1.5px dashed var(--gold);outline-offset:3px;border-radius:4px;cursor:text;
+  }
+  body.edit-mode [contenteditable="true"]:focus{outline-style:solid;background:rgba(193,137,61,0.06);}
+
+  /* footer credit mark */
+  .footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--card-border);display:flex;justify-content:flex-end;}
+  .footer-mark{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-text);letter-spacing:0.2px;}
+  .footer-mark-icon{
+    width:18px;height:18px;border-radius:5px;background:var(--ink);color:#fff;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:8.5px;letter-spacing:0.3px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+
+  .no-print{ }
+
+  /* completion screen */
+  .complete-hero{background:var(--ink);color:#fff;border-radius:18px;padding:48px 40px;text-align:center;max-width:640px;margin:6vh auto 24px;}
+  .complete-hero .icon{width:36px;height:36px;stroke:var(--gold);margin-bottom:16px;}
+  .complete-hero h2{color:#fff;font-size:26px;margin-bottom:10px;}
+  .complete-hero p{color:#C9CCD8;font-size:14.5px;line-height:1.6;margin:0 0 26px;}
+  .complete-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+  /* curated PDF report (built fresh from saved answers when Download PDF is clicked) */
+  #printableReport{display:none;}
+  .report-page{padding:0.6in 0.7in;}
+  .report-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:6in;}
+  .report-cover h1{font-size:36px;margin-bottom:10px;}
+  .report-cover p{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-text);}
+  .report-kicker{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
+  .report-page h2{font-size:24px;margin-bottom:20px;}
+  .report-item{margin-bottom:18px;}
+  .report-item h4{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+  .report-item p{font-size:13px;color:var(--ink-soft);line-height:1.65;margin:0;white-space:pre-wrap;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #printableReport, #printableReport *{visibility:visible;}
+    #printableReport{display:block !important;position:absolute;top:0;left:0;width:100%;}
+    .report-page{page-break-after:always;}
+    .report-page:last-child{page-break-after:auto;}
+  }
+  @page{size:landscape;margin:0;}
+
+  /* Welcome modal */
+  .welcome-modal{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);
+    display:flex;align-items:center;justify-content:center;z-index:1000;
+    padding:20px;font-family:'Inter',sans-serif;
+  }
+  .welcome-modal.hidden{display:none;}
+  .welcome-content{
+    background:white;border-radius:16px;padding:28px;max-width:420px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;position:relative;
+  }
+  .welcome-close{
+    position:absolute;top:12px;right:12px;background:none;border:none;
+    font-size:24px;cursor:pointer;color:var(--gray-text);padding:0;width:28px;height:28px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .welcome-icon{font-size:40px;margin-bottom:12px;}
+  .welcome-content h2{font-size:22px;font-weight:700;margin:0 0 4px;color:var(--ink);}
+  .welcome-subtitle{font-size:13px;color:var(--gray-text);margin:0 0 20px;}
+  .welcome-steps{text-align:left;margin-bottom:20px;}
+  .welcome-step{margin-bottom:14px;}
+  .step-number{
+    width:32px;height:32px;background:var(--gold);color:white;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:700;margin-bottom:6px;
+    font-size:13px;
+  }
+  .welcome-step h3{font-size:13px;font-weight:600;margin:0 0 2px;color:var(--ink);}
+  .welcome-step p{font-size:12px;color:var(--gray-text);margin:0;line-height:1.4;}
+  .welcome-start{width:100%;justify-content:center;font-size:13px;padding:10px 20px;}
+
+  .profile-modal{
+    position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);
+    display:flex;align-items:center;justify-content:center;z-index:1000;
+    padding:20px;font-family:'Inter',sans-serif;
+  }
+  .profile-content{
+    background:white;border-radius:12px;padding:24px;max-width:320px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;
+  }
+  .profile-close{
+    position:absolute;top:12px;right:12px;background:none;border:none;
+    font-size:20px;cursor:pointer;color:var(--gray-text);padding:0;width:24px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .profile-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+  .profile-avatar{
+    width:48px;height:48px;background:var(--gold);color:white;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;
+  }
+  .profile-info h3{margin:0;font-size:15px;color:var(--ink);}
+  .profile-info p{margin:0;font-size:12px;color:var(--gray-text);}
+  .profile-body{display:flex;flex-direction:column;gap:8px;}
+  .profile-link{
+    padding:10px 12px;font-size:13px;color:var(--ink);text-decoration:none;
+    border-radius:6px;border:none;background:none;cursor:pointer;text-align:left;
+    transition:background 0.2s;
+  }
+  .profile-link:hover{background:rgba(193,137,61,0.1);}
+
+  @media (max-width:900px){
+    .app-shell{flex-direction:column;}
+    .sidebar{position:static;width:auto;height:auto;}
+    .row{flex-direction:column;}
+    .resource-grid{grid-template-columns:1fr;}
+    .welcome-content{padding:32px 24px;}
+    .welcome-content h2{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="paywall">
+  <div class="paywall-card">
+    <div class="platform-mark" style="justify-content:center;">
+      <span class="platform-icon">MD</span>
+      <span class="platform-name">Build &middot; Business Launch</span>
+    </div>
+    <h1 class="paywall-title">Business Launch</h1>
+    <p class="paywall-pitch">A guided, 21-module path from idea to launch-ready business &mdash; yours to keep, edit, and print.</p>
+    <div class="paywall-price">$49 <span>one-time</span></div>
+    <a class="btn btn-gold paywall-buy" id="buyLink" href="MD_Checkout.html?product=business-launch">Buy now &mdash; $49</a>
+    <div class="paywall-divider">Already have access?</div>
+    <p style="font-size:13px;color:var(--gray-text);margin:12px 0;">Sign in to your account to unlock this workspace</p>
+    <a class="btn btn-ghost" href="MD_Customer_Portal.html" style="width:100%;justify-content:center;">Sign in</a>
+    <p class="paywall-dev" onclick="devUnlock()">TEST</p>
+  </div>
+</div>
+
+<div id="welcomeModal" class="welcome-modal hidden">
+  <div class="welcome-content">
+    <button class="welcome-close" onclick="closeWelcome()">×</button>
+    <div class="welcome-icon"><svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--gold);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;"><rect x="8" y="1" width="8" height="3" rx="0.5"></rect><rect x="2" y="4" width="20" height="18" rx="1"></rect><line x1="7" y1="9" x2="17" y2="9"></line><line x1="7" y1="14" x2="17" y2="14"></line><line x1="7" y1="19" x2="14" y2="19"></line></svg></div>
+    <h2>Welcome to Business Launch</h2>
+    <p class="welcome-subtitle">Your guided path from idea to launch-ready business</p>
+
+    <div class="welcome-steps">
+      <div class="welcome-step">
+        <div class="step-number">1</div>
+        <h3>Read the guidance</h3>
+        <p>Each module has teaching content on the left to guide you</p>
+      </div>
+      <div class="welcome-step">
+        <div class="step-number">2</div>
+        <h3>Fill in your answers</h3>
+        <p>Type directly into the text fields to build your business plan</p>
+      </div>
+      <div class="welcome-step">
+        <div class="step-number">3</div>
+        <h3>Track your progress</h3>
+        <p>Complete modules and watch your plan come together</p>
+      </div>
+      <div class="welcome-step">
+        <div class="step-number">4</div>
+        <h3>Download as PDF</h3>
+        <p>When you're done, download a clean copy of everything you've written</p>
+      </div>
+    </div>
+
+    <button class="btn btn-gold welcome-start" onclick="closeWelcome()">Let's get building →</button>
+  </div>
+</div>
+
+<div id="profileModal" class="profile-modal" style="display:none;">
+  <div class="profile-content">
+    <button class="profile-close" onclick="closeProfile()">×</button>
+    <div class="profile-header">
+      <div class="profile-avatar">M</div>
+      <div class="profile-info">
+        <h3>Michael</h3>
+        <p>michaeltdownes@gmail.com</p>
+      </div>
+    </div>
+    <div class="profile-body">
+      <a href="MD_Customer_Portal.html" class="profile-link">Back to Portal</a>
+      <a href="#" class="profile-link" onclick="event.preventDefault(); alert('Settings coming soon')">Settings</a>
+      <a href="#" class="profile-link" onclick="event.preventDefault(); alert('Help & Support coming soon')">Help & Support</a>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell" style="display:none;">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="platform-mark">
+        <span class="platform-icon">MD</span>
+        <span class="platform-name">Build</span>
+      </div>
+      <h1 class="product-title" contenteditable="false">Business Launch</h1>
+      <div class="workspace-row">
+        <div class="logo-slot" id="logoSlot" title="Click to add your logo" onclick="document.getElementById('logoInput').click()">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        </div>
+        <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogo(event)">
+        <span class="workspace-name biz-name" contenteditable="false">Riverside Coffee Co.</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item home" href="MD_Customer_Portal.html" style="margin-bottom:12px;opacity:0.5;font-size:12px;" title="Back to portal">
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></span>
+        <span class="nav-label">Portal</span>
+      </a>
+      <a class="nav-item home" data-stage="dashboard" onclick="goTo('dashboard')">
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg></span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+
+  <div class="nav-group collapsed">
+    <button class="nav-group-title" onclick="toggleGroup(this)"><span>Cover page</span><svg class="chevron icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+    <div class="nav-group-items">
+    <a class="nav-item" data-stage="cover" onclick="goTo('cover')">
+      <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+      <span class="nav-label">Option A</span>
+    </a>
+    <a class="nav-item" data-stage="cover-b" onclick="goTo('cover-b')">
+      <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+      <span class="nav-label">Option B</span>
+    </a>
+    <a class="nav-item" data-stage="cover-c" onclick="goTo('cover-c')">
+      <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+      <span class="nav-label">Option C</span>
+    </a>
+    </div>
+  </div>
+
+  <div id="navGroupsRoot"></div>
+    </nav>
+
+    <div class="sidebar-footer no-print">
+      <button class="btn btn-ghost" id="editToggle" onclick="toggleEdit()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        Edit content
+      </button>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <section class="page-section" id="page-cover">
+      <div class="cover-page cover-a">
+        <div class="cover-brand">
+          <span class="platform-icon">MD</span>
+          <span class="platform-name">Build &middot; Business Launch</span>
+        </div>
+        <span class="logo-slot logo-slot-cover"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+        <h1 class="cover-title biz-name" contenteditable="false">Riverside Coffee Co.</h1>
+        <p class="cover-sub" contenteditable="false">Business Plan</p>
+        <p class="cover-vision" contenteditable="false">Add your one-line vision here — what you're building, and why it matters.</p>
+        <div class="cover-toc">
+          <h3>Contents</h3>
+          <div class="cover-toc-grid">
+            <div>
+              <div class="toc-group-title">Strategy</div>
+              <div class="toc-item">1. Vision &amp; Purpose</div>
+              <div class="toc-item">2. Business Idea</div>
+              <div class="toc-item">3. Market Research</div>
+              <div class="toc-item">4. Target Customer</div>
+              <div class="toc-item">5. Business Model</div>
+            </div>
+            <div>
+              <div class="toc-group-title">Brand</div>
+              <div class="toc-item">6. Brand Strategy</div>
+              <div class="toc-item">7. Business Name</div>
+              <div class="toc-item">8. Logo &amp; Visual Identity</div>
+              <div class="toc-group-title" style="margin-top:14px;">Offer</div>
+              <div class="toc-item">9. Products &amp; Services</div>
+              <div class="toc-item">10. Pricing Strategy</div>
+            </div>
+            <div>
+              <div class="toc-group-title">Growth</div>
+              <div class="toc-item">11. Marketing Strategy</div>
+              <div class="toc-item">12. Sales Strategy</div>
+              <div class="toc-group-title" style="margin-top:14px;">Operations</div>
+              <div class="toc-item">13. Operations Plan</div>
+              <div class="toc-item">14. Financial Planning</div>
+              <div class="toc-item">15. Funding</div>
+              <div class="toc-item">16. Legal &amp; Compliance</div>
+              <div class="toc-item">17. Technology &amp; Systems</div>
+              <div class="toc-item">18. Risk Assessment</div>
+            </div>
+            <div>
+              <div class="toc-group-title">Launch &amp; track</div>
+              <div class="toc-item">19. Launch Plan</div>
+              <div class="toc-item">20. KPI Dashboard</div>
+              <div class="toc-item">21. Resources</div>
+            </div>
+          </div>
+        </div>
+        <div class="cover-footer" contenteditable="false">Powered by: Michael Downes</div>
+      </div>
+    </section>
+
+    <section class="page-section" id="page-cover-b">
+      <div class="cover-b">
+        <div class="cover-b-left">
+          <div class="platform-mark">
+            <span class="platform-icon">MD</span>
+            <span class="platform-name">Build &middot; Business Launch</span>
+          </div>
+          <span class="logo-slot logo-slot-cover"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+          <h1 class="biz-name" contenteditable="false">Riverside Coffee Co.</h1>
+          <p class="cover-sub" contenteditable="false">Business Plan</p>
+          <p class="cover-vision" contenteditable="false">Add your one-line vision here — what you're building, and why it matters.</p>
+          <div class="cover-footer" contenteditable="false">Powered by: Michael Downes</div>
+        </div>
+        <div class="cover-b-right">
+          <h3>Contents</h3>
+          <div class="cover-b-toc-grid">
+            <div>
+              <div class="toc-group-title">Strategy</div>
+              <div class="toc-item">1. Vision &amp; Purpose</div>
+              <div class="toc-item">2. Business Idea</div>
+              <div class="toc-item">3. Market Research</div>
+              <div class="toc-item">4. Target Customer</div>
+              <div class="toc-item">5. Business Model</div>
+              <div class="toc-group-title" style="margin-top:14px;">Brand</div>
+              <div class="toc-item">6. Brand Strategy</div>
+              <div class="toc-item">7. Business Name</div>
+              <div class="toc-item">8. Logo &amp; Visual Identity</div>
+              <div class="toc-group-title" style="margin-top:14px;">Offer</div>
+              <div class="toc-item">9. Products &amp; Services</div>
+              <div class="toc-item">10. Pricing Strategy</div>
+            </div>
+            <div>
+              <div class="toc-group-title">Growth</div>
+              <div class="toc-item">11. Marketing Strategy</div>
+              <div class="toc-item">12. Sales Strategy</div>
+              <div class="toc-group-title" style="margin-top:14px;">Operations</div>
+              <div class="toc-item">13. Operations Plan</div>
+              <div class="toc-item">14. Financial Planning</div>
+              <div class="toc-item">15. Funding</div>
+              <div class="toc-item">16. Legal &amp; Compliance</div>
+              <div class="toc-item">17. Technology &amp; Systems</div>
+              <div class="toc-item">18. Risk Assessment</div>
+              <div class="toc-group-title" style="margin-top:14px;">Launch &amp; track</div>
+              <div class="toc-item">19. Launch Plan</div>
+              <div class="toc-item">20. KPI Dashboard</div>
+              <div class="toc-item">21. Resources</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section" id="page-cover-c">
+      <div class="cover-page">
+        <div class="cover-brand">
+          <span class="platform-icon">MD</span>
+          <span class="platform-name">Build &middot; Business Launch</span>
+        </div>
+        <span class="logo-slot logo-slot-cover"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+        <h1 class="cover-title biz-name" contenteditable="false">Riverside Coffee Co.</h1>
+        <div class="cover-c-rule"></div>
+        <p class="cover-c-quote" contenteditable="false">"Add your one-line vision here — what you're building, and why it matters."</p>
+        <div class="cover-c-toc">
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>1. Vision &amp; Purpose</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg></span>6. Brand Strategy</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></span>2. Business Idea</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></span>9. Products &amp; Services</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></span>3. Market Research</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon></svg></span>11. Marketing Strategy</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg></span>4. Target Customer</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle></svg></span>13. Operations Plan</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></span>5. Business Model</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline></svg></span>14. Financial Planning</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></span>19. Launch Plan</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle></svg></span>20. KPI Dashboard</div>
+          <div class="cover-c-toc-item"><span class="cover-c-toc-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg></span>21. Resources</div>
+        </div>
+        <div class="cover-footer" contenteditable="false">Powered by: Michael Downes</div>
+      </div>
+    </section>
+
+    <section class="page-section active" id="page-dashboard">
+      <div class="hero">
+        <div class="hero-left">
+          <h2 contenteditable="false">Welcome, Michael</h2>
+          <p contenteditable="false">Every business starts with a plan. Let's build yours, one step at a time — nothing here needs to be perfect, just started.</p>
+        </div>
+        <div class="hero-right">
+          <div class="hero-icon" style="cursor:pointer;" onclick="showProfile()">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+          <button class="btn btn-gold no-print" onclick="continueJourney()">Continue</button>
+        </div>
+      </div>
+
+      <div class="stage-help-hint" style="max-width:none;margin-bottom:20px;">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span contenteditable="false">How this works: every module follows the same pattern — read the short guidance under each question (tap the &#9432; icon), then write your own answer in the box. That's what actually becomes your business plan. Everything you type is saved automatically as you go.</span>
+      </div>
+
+      <div class="row" style="margin-bottom:20px;">
+        <div class="card progress-panel">
+          <div class="progress-head">
+            <h3>Your progress</h3>
+            <span id="progressLabel">0 of 21 modules complete</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" id="progressFill"></div></div>
+          <div class="quick-jump-row no-print" id="groupChipsRow"></div>
+          <div class="group-chart" id="groupChart"></div>
+        </div>
+
+        <div class="card focus" style="cursor:pointer;" onclick="continueJourney()">
+          <div class="focus-top">
+            <div class="focus-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
+            <h3 style="margin:0;">Next up</h3>
+          </div>
+          <p class="focus-title" id="focusTitle">Continue with Vision &amp; Purpose</p>
+          <p class="focus-desc" id="focusDesc" contenteditable="false">A few minutes to define what you're building and why — this sets the direction for every module after it.</p>
+          <div class="focus-bottom">
+            <svg class="ring" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#EFEDE4" stroke-width="5"></circle>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#C1893D" stroke-width="5" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="focusRing" transform="rotate(-90 28 28)"></circle>
+              <text x="28" y="32" text-anchor="middle" id="focusRingText">0%</text>
+            </svg>
+            <button class="btn btn-gold no-print" id="focusBtn" onclick="continueJourney()">Start here</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card" style="flex:1 1 33%;">
+          <h3>Recent activity</h3>
+          <ul>
+            <li contenteditable="false"><span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Account created</li>
+            <li contenteditable="false"><span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Business name entered</li>
+            <li contenteditable="false"><span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Logo added</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1 1 33%;">
+          <h3>Quick links</h3>
+          <ul>
+            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Templates</li>
+            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Business tools</li>
+            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Downloads</li>
+          </ul>
+        </div>
+        <div class="card quote-card" style="flex:1 1 33%;">
+          <p contenteditable="false">"The best time to start was yesterday. The second best time is today."</p>
+          <span>— on getting moving</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="modulesRoot"></div>
+
+    <section class="page-section" id="page-complete">
+      <div class="complete-hero">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        <h2 contenteditable="false">Nice work — your plan is taking shape.</h2>
+        <p contenteditable="false">You've been through every module. Download a clean copy of everything you've written — just your answers, not the guidance and prompts — or go back and keep refining any part of it.</p>
+        <div class="complete-actions">
+          <button class="btn btn-gold" onclick="generateReport()">
+            <svg class="icon" viewBox="0 0 24 24" stroke="#fff" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download PDF
+          </button>
+          <button class="btn btn-ghost" onclick="goTo('dashboard')" style="border-color:rgba(255,255,255,0.3);color:#fff;">Back to dashboard</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span class="footer-mark">
+        <span class="footer-mark-icon">MD</span>
+        Build
+      </span>
+    </div>
+
+  </main>
+</div>
+
+<div id="printableReport"></div>
+
+<script>
+  var MODULES = [];
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function kpiCard(id, label){
+    return '<div class="kpi-card"><div class="kpi-label">' + esc(label) + '</div><div class="kpi-inputs">'
+      + '<input type="number" id="' + id + '-current" class="num-input small" placeholder="Current" oninput="updateKpiBar(\'' + id + '\')">'
+      + '<span class="kpi-slash">/</span>'
+      + '<input type="number" id="' + id + '-target" class="num-input small" placeholder="Target" oninput="updateKpiBar(\'' + id + '\')">'
+      + '</div><div class="bar-track"><div class="bar-fill" id="' + id + '-fill" style="width:0%;"></div></div><div class="kpi-pct" id="' + id + '-pct">0%</div></div>';
+  }
+  function resourceCard(title, items){
+    return '<div class="card"><h3>' + esc(title) + '</h3><ul class="resource-list">'
+      + items.map(function(i){ return '<li contenteditable="false">' + esc(i) + '</li>'; }).join('')
+      + '</ul></div>';
+  }
+
+  var FINANCIAL_EXTRA = '<div class="card stage-card"><h3>Quick break-even check</h3><div class="calc-row"><div class="field"><label>Starting costs</label><input type="number" id="startupCost" class="num-input" placeholder="5000" oninput="calcBreakeven()"></div><div class="field"><label>Price per unit</label><input type="number" id="unitPrice" class="num-input" placeholder="25" oninput="calcBreakeven()"></div><div class="field"><label>Cost per unit</label><input type="number" id="unitCost" class="num-input" placeholder="10" oninput="calcBreakeven()"></div></div><div class="calc-result" id="breakevenResult">Fill in the numbers above to see how many units you need to sell.</div></div>';
+  var LAUNCH_EXTRA = '<div class="card stage-card"><h3>Countdown</h3><div class="field"><label>Launch date</label><input type="date" id="launchDate" class="num-input" oninput="calcCountdown()"></div><div class="calc-result" id="countdownResult">Pick a date to see your countdown.</div></div>';
+  function kpiExtra(){
+    return '<div class="card stage-card"><h3>Your KPI board</h3><div class="kpi-grid">' + kpiCard('revenue','Revenue (monthly)') + kpiCard('customers','Customers') + kpiCard('conversion','Conversion rate (%)') + kpiCard('runway','Cash runway (months)') + '</div></div>';
+  }
+  function resourcesExtra(){
+    return '<div class="resource-grid">' + resourceCard('Legal',['Business registration checklist','Simple contract template','Terms & conditions template']) + resourceCard('Finance',['Startup budget spreadsheet','Invoice template','Pricing calculator']) + resourceCard('Marketing',['Social media planner','Launch announcement templates','Local marketing checklist']) + resourceCard('Branding',['Logo brief template','Brand colour palette guide','Tagline worksheet']) + '</div>';
+  }
+  // Icons are matched by module title since the database doesn't store one per module.
+  // Modules added later through the admin panel fall back to DEFAULT_ICON.
+  var ICON_BY_TITLE = {
+    "Vision & Purpose": '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+    "Business Idea": '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>',
+    "Market Research": '<circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>',
+    "Target Customer": '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+    "Business Model": '<rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>',
+    "Brand Strategy": '<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline>',
+    "Business Name": '<polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line>',
+    "Logo & Visual Identity": '<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>',
+    "Products & Services": '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>',
+    "Pricing Strategy": '<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>',
+    "Marketing Strategy": '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>',
+    "Sales Strategy": '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>',
+    "Operations Plan": '<circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>',
+    "Financial Planning": '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>',
+    "Funding": '<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>',
+    "Legal & Compliance": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>',
+    "Technology & Systems": '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>',
+    "Risk Assessment": '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>',
+    "Launch Plan": '<line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>',
+    "KPI Dashboard": '<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>',
+    "Resources": '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>'
+  };
+  var DEFAULT_ICON = '<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>';
+
+  async function loadModulesFromDB(){
+    try {
+      var prodRes = await mdSupabase.from('products').select('id').eq('slug', 'business-launch').single();
+      if (!prodRes.data) { MODULES = []; return; }
+      var modRes = await mdSupabase.from('modules').select('*').eq('product_id', prodRes.data.id).order('sort_order');
+      if (modRes.error || !modRes.data) { MODULES = []; return; }
+      MODULES = modRes.data.map(function(r){
+        var m = { id: r.id, group: r.stage_group, title: r.title, teach: r.teaching_text || '', focus: r.focus_items || [] };
+        if (r.title === 'Financial Planning') m.extra = FINANCIAL_EXTRA;
+        else if (r.title === 'Launch Plan') m.extra = LAUNCH_EXTRA;
+        else if (r.title === 'KPI Dashboard') m.extra = kpiExtra();
+        else if (r.title === 'Resources') m.extra = resourcesExtra();
+        return m;
+      });
+    } catch (e) {
+      MODULES = [];
+    }
+  }
+
+  function renderSidebarNav(){
+    var root = document.getElementById('navGroupsRoot');
+    if (!root) return;
+    var groups = [];
+    var groupIndex = {};
+    MODULES.forEach(function(m){
+      if (!(m.group in groupIndex)) { groupIndex[m.group] = groups.length; groups.push({ name: m.group, items: [] }); }
+      groups[groupIndex[m.group]].items.push(m);
+    });
+    var html = '';
+    groups.forEach(function(g, groupIdx){
+      var isFirst = groupIdx === 0;
+      html += '<div class="nav-group' + (isFirst ? '' : ' collapsed') + '">'
+        + '<button class="nav-group-title" onclick="toggleGroup(this)"><span>' + esc(g.name) + '</span><svg class="chevron icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>'
+        + '<div class="nav-group-items">';
+      g.items.forEach(function(m){
+        var icon = ICON_BY_TITLE[m.title] || DEFAULT_ICON;
+        var desc = m.teach ? m.teach.substring(0, 80) + (m.teach.length > 80 ? '...' : '') : 'Complete this module';
+        html += '<a class="nav-item" data-stage="' + m.id + '" onclick="goTo(\'' + m.id + '\')" title="' + esc(desc) + '">'
+          + '<span class="nav-icon"><svg class="icon" viewBox="0 0 24 24">' + icon + '</svg></span>'
+          + '<span class="nav-label">' + esc(m.title) + '</span>'
+          + '<span class="nav-dot" id="dot-' + m.id + '"></span>'
+          + '<button class="nav-toggle on" id="toggle-' + m.id + '" onclick="toggleModule(event,\'' + m.id + '\')" title="Show or hide this module"></button>'
+          + '</a>';
+      });
+      html += '</div></div>';
+    });
+    root.innerHTML = html;
+  }
+  // Answers and notes are saved per-browser (localStorage), not to the database yet.
+  // They'll survive a refresh but not a change of device/browser — worth upgrading
+  // to real per-customer cloud storage later.
+  function toggleGuidance(btn){
+    var item = btn.closest('.focus-item');
+    var guidance = item ? item.querySelector('.focus-item-guidance') : null;
+    if (!guidance) return;
+    var isShown = guidance.classList.toggle('show');
+    btn.classList.toggle('active', isShown);
+  }
+  function saveAnswer(el){
+    var key = el.getAttribute('data-answer-key');
+    if (!key) return;
+    try { localStorage.setItem(key, el.value); } catch(e) {}
+  }
+
+  // Builds a clean PDF from just what the customer actually typed — no guidance
+  // text, no empty prompts, no interactive chrome. Modules with nothing filled
+  // in are skipped entirely so the document stays to the point.
+  function generateReport(){
+    var container = document.getElementById('printableReport');
+    if (!container) return;
+    var bizNameEl = document.querySelector('.biz-name');
+    var bizName = bizNameEl ? bizNameEl.textContent : 'Business Plan';
+    var html = ''
+      + '<div class="report-page report-cover">'
+      +   '<h1>' + esc(bizName) + '</h1>'
+      +   '<p>Business Plan</p>'
+      + '</div>';
+
+    MODULES.forEach(function(m){
+      var itemsHtml = '';
+      (m.focus || []).forEach(function(raw, i){
+        var item = normalizeFocusItem(raw);
+        var answer = loadAnswer('mdbl_answer_' + m.id + '_' + i).trim();
+        if (answer) {
+          itemsHtml += '<div class="report-item"><h4>' + esc(item.prompt) + '</h4><p>' + esc(answer) + '</p></div>';
+        }
+      });
+      var notes = loadAnswer('mdbl_notes_' + m.id).trim();
+      if (notes) {
+        itemsHtml += '<div class="report-item"><h4>Notes</h4><p>' + esc(notes) + '</p></div>';
+      }
+      if (itemsHtml) {
+        html += '<div class="report-page">'
+          +   '<div class="report-kicker">' + esc(m.group) + '</div>'
+          +   '<h2>' + esc(m.title) + '</h2>'
+          +   itemsHtml
+          + '</div>';
+      }
+    });
+
+    container.innerHTML = html;
+    window.print();
+  }
+  function loadAnswer(key){
+    try { return localStorage.getItem(key) || ''; } catch(e) { return ''; }
+  }
+  function normalizeFocusItem(item){
+    if (typeof item === 'string') return { prompt: item, guidance: '', placeholder: 'Type your answer here...' };
+    return {
+      prompt: item.prompt || '',
+      guidance: item.guidance || '',
+      placeholder: item.placeholder || 'Type your answer here...'
+    };
+  }
+
+  function moduleTemplate(m, idx){
+    var num = idx + 1;
+    var total = MODULES.length;
+    var backTarget = idx === 0 ? 'dashboard' : MODULES[idx - 1].id;
+    var isLast = idx === MODULES.length - 1;
+    var focusHtml = m.focus.map(function(raw, i){
+      var item = normalizeFocusItem(raw);
+      var answerKey = 'mdbl_answer_' + m.id + '_' + i;
+      var doneKey = answerKey + '_done';
+      var savedAnswer = loadAnswer(answerKey);
+      var isDone = localStorage.getItem(doneKey) === 'true';
+      return '<div class="focus-item">'
+        + '<div class="focus-item-head">'
+        +   '<label class="focus-item-check-label">'
+        +     '<input type="checkbox" class="focus-check"' + (isDone ? ' checked' : '') + ' onchange="try{localStorage.setItem(\'' + doneKey + '\',this.checked)}catch(e){}">'
+        +     '<span class="focus-item-prompt" contenteditable="false">' + esc(item.prompt) + '</span>'
+        +   '</label>'
+        +   (item.guidance ? '<button type="button" class="focus-info-btn" onclick="toggleGuidance(this)" title="Why this matters"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>' : '')
+        + '</div>'
+        + (item.guidance ? '<p class="focus-item-guidance" contenteditable="false">' + esc(item.guidance) + '</p>' : '')
+        + '<textarea class="focus-item-answer" data-answer-key="' + answerKey + '" placeholder="' + esc(item.placeholder) + '" onblur="saveAnswer(this)">' + esc(savedAnswer) + '</textarea>'
+        + '</div>';
+    }).join('');
+    var notesKey = 'mdbl_notes_' + m.id;
+    var savedNotes = loadAnswer(notesKey);
+    return ''
+      + '<div class="letterhead">'
+      +   '<span class="logo-slot"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>'
+      +   '<span class="biz-name letterhead-name" contenteditable="false">Riverside Coffee Co.</span>'
+      +   '<span class="letterhead-divider">&middot;</span>'
+      +   '<span class="letterhead-doc">Business Plan</span>'
+      + '</div>'
+      + '<div class="stage-kicker">Module ' + num + ' of ' + total + ' &middot; ' + esc(m.group) + '</div>'
+      + '<h2 class="stage-title" contenteditable="false">' + esc(m.title) + '</h2>'
+      + '<p class="stage-teach" contenteditable="false">' + esc(m.teach) + '</p>'
+      + '<div class="card stage-card"><h3>Your focus</h3><div class="focus-checklist">' + focusHtml + '</div></div>'
+      + '<div class="card stage-card">'
+      +   '<h3>Notes, links &amp; references</h3>'
+      +   '<p class="stage-card-hint" contenteditable="false">Anything extra that doesn\'t fit above — research links, customer quotes, ideas to revisit.</p>'
+      +   '<textarea class="notes-area" data-answer-key="' + notesKey + '" placeholder="Add your own notes, links, or references here..." onblur="saveAnswer(this)">' + esc(savedNotes) + '</textarea>'
+      + '</div>'
+      + (m.extra || '')
+      + '<div class="stage-nav no-print">'
+      +   '<button class="btn btn-ghost" onclick="goTo(\'' + backTarget + '\')">Back</button>'
+      +   '<button class="btn btn-gold" onclick="completeStage(\'' + m.id + '\')">' + (isLast ? 'Finish' : 'Continue') + '</button>'
+      + '</div>';
+  }
+  function renderModules(){
+    var root = document.getElementById('modulesRoot');
+    if(!root) return;
+    MODULES.forEach(function(m, idx){
+      var section = document.createElement('section');
+      section.className = 'page-section';
+      section.id = 'page-' + m.id;
+      section.innerHTML = moduleTemplate(m, idx);
+      root.appendChild(section);
+    });
+  }
+  var stageOrder = [];
+  var stageNames = {};
+  var coverIds = ["cover","cover-b","cover-c"];
+  var chosenCover = localStorage.getItem('mdbl_cover') || 'cover';
+  var BIZ_NAME_KEY = 'mdbl_bizname';
+  var BIZ_LOGO_KEY = 'mdbl_logo';
+  var doneSteps = [];
+  try { doneSteps = JSON.parse(localStorage.getItem('mdbl_done') || '[]'); } catch(e) { doneSteps = []; }
+  var disabledSteps = [];
+  try { disabledSteps = JSON.parse(localStorage.getItem('mdbl_disabled') || '[]'); } catch(e) { disabledSteps = []; }
+  var currentStage = localStorage.getItem('mdbl_current') || '';
+
+  var GUMROAD_PRODUCT_PERMALINK = "psbua";
+  function showApp(){
+    document.getElementById('paywall').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+  }
+  function showPaywall(){
+    document.getElementById('paywall').style.display = 'flex';
+    document.getElementById('appShell').style.display = 'none';
+  }
+  function devUnlock(){
+    localStorage.setItem('mdbl_unlocked', 'true');
+    showApp();
+  }
+  function verifyLicense(){
+    var key = document.getElementById('licenseKeyInput').value.trim();
+    var errEl = document.getElementById('licenseError');
+    errEl.textContent = '';
+    if(!key){ errEl.textContent = 'Enter your license key.'; return; }
+    fetch('https://api.gumroad.com/v2/licenses/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'product_permalink=' + encodeURIComponent(GUMROAD_PRODUCT_PERMALINK) + '&license_key=' + encodeURIComponent(key)
+    }).then(function(res){ return res.json(); }).then(function(data){
+      if(data && data.success){
+        localStorage.setItem('mdbl_unlocked', 'true');
+        showApp();
+      } else {
+        errEl.textContent = "That key didn't check out. Check it and try again.";
+      }
+    }).catch(function(){
+      errEl.textContent = "Couldn't reach the license server. Check your connection and try again.";
+    });
+  }
+  var devBypass = /(^|[?&])dev=1(&|$)/.test(location.search);
+  if(devBypass || localStorage.getItem('mdbl_unlocked') === 'true'){ showApp(); } else { showPaywall(); }
+
+  function toggleGroup(btn){
+    var group = btn.closest('.nav-group');
+    if(group) group.classList.toggle('collapsed');
+  }
+  function enabledStages(){
+    return stageOrder.filter(function(s){ return disabledSteps.indexOf(s) === -1; });
+  }
+  function toggleModule(e, id){
+    e.stopPropagation();
+    var idx = disabledSteps.indexOf(id);
+    if(idx === -1){ disabledSteps.push(id); } else { disabledSteps.splice(idx, 1); }
+    localStorage.setItem('mdbl_disabled', JSON.stringify(disabledSteps));
+    if(currentStage === id && disabledSteps.indexOf(id) !== -1){
+      var fallback = enabledStages()[0];
+      if(fallback){ currentStage = fallback; localStorage.setItem('mdbl_current', currentStage); }
+    }
+    updateProgressUI();
+  }
+  function goToGroup(groupName){
+    var m = MODULES.find(function(x){ return x.group === groupName; });
+    if (m) goTo(m.id);
+  }
+  function goToByTitle(title){
+    var m = MODULES.find(function(x){ return x.title === title; });
+    if (m) goTo(m.id);
+  }
+  function goTo(id){
+    var target = document.getElementById('page-' + id);
+    if(!target) return;
+    currentStage = id;
+    try { localStorage.setItem('mdbl_current', id); } catch(e) {}
+    document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); });
+    target.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(function(a){ a.classList.remove('active'); });
+    var navItem = document.querySelector('.nav-item[data-stage="' + id + '"]');
+    if(navItem) navItem.classList.add('active');
+    if(coverIds.indexOf(id) !== -1){
+      chosenCover = id;
+      try { localStorage.setItem('mdbl_cover', id); } catch(e) {}
+      updateCoverSelection();
+    }
+    window.scrollTo(0,0);
+    updateProgressUI();
+    updateHeaderInfo();
+  }
+  function continueJourney(){ goTo(currentStage); }
+  function completeStage(id){
+    if(doneSteps.indexOf(id) === -1){
+      doneSteps.push(id);
+      localStorage.setItem('mdbl_done', JSON.stringify(doneSteps));
+      logActivity('completed', id);
+    }
+    var enabled = enabledStages();
+    var pos = enabled.indexOf(id);
+    var next = pos !== -1 ? enabled[pos + 1] : undefined;
+    if(next){
+      currentStage = next;
+      localStorage.setItem('mdbl_current', currentStage);
+      updateFocusCard();
+      goTo(next);
+    } else {
+      goTo('complete');
+    }
+  }
+  function logActivity(type, moduleId){
+    try {
+      var activityLog = JSON.parse(localStorage.getItem('mdbl_activity') || '[]');
+      var moduleName = stageNames[moduleId] || moduleId;
+      activityLog.push({type: type, module: moduleName, time: new Date().getTime()});
+      localStorage.setItem('mdbl_activity', JSON.stringify(activityLog));
+      updateRecentActivity();
+    } catch(e) {}
+  }
+  function updateRecentActivity(){
+    try {
+      var activityLog = JSON.parse(localStorage.getItem('mdbl_activity') || '[]');
+      var completions = activityLog.filter(function(a){ return a.type === 'completed'; });
+      var recent = completions.slice(-3).reverse();
+      var ul = document.querySelector('.card h3:contains("Recent activity")');
+      if(!ul){
+        var cards = document.querySelectorAll('.card');
+        for(var i = 0; i < cards.length; i++){
+          if(cards[i].querySelector('h3') && cards[i].querySelector('h3').textContent.indexOf('Recent') !== -1){
+            ul = cards[i].querySelector('ul');
+            break;
+          }
+        }
+      }
+      if(ul){
+        ul.innerHTML = '';
+        recent.forEach(function(item){
+          var li = document.createElement('li');
+          li.setAttribute('contenteditable', 'false');
+          li.innerHTML = '<span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>' + item.module + ' completed';
+          ul.appendChild(li);
+        });
+      }
+    } catch(e) {}
+  }
+  function updateFocusCard(){
+    try {
+      var titleEl = document.getElementById('focusTitle');
+      var descEl = document.getElementById('focusDesc');
+      var btnEl = document.getElementById('focusBtn');
+      if(!titleEl || !descEl || !btnEl) return;
+
+      var enabled = enabledStages();
+      var nextModule = enabled.find(function(id){ return doneSteps.indexOf(id) === -1; });
+
+      if(!nextModule) return;
+
+      var moduleName = stageNames[nextModule] || 'Next Module';
+      var moduleObj = MODULES.find(function(m){ return m.id === nextModule; });
+      var desc = moduleObj ? moduleObj.teaching_text : 'Get started with this module';
+
+      var isFirstModule = doneSteps.length === 0;
+      var action = isFirstModule ? 'Start with' : 'Continue with';
+
+      titleEl.textContent = action + ' ' + moduleName;
+      descEl.textContent = desc;
+      btnEl.textContent = isFirstModule ? 'Start here' : 'Continue';
+    } catch(e) {}
+  }
+  function updateProgressUI(){
+    var enabled = enabledStages();
+    document.querySelectorAll('.nav-item[data-stage]').forEach(function(item){
+      var stage = item.getAttribute('data-stage');
+      var isOff = disabledSteps.indexOf(stage) !== -1;
+      item.classList.toggle('disabled', isOff);
+      var toggleBtn = document.getElementById('toggle-' + stage);
+      if(toggleBtn) toggleBtn.classList.toggle('on', !isOff);
+      var section = document.getElementById('page-' + stage);
+      if(section) section.classList.toggle('module-off', isOff);
+    });
+    document.querySelectorAll('.nav-dot').forEach(function(dot){
+      var stage = dot.id.replace('dot-','');
+      dot.classList.toggle('done', doneSteps.indexOf(stage) !== -1);
+    });
+    var completedEnabled = doneSteps.filter(function(s){ return enabled.indexOf(s) !== -1; }).length;
+    var pct = enabled.length > 0 ? Math.round((completedEnabled / enabled.length) * 100) : 0;
+    var bar = document.getElementById('progressFill');
+    if(bar) bar.style.width = pct + '%';
+    var label = document.getElementById('progressLabel');
+    if(label) label.textContent = completedEnabled + ' of ' + enabled.length + ' modules complete';
+    var heroPill = document.querySelector('.hero-pill');
+    if(heroPill) heroPill.textContent = 'Module ' + (enabled.indexOf(currentStage) + 1) + ' of ' + enabled.length;
+    var focusTitle = document.querySelector('.focus-title');
+    if(focusTitle) focusTitle.textContent = 'Continue with ' + (stageNames[currentStage] || '');
+    var ring = document.getElementById('focusRing');
+    var ringText = document.getElementById('focusRingText');
+    if(ring && ringText){
+      var circumference = 150.8;
+      ring.setAttribute('stroke-dashoffset', circumference - (circumference * pct / 100));
+      ringText.textContent = pct + '%';
+    }
+    renderGroupChipsAndChart();
+  }
+  function orderedGroups(){
+    var groups = [];
+    MODULES.forEach(function(m){ if (groups.indexOf(m.group) === -1) groups.push(m.group); });
+    return groups;
+  }
+  function groupProgress(groupName){
+    var groupModules = MODULES.filter(function(m){ return m.group === groupName && disabledSteps.indexOf(m.id) === -1; });
+    if (!groupModules.length) return 0;
+    var done = groupModules.filter(function(m){ return doneSteps.indexOf(m.id) !== -1; }).length;
+    return Math.round((done / groupModules.length) * 100);
+  }
+  function renderGroupChipsAndChart(){
+    var chipsRow = document.getElementById('groupChipsRow');
+    var chart = document.getElementById('groupChart');
+    if (!chipsRow || !chart) return;
+    var chipsHtml = '';
+    var chartHtml = '';
+    orderedGroups().forEach(function(g){
+      var pct = groupProgress(g);
+      var isComplete = pct === 100;
+      chipsHtml += '<button class="chip' + (isComplete ? ' complete' : '') + '" style="background:linear-gradient(to right, var(--gold) ' + pct + '%, #fff ' + pct + '%);" onclick="goToGroup(\'' + g.replace(/'/g, "\\'") + '\')">'
+        + esc(g) + '<span class="chip-pct">' + pct + '%</span>'
+        + '</button>';
+      chartHtml += '<div class="group-bar-col">'
+        + '<div class="group-bar-pct">' + pct + '%</div>'
+        + '<div class="group-bar-track"><div class="group-bar-fill" style="height:' + pct + '%;"></div></div>'
+        + '<div class="group-bar-label">' + esc(g) + '</div>'
+        + '</div>';
+    });
+    chipsRow.innerHTML = chipsHtml;
+    chart.innerHTML = chartHtml;
+  }
+  function calcBreakeven(){
+    var cost = parseFloat(document.getElementById('startupCost').value) || 0;
+    var price = parseFloat(document.getElementById('unitPrice').value) || 0;
+    var unitCost = parseFloat(document.getElementById('unitCost').value) || 0;
+    var margin = price - unitCost;
+    var out = document.getElementById('breakevenResult');
+    if(margin <= 0){ out.textContent = 'Your price needs to be higher than your cost per unit to break even.'; return; }
+    var units = Math.ceil(cost / margin);
+    out.textContent = 'You need to sell about ' + units.toLocaleString() + ' units to cover your starting costs.';
+  }
+  function calcCountdown(){
+    var val = document.getElementById('launchDate').value;
+    var out = document.getElementById('countdownResult');
+    if(!val){ out.textContent = 'Pick a date to see your countdown.'; return; }
+    var target = new Date(val + 'T00:00:00');
+    var now = new Date();
+    now.setHours(0,0,0,0);
+    var days = Math.round((target - now) / (1000 * 60 * 60 * 24));
+    if(days > 0) out.textContent = days + ' days until launch.';
+    else if(days === 0) out.textContent = 'Launch day is today.';
+    else out.textContent = 'That date has passed — pick a new one when you are ready.';
+  }
+  function updateKpiBar(id){
+    var current = parseFloat(document.getElementById(id + '-current').value) || 0;
+    var target = parseFloat(document.getElementById(id + '-target').value) || 0;
+    var pct = target > 0 ? Math.max(0, Math.min(100, Math.round((current / target) * 100))) : 0;
+    document.getElementById(id + '-fill').style.width = pct + '%';
+    document.getElementById(id + '-pct').textContent = pct + '%';
+  }
+  function toggleEdit(){
+    var on = document.body.classList.toggle('edit-mode');
+    document.getElementById('editToggle').classList.toggle('active', on);
+    document.querySelectorAll('[contenteditable]').forEach(function(el){
+      el.setAttribute('contenteditable', on ? 'true' : 'false');
+    });
+  }
+  function handleLogo(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try { localStorage.setItem(BIZ_LOGO_KEY, ev.target.result); } catch(err) {}
+      applyBizLogo(ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  }
+  function applyBizName(name){
+    document.querySelectorAll('.biz-name').forEach(function(el){
+      if(document.activeElement !== el) el.textContent = name;
+    });
+  }
+  function applyBizLogo(dataUrl){
+    document.querySelectorAll('.logo-slot').forEach(function(el){
+      el.innerHTML = '<img src="' + dataUrl + '" alt="Business logo">';
+    });
+  }
+  function saveBizName(name){
+    var clean = name.trim() || 'Your Business Name';
+    try { localStorage.setItem(BIZ_NAME_KEY, clean); } catch(e) {}
+    applyBizName(clean);
+  }
+  function updateCoverSelection(){
+    coverIds.forEach(function(id){
+      var section = document.getElementById('page-' + id);
+      if(section) section.classList.toggle('cover-unselected', id !== chosenCover);
+    });
+  }
+  function initBizIdentity(){
+    var savedName = localStorage.getItem(BIZ_NAME_KEY);
+    if(savedName) applyBizName(savedName);
+    var savedLogo = localStorage.getItem(BIZ_LOGO_KEY);
+    if(savedLogo) applyBizLogo(savedLogo);
+    document.querySelectorAll('.biz-name').forEach(function(el){
+      el.addEventListener('blur', function(){ saveBizName(el.textContent); });
+    });
+    var customerName = localStorage.getItem('mdbl_customer_name');
+    if(customerName){
+      var greeting = document.querySelector('.hero-left h2');
+      if(greeting) greeting.textContent = 'Welcome, ' + customerName;
+    }
+    updateCoverSelection();
+  }
+
+  function closeWelcome(){
+    var modal = document.getElementById('welcomeModal');
+    if(modal) modal.classList.add('hidden');
+    try { localStorage.setItem('mdbl_welcomed', 'true'); } catch(e) {}
+  }
+
+  function showWelcomeIfNeeded(){
+    try {
+      var welcomed = localStorage.getItem('mdbl_welcomed');
+      if(!welcomed){
+        var modal = document.getElementById('welcomeModal');
+        if(modal) modal.classList.remove('hidden');
+      }
+    } catch(e) {
+    }
+  }
+
+  function showProfile(){
+    var modal = document.getElementById('profileModal');
+    if(modal) modal.style.display = 'flex';
+  }
+
+  function closeProfile(){
+    var modal = document.getElementById('profileModal');
+    if(modal) modal.style.display = 'none';
+  }
+
+  function updateHeaderInfo(){
+    var statusEl = document.getElementById('moduleStatus');
+    var downloadBtn = document.getElementById('downloadBtn');
+    if(currentStage === 'dashboard'){
+      if(statusEl) statusEl.textContent = 'Dashboard';
+      if(downloadBtn) downloadBtn.style.display = 'none';
+    } else if(stageNames[currentStage]){
+      var enabled = enabledStages();
+      var moduleNum = enabled.indexOf(currentStage) + 1;
+      if(statusEl) statusEl.textContent = 'Module ' + moduleNum + ' of ' + enabled.length;
+      if(downloadBtn) downloadBtn.style.display = '';
+    }
+  }
+
+  async function initApp(){
+    await loadModulesFromDB();
+    stageOrder = MODULES.map(function(m){ return m.id; });
+    stageNames = {};
+    MODULES.forEach(function(m){ stageNames[m.id] = m.title; });
+    // currentStage may be empty (first visit) or a stale id from before modules
+    // moved to the database — either way, fall back to the first real module.
+    if (stageOrder.indexOf(currentStage) === -1) {
+      currentStage = stageOrder[0] || '';
+      try { localStorage.setItem('mdbl_current', currentStage); } catch(e) {}
+    }
+    renderSidebarNav();
+    renderModules();
+    initBizIdentity();
+    updateProgressUI();
+    updateFocusCard();
+    updateRecentActivity();
+    updateHeaderInfo();
+    showWelcomeIfNeeded();
+  }
+  initApp();
+</script>
+</body>
+</html>

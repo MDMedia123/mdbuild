@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>S&G Product Pricing Tool</title>
+<style>
+body{margin:0;font-family:Arial;background:#eef1f4}
+.header{background:#0f2233;color:white;padding:14px 20px;display:flex;align-items:center;gap:15px}
+.logo{font-size:52px;font-weight:bold;color:#00a7b5;line-height:1}
+.logo span{color:#666}
+.container{display:flex}
+.left{width:70%;padding:25px}
+.right{width:30%;background:#fff;border-left:1px solid #ddd;padding:20px}
+.card{background:#fff;padding:20px;border-radius:8px}
+label{font-weight:bold;display:block;margin-top:15px}
+select{width:100%;padding:10px;margin-top:6px}
+.btn{margin-top:20px;background:#0097A7;color:#fff;border:none;padding:10px 18px;border-radius:5px}
+.sum{padding:8px 0;border-bottom:1px solid #eee}
+</style>
+</head>
+<body>
+<div class="header">
+<div class="logo"><span>S</span>G</div>
+<div>
+<h1 style="margin:0">S&G Product Pricing Tool</h1>
+<div>Configure product specifications for accurate estimating and costing</div>
+</div>
+</div>
+
+<div class="container">
+<div class="left">
+<div class="card">
+
+<label>Level 1 - Product Family</label>
+<select id="family"></select>
+
+<div id="l2"></div>
+<div id="l3"></div>
+<div id="l4"></div>
+
+<button class="btn" onclick="location.reload()">Reset Form</button>
+
+</div>
+</div>
+
+<div class="right">
+<h2>Pricing Summary</h2>
+<div class="sum"><b>Family:</b> <span id="s1">-</span></div>
+<div class="sum"><b>Type:</b> <span id="s2">-</span></div>
+<div class="sum"><b>Manufacturing:</b> <span id="s3">-</span></div>
+<div class="sum"><b>Supply:</b> <span id="s4">-</span></div>
+<h3>Configuration String</h3>
+<div id="cfg">No selections made.</div>
+</div>
+</div>
+
+<script>
+const data={
+"Carton (STD)":{
+ types:["Crashlock","H/Lock","Alternative Tuck","4 Corner","6 Corner","Paste Down End"],
+ methods:["Die Cut & Creased","Die Cut & Creased + Embossing/Debossing"],
+ supply:["Glued","Unglued"]
+},
+"Carton (LAM)":{
+ types:["Crashlock","H/Lock","Paste Down (Half)","Paste Down (Full)","Self Erect"],
+ methods:["Die Cut & Creased","Die Cut & Creased + Embossing/Debossing"],
+ supply:["Glued","Unglued"]
+},
+"Clamshell":{
+ types:["Standard","Chinese"],
+ methods:["Die Cut & Creased"],
+ supply:["Flat","Glammed","Erected"]
+},
+"Blisterpack":{
+ types:["Blister Card"],
+ methods:["Heat Seal","RF Weld"],
+ supply:["Finished","Unfinished"]
+},
+"Corrugated":{
+ types:["RSC","Sleeve","Tray"],
+ methods:["Rotary Die Cut","Flatbed Die Cut"],
+ supply:["Flat Packed","Glued"]
+},
+"PET / PVC":{
+ types:["Folded Box","Thermoformed"],
+ methods:["Die Cut & Creased","Thermoformed"],
+ supply:["Finished","Flat"]
+},
+"Skinpack":{
+ types:["Skinpack Card"],
+ methods:["Skinpack Process"],
+ supply:["Finished"]
+},
+"Shrink-wrap":{
+ types:["Sleeve Wrap","Full Wrap"],
+ methods:["Shrink Application"],
+ supply:["Wrapped"]
+}
+};
+
+const fam=document.getElementById('family');
+fam.innerHTML='<option></option>'+Object.keys(data).map(x=>`<option>${x}</option>`).join('');
+
+fam.onchange=function(){
+ const d=data[this.value];
+ if(!d){l2.innerHTML=l3.innerHTML=l4.innerHTML='';update();return;}
+ l2.innerHTML=`<label>Level 2 - Product Type</label><select id="type">${d.types.map(x=>`<option>${x}</option>`).join('')}</select>`;
+ l3.innerHTML=`<label>Level 3 - Manufacturing Method</label><select id="method">${d.methods.map(x=>`<option>${x}</option>`).join('')}</select>`;
+ l4.innerHTML=`<label>Level 4 - Supply Format</label><select id="supply">${d.supply.map(x=>`<option>${x}</option>`).join('')}</select>`;
+ document.getElementById('type').onchange=update;
+ document.getElementById('method').onchange=update;
+ document.getElementById('supply').onchange=update;
+ update();
+}
+
+function update(){
+ s1.textContent=fam.value||'-';
+ s2.textContent=document.getElementById('type')?.value||'-';
+ s3.textContent=document.getElementById('method')?.value||'-';
+ s4.textContent=document.getElementById('supply')?.value||'-';
+ let vals=[fam.value,document.getElementById('type')?.value,document.getElementById('method')?.value,document.getElementById('supply')?.value].filter(Boolean);
+ cfg.innerHTML=vals.join(' > ') || 'No selections made.';
+}
+</script>
+</body>
+</html>

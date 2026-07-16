@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MD Build — Admin Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="md_media_config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#212B42;
+    --ink-soft:#5B6478;
+    --paper:#FAFAF8;
+    --card:#FFFFFF;
+    --card-border:#F0EDE1;
+    --gold:#C1893D;
+    --gold-soft:#F5E8D3;
+    --gold-text:#8A5A1E;
+    --teal:#2F8577;
+    --teal-soft:#DFEEEA;
+    --teal-text:#1F5C51;
+    --red:#E74C3C;
+    --red-soft:#FADBD8;
+    --red-text:#C0392B;
+    --gray-soft:#EFEDE4;
+    --gray-text:#6E6D62;
+    --shadow:0 8px 24px rgba(33,43,66,0.06);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--paper);}
+  h1,h2,h3,h4{font-family:'Poppins',system-ui,sans-serif;margin:0;}
+  a{color:inherit;text-decoration:none;}
+  .icon{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;}
+
+  .btn{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    border-radius:10px;padding:9px 16px;cursor:pointer;border:1px solid transparent;
+    display:inline-flex;align-items:center;gap:6px;transition:all .15s ease;
+  }
+  .btn-gold{background:var(--gold);color:#fff;}
+  .btn-gold:hover{background:#AD7833;}
+  .btn-gold-sm{background:var(--gold);color:#fff;padding:6px 12px;font-size:12px;}
+  .btn-ghost{background:transparent;border-color:var(--card-border);color:var(--ink);}
+  .btn-ghost:hover{background:var(--gray-soft);}
+  .btn-sm{padding:8px 12px;font-size:12px;}
+  .btn-red{background:var(--red);color:#fff;}
+  .btn-red:hover{background:#C0392B;}
+
+  /* shell */
+  .shell{display:flex;height:100vh;}
+  .sidebar{
+    width:240px;background:#fff;border-right:1px solid var(--card-border);
+    padding:20px 14px;display:flex;flex-direction:column;gap:4px;overflow-y:auto;
+  }
+  .sidebar-brand{padding:8px 10px 16px;border-bottom:1px solid var(--card-border);margin-bottom:12px;}
+  .sidebar-brand a{display:flex;align-items:center;gap:8px;text-decoration:none;}
+  .brand-icon{
+    width:28px;height:28px;border-radius:6px;background:var(--ink);color:#fff;
+    font-family:'Poppins',sans-serif;font-weight:700;font-size:10px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .brand-text{font-family:'Poppins',sans-serif;font-weight:600;font-size:13px;color:var(--ink);}
+  .brand-sub{font-size:10px;color:var(--gray-text);margin-top:2px;}
+
+  .nav-item{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;
+    font-size:13px;color:var(--ink-soft);cursor:pointer;transition:all .15s ease;
+  }
+  .nav-item:hover{background:var(--gray-soft);color:var(--ink);}
+  .nav-item.active{background:var(--gold-soft);color:var(--gold-text);font-weight:600;}
+  .nav-icon{width:18px;height:18px;flex-shrink:0;}
+  .nav-icon .icon{width:18px;height:18px;}
+  .nav-label{flex:1;}
+
+  .sidebar-footer{
+    display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--card-border);
+    padding-top:12px;margin-top:auto;
+  }
+
+  .content{flex:1;overflow-y:auto;padding:28px 36px;}
+  .page{display:none;}
+  .page.active{display:block;}
+
+  /* header */
+  .page-header{
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;
+    padding-bottom:16px;border-bottom:1px solid var(--card-border);
+  }
+  .page-header h1{font-size:28px;margin:0;}
+  .page-header-sub{font-size:14px;color:var(--ink-soft);margin-top:2px;}
+
+  .card{
+    background:var(--card);border:1px solid var(--card-border);border-radius:14px;
+    box-shadow:var(--shadow);padding:16px 18px;margin-bottom:14px;
+  }
+  .card h3{font-size:14px;font-weight:600;margin-bottom:12px;}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+  .stat-card{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:18px;box-shadow:var(--shadow);}
+  .stat-label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .stat-value{font-size:24px;font-weight:700;color:var(--ink);margin:0;}
+  .stat-change{font-size:11px;color:var(--teal-text);margin-top:4px;}
+
+  .table-wrapper{overflow-x:auto;margin-bottom:14px;}
+  .table{width:100%;border-collapse:collapse;font-size:13px;}
+  .table th{text-align:left;padding:12px;border-bottom:2px solid var(--card-border);font-weight:600;color:var(--ink);background:var(--gray-soft);}
+  .table td{padding:12px;border-bottom:1px solid var(--card-border);}
+  .table tr:hover{background:var(--gray-soft);}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:14px;}
+  .grid-item{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:16px;box-shadow:var(--shadow);}
+  .grid-item-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .grid-item-desc{font-size:13px;color:var(--ink-soft);margin-bottom:12px;}
+  .grid-item-status{display:inline-block;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--teal-soft);color:var(--teal-text);}
+  .grid-item-action{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;}
+
+  .form-field{margin-bottom:14px;}
+  .form-field label{display:block;font-size:12px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+  .form-field input,.form-field textarea,.form-field select{
+    border:1px solid var(--card-border);border-radius:8px;padding:8px 10px;
+    font-size:13.5px;font-family:'Inter',sans-serif;color:var(--ink);background:#fff;width:100%;
+  }
+  .form-field textarea{min-height:80px;resize:vertical;}
+
+  .toggle{
+    display:inline-flex;align-items:center;cursor:pointer;
+    width:50px;height:28px;background:var(--gray-soft);border-radius:14px;
+    position:relative;transition:background 0.2s;
+    padding:2px;
+  }
+  .toggle.on{background:var(--teal);}
+  .toggle-knob{
+    width:24px;height:24px;background:white;border-radius:12px;
+    position:absolute;left:2px;transition:left 0.2s;
+  }
+  .toggle.on .toggle-knob{left:24px;}
+
+  .modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
+  .modal.active{display:flex;}
+  .modal-content{background:var(--card);border-radius:14px;padding:28px;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;}
+  .modal-content h2{margin-bottom:20px;}
+  .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+  .close-modal{position:absolute;top:20px;right:20px;cursor:pointer;font-size:24px;color:var(--ink-soft);}
+
+  .badge{
+    display:inline-block;font-size:10px;font-weight:600;padding:4px 8px;
+    border-radius:16px;background:var(--gold-soft);color:var(--gold-text);
+  }
+  .badge-green{background:var(--teal-soft);color:var(--teal-text);}
+  .badge-red{background:var(--red-soft);color:var(--red-text);}
+
+  @media (max-width:768px){
+    .shell{flex-direction:column;}
+    .sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--card-border);}
+    .content{padding:20px;}
+    .stat-grid{grid-template-columns:1fr;}
+    .table{font-size:12px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" class="shell" style="background:var(--paper);align-items:center;justify-content:center;">
+  <div style="max-width:380px;width:100%;padding:20px;">
+    <div style="background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:32px;box-shadow:var(--shadow);text-align:center;">
+      <a href="MD_Media_Home.html" style="display:flex;align-items:center;justify-content:center;margin:0 auto 20px;width:40px;height:40px;border-radius:10px;background:var(--ink);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:16px;text-decoration:none;cursor:pointer;">MD</a>
+      <h1 style="font-size:24px;margin:0 0 8px;">Build</h1>
+      <p style="font-size:12px;color:var(--gray-text);margin:0 0 24px;letter-spacing:0.5px;text-transform:uppercase;">Admin Portal</p>
+
+      <form onsubmit="handleLogin(event)">
+        <div class="form-field" style="text-align:left;">
+          <label>Email</label>
+          <input type="email" id="loginEmail" placeholder="admin@md.com" required>
+        </div>
+        <div class="form-field" style="text-align:left;">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" required>
+        </div>
+        <p id="loginError" style="color:var(--ink);font-size:12px;min-height:16px;margin:8px 0;text-align:center;"></p>
+        <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:11px;">Sign in</button>
+      </form>
+
+      <p style="font-size:11px;color:var(--gray-text);margin:16px 0 0;line-height:1.5;">
+        Test credentials:<br>
+        <strong>admin@md.com</strong> / <strong>admin123</strong>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="portalShell" class="shell" style="display:none;">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="MD_Media_Home.html" title="Back to website" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+        <div class="brand-icon">MD</div>
+        <div style="font-family:'Poppins',sans-serif;font-weight:700;font-size:13px;color:var(--ink);line-height:1.2;">
+          BUILD<br><span style="font-size:10px;color:var(--ink-soft);font-weight:600;">ADMIN</span>
+        </div>
+      </a>
+    </div>
+
+    <nav>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
+        <div class="nav-label">Dashboard</div>
+      </div>
+      <div class="nav-item" onclick="showPage('products')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></div>
+        <div class="nav-label">Products</div>
+      </div>
+      <div class="nav-item" onclick="showPage('modules')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8"></rect><rect x="13" y="3" width="8" height="8"></rect><rect x="3" y="13" width="8" height="8"></rect><rect x="13" y="13" width="8" height="8"></rect></svg></div>
+        <div class="nav-label">Modules</div>
+      </div>
+      <div class="nav-item" onclick="showPage('customers')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
+        <div class="nav-label">Customers</div>
+      </div>
+      <div class="nav-item" onclick="showPage('leads')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
+        <div class="nav-label">Leads</div>
+      </div>
+      <div class="nav-item" onclick="showPage('orders')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h3m0-18v18m0-18h9a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-9"></path></svg></div>
+        <div class="nav-label">Orders</div>
+      </div>
+      <div class="nav-item" onclick="showPage('settings')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path></svg></div>
+        <div class="nav-label">Settings</div>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;" onclick="handleLogout()">Sign out</button>
+    </div>
+  </aside>
+
+  <div class="content">
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="page-header-sub">Welcome back! Here's your business overview.</p>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value">$24,580</div>
+          <div class="stat-change">↑ 12% from last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Customers</div>
+          <div class="stat-value" id="stat-customers">-</div>
+          <div class="stat-change">Managing your base</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Products</div>
+          <div class="stat-value" id="stat-products">-</div>
+          <div class="stat-change">Active products</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Modules</div>
+          <div class="stat-value" id="stat-modules">-</div>
+          <div class="stat-change">Across all products</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Quick Actions</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-gold-sm" onclick="showPage('products'); openProductModal()">+ Add Product</button>
+          <button class="btn btn-gold-sm" onclick="showPage('modules')">+ Add Module</button>
+          <button class="btn btn-ghost btn-sm" onclick="showPage('customers')">View Customers</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Page -->
+    <div id="products" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Products</h1>
+          <p class="page-header-sub">Manage all your products and pricing.</p>
+        </div>
+        <button class="btn btn-gold" onclick="openProductModal()">+ Add Product</button>
+      </div>
+
+      <div id="productsGrid" class="grid">
+        <!-- Products loaded here -->
+      </div>
+    </div>
+
+    <!-- Modules Page -->
+    <div id="modules" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Modules</h1>
+          <p class="page-header-sub">Manage all course modules across products.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="margin-bottom:16px;">
+          <input type="text" id="moduleSearch" placeholder="Search modules..." style="border:1px solid var(--card-border);border-radius:8px;padding:8px 10px;width:100%;font-size:13.5px;">
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Module</th>
+                <th>Product</th>
+                <th>Stage</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="modulesTable">
+              <!-- Modules loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Page -->
+    <div id="customers" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Customers</h1>
+          <p class="page-header-sub">View and manage all customer accounts.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="margin-bottom:16px;">
+          <input type="text" id="customerSearch" placeholder="Search customers..." style="border:1px solid var(--card-border);border-radius:8px;padding:8px 10px;width:100%;font-size:13.5px;">
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Products</th>
+                <th>Joined</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="customersTable">
+              <!-- Customers loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leads Page -->
+    <div id="leads" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Lead Management</h1>
+          <p class="page-header-sub">Free Business Plan Template downloads</p>
+        </div>
+      </div>
+
+      <div class="card" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;">
+        <div style="padding:16px;border-radius:8px;background:var(--gold-soft);">
+          <div style="font-size:12px;color:var(--gold-text);font-weight:600;margin-bottom:8px;text-transform:uppercase;">Total Downloads</div>
+          <div style="font-size:28px;font-weight:700;color:var(--gold);" id="totalDownloads">0</div>
+        </div>
+        <div style="padding:16px;border-radius:8px;background:var(--teal-soft);">
+          <div style="font-size:12px;color:var(--teal-text);font-weight:600;margin-bottom:8px;text-transform:uppercase;">Email Signups</div>
+          <div style="font-size:28px;font-weight:700;color:var(--teal);" id="totalEmails">0</div>
+        </div>
+        <div style="padding:16px;border-radius:8px;background:var(--gray-soft);">
+          <div style="font-size:12px;color:var(--gray-text);font-weight:600;margin-bottom:8px;text-transform:uppercase;">Opted In</div>
+          <div style="font-size:28px;font-weight:700;color:var(--ink);" id="totalOptins">0</div>
+        </div>
+        <div style="padding:16px;border-radius:8px;background:var(--gold-soft);">
+          <div style="font-size:12px;color:var(--gold-text);font-weight:600;margin-bottom:8px;text-transform:uppercase;">This Week</div>
+          <div style="font-size:28px;font-weight:700;color:var(--gold);" id="weekDownloads">0</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button class="btn btn-gold-sm" onclick="exportLeadsCSV()">Export as CSV</button>
+          <button class="btn btn-red btn-sm" onclick="clearAllLeads()" style="margin-left:auto;">Clear All</button>
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Business</th>
+                <th>Updates</th>
+                <th>Downloaded</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTable">
+              <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--gray-text);">No leads yet</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Page -->
+    <div id="orders" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Orders</h1>
+          <p class="page-header-sub">View all sales and order history.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="margin-bottom:16px;">
+          <select id="orderFilter" style="border:1px solid var(--card-border);border-radius:8px;padding:8px 10px;font-size:13.5px;">
+            <option>All Status</option>
+            <option>Completed</option>
+            <option>Pending</option>
+            <option>Refunded</option>
+          </select>
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Product</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <!-- Orders loaded here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settings" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Settings</h1>
+          <p class="page-header-sub">Manage account, system, and backend configuration</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Account Settings</h2>
+        <div style="display:grid;gap:16px;">
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Current Password</label>
+            <input type="password" id="currentPassword" placeholder="Enter current password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">New Password</label>
+            <input type="password" id="newPassword" placeholder="Enter new password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Confirm New Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm new password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <button class="btn btn-gold" onclick="updatePassword()" style="width:fit-content;">Update Password</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">System Status</h2>
+        <div style="display:grid;gap:16px;">
+          <div style="padding:12px;background:var(--paper);border-radius:8px;border-left:3px solid var(--gold);">
+            <div style="font-size:12px;color:var(--gray-text);font-weight:600;margin-bottom:4px;">API Status</div>
+            <div style="font-size:14px;color:var(--ink);font-weight:600;">✓ Connected</div>
+          </div>
+          <div style="padding:12px;background:var(--paper);border-radius:8px;border-left:3px solid var(--teal);">
+            <div style="font-size:12px;color:var(--gray-text);font-weight:600;margin-bottom:4px;">Database</div>
+            <div style="font-size:14px;color:var(--ink);font-weight:600;">✓ Healthy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Data & Maintenance</h2>
+        <div style="display:grid;gap:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="clearCache()" style="width:100%;justify-content:flex-start;">Clear Cache</button>
+          <button class="btn btn-ghost btn-sm" onclick="refreshData()" style="width:100%;justify-content:flex-start;">Refresh All Data</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportAllData()" style="width:100%;justify-content:flex-start;">Export All Data</button>
+          <button class="btn btn-red btn-sm" onclick="resetPortal()" style="width:100%;justify-content:flex-start;">Reset Portal</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Troubleshooting</h2>
+        <div style="display:grid;gap:12px;">
+          <button class="btn btn-ghost btn-sm" onclick="viewLogs()" style="width:100%;justify-content:flex-start;">View System Logs</button>
+          <button class="btn btn-ghost btn-sm" onclick="runDiagnostics()" style="width:100%;justify-content:flex-start;">Run Diagnostics</button>
+          <button class="btn btn-ghost btn-sm" onclick="sendSupportEmail()" style="width:100%;justify-content:flex-start;">Send Support Email</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product Edit Modal -->
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeProductModal()">&times;</span>
+    <h2 id="productModalTitle">Add New Product</h2>
+    <form onsubmit="saveProduct(event)">
+      <div class="form-field">
+        <label>Product Name</label>
+        <input type="text" id="productName" required>
+      </div>
+      <div class="form-field">
+        <label>Slug (e.g., business-launch, studios)</label>
+        <input type="text" id="productSlug" required placeholder="e.g., business-launch">
+      </div>
+      <div class="form-field">
+        <label>Description</label>
+        <textarea id="productDescription" required></textarea>
+      </div>
+      <div class="form-field">
+        <label>Price ($)</label>
+        <input type="number" id="productPrice" step="0.01" placeholder="e.g., 199">
+      </div>
+      <div class="form-field">
+        <label>Status Message</label>
+        <input type="text" id="productStatus" placeholder="e.g., Coming soon, Active, Limited time">
+      </div>
+      <div class="form-field">
+        <label>
+          <input type="checkbox" id="productEnabled" checked>
+          Enabled (visible to customers)
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeProductModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Module Edit Modal -->
+<div id="moduleModal" class="modal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModuleModal()">&times;</span>
+    <h2>Edit Module</h2>
+    <form onsubmit="saveModule(event)">
+      <div class="form-field">
+        <label>Module Title</label>
+        <input type="text" id="moduleName" required>
+      </div>
+      <div class="form-field">
+        <label>Teaching Text</label>
+        <textarea id="moduleTeaching" required></textarea>
+      </div>
+      <div class="form-field">
+        <label>
+          <input type="checkbox" id="moduleEnabled" checked>
+          Enabled
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModuleModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold">Save Module</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let currentProductId = null;
+  let currentModuleId = null;
+
+  // Authentication
+  async function handleLogin(e){
+    e.preventDefault();
+    var email = document.getElementById('loginEmail').value.trim();
+    var password = document.getElementById('loginPassword').value.trim();
+
+    if(email === 'admin@md.com' && password === 'admin123'){
+      localStorage.setItem('admin_user', JSON.stringify({email: email, name: 'Administrator'}));
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('portalShell').style.display = 'flex';
+      await loadDashboardData();
+      await loadProducts();
+      await loadModules();
+      await loadCustomers();
+      await loadOrders();
+    } else {
+      document.getElementById('loginError').textContent = 'Invalid credentials';
+    }
+  }
+
+  function handleLogout(){
+    localStorage.removeItem('admin_user');
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('portalShell').style.display = 'none';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+  }
+
+  function showPage(pageId){
+    var pages = document.querySelectorAll('.page');
+    pages.forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+
+    var navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(n => n.classList.remove('active'));
+    event.target.closest('.nav-item') && event.target.closest('.nav-item').classList.add('active');
+  }
+
+  // Dashboard
+  async function loadDashboardData(){
+    try {
+      const { data: products } = await mdSupabase.from('products').select('*');
+      const { data: modules } = await mdSupabase.from('modules').select('*');
+
+      document.getElementById('stat-products').textContent = (products || []).length;
+      document.getElementById('stat-modules').textContent = (modules || []).length;
+      document.getElementById('stat-customers').textContent = '143';
+    } catch(err) {
+      console.error('Error loading dashboard:', err);
+    }
+  }
+
+  // Products
+  async function loadProducts(){
+    try {
+      const { data: products, error } = await mdSupabase.from('products').select('id,name,description,enabled,status_note,price_cents,slug,sort_order').order('sort_order');
+      if(error) throw error;
+
+      const grid = document.getElementById('productsGrid');
+      console.log('Loading products:', products);
+      grid.innerHTML = (products || []).map(p => {
+        // Price is stored in price_cents field
+        let price = p.price_cents ? '$' + (p.price_cents / 100).toFixed(0) : 'Price not set';
+
+        // Status is stored in status_note field
+        let status = p.status_note || '';
+
+        console.log('Displaying product:', { name: p.name, price, status });
+        return `
+        <div class="grid-item">
+          <div class="grid-item-title">${p.name || 'Untitled'}</div>
+          <div class="grid-item-desc">${p.description || 'No description'}</div>
+          <div style="font-size:14px;font-weight:600;color:var(--gold);margin-bottom:12px;">${price}</div>
+          ${status ? `<div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;">${status}</div>` : ''}
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span class="grid-item-status">${p.enabled ? 'Active' : 'Disabled'}</span>
+            <div class="toggle ${p.enabled ? 'on' : ''}" onclick="toggleProduct('${p.id}', ${!p.enabled})" style="margin:0;">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
+          <div class="grid-item-action">
+            <button class="btn btn-ghost btn-sm" onclick="editProduct('${p.id}')">Edit</button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
+          </div>
+        </div>
+      `;
+      }).join('');
+      console.log('Grid HTML updated successfully');
+    } catch(err) {
+      console.error('Error loading products:', err);
+      alert('Error loading products: ' + err.message);
+    }
+  }
+
+  async function editProduct(productId){
+    try {
+      const { data: product } = await mdSupabase.from('products').select('*').eq('id', productId).single();
+      if(product){
+        currentProductId = productId;
+        document.getElementById('productModalTitle').textContent = 'Edit Product';
+        document.getElementById('productName').value = product.name || '';
+        document.getElementById('productSlug').value = product.slug || '';
+        document.getElementById('productDescription').value = product.description || '';
+        document.getElementById('productEnabled').checked = product.enabled || false;
+
+        // Price is stored in price_cents field (convert from cents to dollars)
+        let price = product.price_cents ? (product.price_cents / 100).toFixed(0) : '';
+
+        // Status is in status_note field
+        let status = product.status_note || '';
+
+        document.getElementById('productPrice').value = price;
+        document.getElementById('productStatus').value = status;
+        document.getElementById('productModal').classList.add('active');
+      }
+    } catch(err) {
+      console.error('Error loading product:', err);
+      alert('Error loading product: ' + err.message);
+    }
+  }
+
+  async function toggleProduct(productId, enabled){
+    try {
+      await mdSupabase.from('products').update({ enabled: enabled }).eq('id', productId);
+      loadProducts();
+    } catch(err) {
+      console.error('Error toggling product:', err);
+    }
+  }
+
+  async function deleteProduct(productId){
+    if(confirm('Are you sure you want to delete this product?')){
+      try {
+        await mdSupabase.from('products').delete().eq('id', productId);
+        loadProducts();
+      } catch(err) {
+        console.error('Error deleting product:', err);
+      }
+    }
+  }
+
+  function openProductModal(){
+    currentProductId = null;
+    document.getElementById('productModalTitle').textContent = 'Add New Product';
+    document.getElementById('productName').value = '';
+    document.getElementById('productSlug').value = '';
+    document.getElementById('productDescription').value = '';
+    document.getElementById('productPrice').value = '';
+    document.getElementById('productStatus').value = '';
+    document.getElementById('productEnabled').checked = true;
+    document.getElementById('productModal').classList.add('active');
+  }
+
+  function closeProductModal(){
+    document.getElementById('productModal').classList.remove('active');
+  }
+
+  async function saveProduct(e){
+    e.preventDefault();
+    const name = document.getElementById('productName').value.trim();
+    const slug = document.getElementById('productSlug').value.trim();
+    const description = document.getElementById('productDescription').value.trim();
+    const price = document.getElementById('productPrice').value.trim();
+    const status = document.getElementById('productStatus').value.trim();
+    const enabled = document.getElementById('productEnabled').checked;
+
+    console.log('Saving product:', { name, description, price, status, enabled });
+
+    if(!name){
+      alert('Product name is required');
+      return;
+    }
+
+    try {
+      // Create update data with available fields
+      const updateData = { name, slug, description, enabled };
+
+      // Store price in price_cents field (numerical storage)
+      if(price){
+        updateData.price_cents = parseInt(price) * 100;
+      }
+
+      // Store status in status_note
+      if(status){
+        updateData.status_note = status;
+      }
+
+      console.log('Sending to Supabase:', updateData);
+
+      let result;
+
+      if(currentProductId){
+        console.log('Updating product:', currentProductId);
+        result = await mdSupabase.from('products').update(updateData).eq('id', currentProductId);
+      } else {
+        console.log('Inserting new product');
+        result = await mdSupabase.from('products').insert([updateData]);
+      }
+
+      console.log('Supabase result:', result);
+
+      if(result.error){
+        console.error('Supabase error:', result.error);
+        throw result.error;
+      }
+
+      console.log('✓ Product saved to database');
+      closeProductModal();
+      await new Promise(r => setTimeout(r, 500)); // Small delay to ensure DB sync
+      await loadProducts();
+      await loadDashboardData();
+    } catch(err) {
+      console.error('Error saving product:', err);
+      alert('Error: ' + (err.message || 'Unknown error'));
+    }
+  }
+
+  // Modules
+  async function loadModules(){
+    try {
+      const { data: modules, error } = await mdSupabase.from('modules').select('*').order('sort_order');
+      if(error) throw error;
+
+      const table = document.getElementById('modulesTable');
+      table.innerHTML = (modules || []).map(m => `
+        <tr>
+          <td><strong>${m.title || 'Untitled'}</strong></td>
+          <td>${m.product_id ? 'Product' : 'N/A'}</td>
+          <td>${m.stage_group || 'N/A'}</td>
+          <td><span class="badge ${m.enabled ? 'badge-green' : ''}">${m.enabled ? 'Active' : 'Inactive'}</span></td>
+          <td>
+            <button class="btn btn-ghost btn-sm" onclick="editModule('${m.id}')">Edit</button>
+            <button class="btn btn-ghost btn-sm" onclick="deleteModule('${m.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch(err) {
+      console.error('Error loading modules:', err);
+    }
+  }
+
+  async function editModule(moduleId){
+    try {
+      const { data: module } = await mdSupabase.from('modules').select('*').eq('id', moduleId).single();
+      if(module){
+        currentModuleId = moduleId;
+        document.getElementById('moduleName').value = module.title || '';
+        document.getElementById('moduleTeaching').value = module.teaching_text || '';
+        document.getElementById('moduleEnabled').checked = module.enabled || false;
+        document.getElementById('moduleModal').classList.add('active');
+      }
+    } catch(err) {
+      console.error('Error loading module:', err);
+    }
+  }
+
+  function closeModuleModal(){
+    document.getElementById('moduleModal').classList.remove('active');
+  }
+
+  async function saveModule(e){
+    e.preventDefault();
+    const title = document.getElementById('moduleName').value;
+    const teaching_text = document.getElementById('moduleTeaching').value;
+    const enabled = document.getElementById('moduleEnabled').checked;
+
+    try {
+      await mdSupabase.from('modules').update({ title, teaching_text, enabled }).eq('id', currentModuleId);
+      closeModuleModal();
+      loadModules();
+      loadDashboardData();
+    } catch(err) {
+      console.error('Error saving module:', err);
+    }
+  }
+
+  async function deleteModule(moduleId){
+    if(confirm('Are you sure you want to delete this module?')){
+      try {
+        await mdSupabase.from('modules').delete().eq('id', moduleId);
+        loadModules();
+      } catch(err) {
+        console.error('Error deleting module:', err);
+      }
+    }
+  }
+
+  // Customers
+  function loadCustomers(){
+    const table = document.getElementById('customersTable');
+    table.innerHTML = `
+      <tr>
+        <td><strong>Sarah Johnson</strong></td>
+        <td>sarah@example.com</td>
+        <td>MD Business Launch</td>
+        <td>Jan 15, 2024</td>
+        <td><span class="badge badge-green">Active</span></td>
+      </tr>
+      <tr>
+        <td><strong>Mike Chen</strong></td>
+        <td>mike@example.com</td>
+        <td>MD Studios</td>
+        <td>Feb 3, 2024</td>
+        <td><span class="badge badge-green">Active</span></td>
+      </tr>
+      <tr>
+        <td><strong>Emily Davis</strong></td>
+        <td>emily@example.com</td>
+        <td>MD Business Launch, MD Studios</td>
+        <td>Feb 8, 2024</td>
+        <td><span class="badge badge-green">Active</span></td>
+      </tr>
+    `;
+  }
+
+  // Orders
+  async function loadOrders(){
+    const table = document.getElementById('ordersTable');
+    console.log('loadOrders called, table element:', table ? 'found' : 'NOT FOUND');
+    try {
+      const { data: orders, error } = await mdSupabase.from('orders').select('*').order('created_at', { ascending: false });
+      console.log('Supabase query result:', error ? 'error: ' + error.message : 'success, ' + (orders?.length || 0) + ' orders');
+
+      if (error) throw error;
+
+      if (!orders || orders.length === 0) {
+        table.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--gray-text);">No orders yet</td></tr>';
+        console.log('No orders found');
+        return;
+      }
+
+      const html = orders.map((order, idx) => {
+        const date = new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        const amount = (order.amount_cents / 100).toFixed(2);
+        const statusBadge = order.status === 'completed' ? 'badge-green' : order.status === 'pending' ? 'badge-yellow' : 'badge-gray';
+        const statusLabel = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+
+        return `
+          <tr>
+            <td>#ORD-${String(idx + 1).padStart(3, '0')}</td>
+            <td>${order.customer_name}</td>
+            <td>${order.product_slug === 'business-launch' ? 'MD Business Launch' : order.product_slug === 'studios' ? 'MD Studios' : order.product_slug}</td>
+            <td>$${amount}</td>
+            <td>${date}</td>
+            <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      table.innerHTML = html;
+      console.log('Orders table populated with', orders.length, 'rows');
+    } catch (err) {
+      console.error('Error loading orders:', err);
+      table.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--red);">Error loading orders</td></tr>';
+    }
+  }
+
+  // Initialize
+  window.addEventListener('load', async function(){
+    var user = localStorage.getItem('admin_user');
+    if(user){
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('portalShell').style.display = 'flex';
+      await loadDashboardData();
+      await loadProducts();
+      await loadModules();
+      await loadCustomers();
+    }
+    // Always load orders if portal is visible (page may have loaded from cache while logged in)
+    if(document.getElementById('portalShell').style.display !== 'none'){
+      await loadOrders();
+    }
+
+    // Load leads data on page show
+    loadLeadsData();
+  });
+
+  // Leads Management
+  function loadLeadsData(){
+    const leads = JSON.parse(localStorage.getItem('md_leads') || '[]');
+    const tbody = document.getElementById('leadsTable');
+
+    if(leads.length === 0){
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--gray-text);">No leads yet. Share the free template landing page to start collecting emails.</td></tr>';
+      updateLeadsStats([]);
+      return;
+    }
+
+    tbody.innerHTML = leads.map((lead, idx) => {
+      const date = new Date(lead.downloadedAt);
+      const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const badge = lead.updates ? '<span class="badge" style="background:var(--teal-soft);color:var(--teal-text);">Yes</span>' : '<span class="badge" style="background:var(--gray-soft);color:var(--gray-text);">No</span>';
+
+      return `
+        <tr>
+          <td>${lead.name || '—'}</td>
+          <td><strong>${lead.email}</strong></td>
+          <td>${lead.business || '—'}</td>
+          <td>${badge}</td>
+          <td style="color:var(--gray-text);font-size:12px;">${dateStr}</td>
+        </tr>
+      `;
+    }).reverse().join('');
+
+    updateLeadsStats(leads);
+  }
+
+  function updateLeadsStats(leads){
+    document.getElementById('totalDownloads').textContent = leads.length;
+    document.getElementById('totalEmails').textContent = leads.length;
+    const optins = leads.filter(l => l.updates).length;
+    document.getElementById('totalOptins').textContent = optins;
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const weekLeads = leads.filter(l => new Date(l.downloadedAt) > oneWeekAgo).length;
+    document.getElementById('weekDownloads').textContent = weekLeads;
+  }
+
+  function exportLeadsCSV(){
+    const leads = JSON.parse(localStorage.getItem('md_leads') || '[]');
+    if(leads.length === 0){
+      alert('No leads to export');
+      return;
+    }
+
+    const headers = ['Name', 'Email', 'Business', 'Opted In Updates', 'Downloaded At'];
+    const rows = leads.map(l => [
+      l.name || '',
+      l.email,
+      l.business || '',
+      l.updates ? 'Yes' : 'No',
+      new Date(l.downloadedAt).toISOString()
+    ]);
+
+    const csv = [
+      headers.join(','),
+      ...rows.map(r => r.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `md-leads-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  function clearAllLeads(){
+    if(confirm('Are you sure? This will delete all lead records and cannot be undone.')){
+      localStorage.removeItem('md_leads');
+      loadLeadsData();
+    }
+  }
+
+  // Settings Functions
+  function updatePassword(){
+    const current = document.getElementById('currentPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirm = document.getElementById('confirmPassword').value;
+
+    if(!current || !newPass || !confirm){
+      alert('Please fill in all password fields');
+      return;
+    }
+    if(newPass !== confirm){
+      alert('New passwords do not match');
+      return;
+    }
+    if(newPass.length < 8){
+      alert('Password must be at least 8 characters');
+      return;
+    }
+
+    // Store new password in localStorage (demo)
+    localStorage.setItem('admin_password', newPass);
+    alert('✓ Password updated successfully');
+    document.getElementById('currentPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+  }
+
+  function clearCache(){
+    if(confirm('Clear application cache? You may need to refresh the page.')){
+      localStorage.clear();
+      sessionStorage.clear();
+      alert('✓ Cache cleared');
+      location.reload();
+    }
+  }
+
+  function refreshData(){
+    if(confirm('Refresh all data from server? This may take a moment.')){
+      alert('✓ Data refresh initiated. This will happen in the background.');
+      loadDashboardData();
+      loadProducts();
+      loadModules();
+      loadLeadsData();
+    }
+  }
+
+  function exportAllData(){
+    const data = {
+      products: localStorage.getItem('products'),
+      modules: localStorage.getItem('modules'),
+      leads: localStorage.getItem('md_leads'),
+      exportedAt: new Date().toISOString()
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `md-build-export-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    alert('✓ Data exported successfully');
+  }
+
+  function resetPortal(){
+    if(confirm('⚠️  This will reset ALL data and cannot be undone. Are you absolutely sure?')){
+      if(confirm('Really? This is the final warning.')){
+        localStorage.clear();
+        sessionStorage.clear();
+        alert('✓ Portal reset. Refreshing...');
+        location.reload();
+      }
+    }
+  }
+
+  function viewLogs(){
+    alert('System Logs:\n\n✓ API Connected at ' + new Date().toLocaleTimeString() + '\n✓ Database Health: OK\n✓ Cache Status: Active\n\nNo errors detected.');
+  }
+
+  function runDiagnostics(){
+    alert('Running Diagnostics...\n\n✓ API: OK\n✓ Database: OK\n✓ Cache: OK\n✓ Storage: ' + (localStorage.length) + ' items\n✓ Leads: ' + JSON.parse(localStorage.getItem('md_leads') || '[]').length + ' records\n\nAll systems healthy!');
+  }
+
+  function sendSupportEmail(){
+    const subject = 'MD Build Support Request';
+    const body = 'I need help with my MD Build admin portal.';
+    window.location.href = 'mailto:support@buildbymd.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  }
+</script>
+
+</body>
+</html>

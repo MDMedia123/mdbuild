@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MD Studios</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="md_media_config.js"></script>
+<!--
+  MD STUDIOS
+  How this works:
+  - The sidebar lists all modules, grouped by stage. Click any of them to
+    jump straight there. "Continue" buttons move you through them in order.
+  - Click "Edit content" (bottom of sidebar) to unlock the text on this page.
+    Click any unlocked text to change it, then click "Edit content" again to
+    lock it back down.
+  - "Download PDF" opens your browser's print dialog with every module set
+    to print as its own landscape page, in order. Choose "Save as PDF".
+  - Everything here is plain HTML/CSS/JS in one file — open it in any
+    browser, or host it, and it works with no build step.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#212B42;
+    --ink-soft:#5B6478;
+    --paper:#F7F5F0;
+    --card:#FFFFFF;
+    --card-border:#EAE6DA;
+    --gold:#C1893D;
+    --gold-soft:#F5E8D3;
+    --gold-text:#8A5A1E;
+    --teal:#2F8577;
+    --teal-soft:#DFEEEA;
+    --teal-text:#1F5C51;
+    --gray-soft:#EFEDE4;
+    --gray-text:#6E6D62;
+    --shadow:0 8px 24px rgba(33,43,66,0.06);
+  }
+  *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;}
+  body{margin:0;font-family:'Inter',system-ui,sans-serif;color:var(--ink);background:var(--paper);}
+  h1,h2,h3{font-family:'Poppins',system-ui,sans-serif;margin:0;}
+  .icon{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;}
+  .btn{
+    font-family:'Inter',sans-serif;font-size:13px;font-weight:600;
+    border-radius:10px;padding:9px 16px;cursor:pointer;border:1px solid transparent;
+    display:inline-flex;align-items:center;gap:6px;
+  }
+  .btn-ghost{background:transparent;border-color:var(--card-border);color:var(--ink);}
+  .btn-ghost:hover{background:var(--gray-soft);}
+  .btn-ghost.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .btn-gold{background:var(--gold);color:#fff;}
+  .btn-gold:hover{background:#AD7833;}
+  .card{
+    background:var(--card);border:1px solid var(--card-border);border-radius:16px;
+    box-shadow:var(--shadow);padding:22px 24px;margin-bottom:20px;
+  }
+  .card h3{font-size:15px;font-weight:600;margin-bottom:16px;}
+
+  /* app shell */
+  .app-shell{display:flex;align-items:flex-start;}
+  .sidebar{
+    width:250px;flex-shrink:0;background:#fff;border-right:1px solid var(--card-border);
+    padding:22px 14px;display:flex;flex-direction:column;gap:6px;
+    position:sticky;top:0;height:100vh;overflow-y:auto;
+  }
+  .sidebar-brand{padding:2px 6px 16px;border-bottom:1px solid var(--card-border);margin-bottom:8px;}
+  .platform-mark{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+  .platform-icon{
+    width:18px;height:18px;border-radius:5px;background:var(--ink);color:#fff;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:8.5px;letter-spacing:0.3px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .platform-name{font-size:11px;font-weight:600;color:var(--gray-text);letter-spacing:0.2px;}
+  .product-title{font-size:19px;font-weight:600;line-height:1.2;margin-bottom:12px;}
+  .workspace-row{display:flex;align-items:center;gap:10px;}
+  .workspace-name{font-size:12.5px;color:var(--ink-soft);font-weight:500;}
+  .logo-slot{
+    width:32px;height:32px;border-radius:9px;border:1.5px dashed var(--card-border);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;
+    background:var(--card);color:var(--gray-text);overflow:hidden;
+  }
+  .logo-slot:hover{border-color:var(--gold);color:var(--gold-text);}
+  .logo-slot img{width:100%;height:100%;object-fit:cover;display:block;}
+  .sidebar-nav{display:flex;flex-direction:column;overflow-y:auto;flex:1;}
+  .nav-group-title{
+    width:100%;display:flex;align-items:center;justify-content:space-between;
+    font-size:10.5px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--gray-text);
+    margin:14px 0 6px;padding:4px 8px;background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .nav-group-title:hover{color:var(--ink);}
+  .nav-group-title .chevron{width:13px;height:13px;stroke-width:2.5;flex-shrink:0;transition:transform .15s ease;}
+  .nav-group.collapsed .nav-group-title .chevron{transform:rotate(-90deg);}
+  .nav-group.collapsed .nav-group-items{display:none;}
+  .nav-item{
+    display:flex;align-items:center;gap:8px;padding:8px 8px;border-radius:8px;
+    font-size:12.8px;color:var(--ink-soft);cursor:pointer;text-decoration:none;
+  }
+  .nav-item:hover{background:var(--gray-soft);}
+  .nav-item.active{background:var(--gold-soft);color:var(--gold-text);font-weight:600;}
+  .nav-item.home{font-weight:600;color:var(--ink);margin-bottom:4px;font-size:13.5px;}
+  .nav-item.disabled{opacity:0.5;}
+  .nav-item.disabled .nav-label{text-decoration:line-through;}
+  .nav-icon{width:16px;height:16px;flex-shrink:0;display:flex;}
+  .nav-icon .icon{width:16px;height:16px;}
+  .nav-label{flex:1;}
+  .nav-dot{width:6px;height:6px;border-radius:50%;background:var(--gray-soft);flex-shrink:0;}
+  .nav-dot.done{background:var(--teal);}
+  .nav-toggle{
+    width:24px;height:14px;border-radius:8px;background:var(--gray-soft);
+    position:relative;flex-shrink:0;cursor:pointer;border:none;padding:0;
+  }
+  .nav-toggle::after{
+    content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;
+    border-radius:50%;background:#fff;transition:left .15s ease;
+  }
+  .nav-toggle.on{background:var(--teal);}
+  .nav-toggle.on::after{left:12px;}
+  .sidebar-footer{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--card-border);padding-top:14px;margin-top:10px;}
+  .sidebar-footer .btn{width:100%;justify-content:center;}
+
+  .content{flex:1;min-width:0;padding:36px 44px;max-width:980px;}
+  .page-section{display:none;}
+  .page-section.active{display:block;}
+
+  /* paywall */
+  #paywall{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;}
+  .paywall-card{max-width:420px;width:100%;background:var(--card);border:1px solid var(--card-border);border-radius:20px;box-shadow:var(--shadow);padding:40px 36px;text-align:center;}
+  .paywall-title{font-size:26px;font-weight:600;margin:20px 0 10px;}
+  .paywall-pitch{font-size:14px;color:var(--ink-soft);line-height:1.6;margin:0 0 24px;}
+  .paywall-price{font-size:34px;font-weight:600;color:var(--ink);margin-bottom:22px;}
+  .paywall-price span{font-size:13px;font-weight:500;color:var(--ink-soft);}
+  .paywall-buy{width:100%;justify-content:center;font-size:14px;padding:12px 16px;text-decoration:none;}
+  .paywall-divider{font-size:12px;color:var(--gray-text);margin:26px 0 12px;}
+  .paywall-license-row{display:flex;gap:8px;}
+  .paywall-license-row .num-input{flex:1;}
+  .paywall-error{font-size:12px;color:#A32D2D;min-height:16px;margin:10px 0 0;}
+  .paywall-dev{font-size:10.5px;color:var(--gray-soft);cursor:pointer;margin:18px 0 0;letter-spacing:0.5px;}
+  .paywall-dev:hover{color:var(--gray-text);}
+  @media print{ #paywall{display:none !important;} }
+
+  /* cover page - shared */
+  .cover-page{max-width:760px;margin:4vh auto 0;}
+  .cover-brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:48px;}
+  .cover-brand .platform-name{font-size:12px;font-weight:600;color:var(--gray-text);letter-spacing:0.2px;}
+  .cover-title{font-size:38px;font-weight:600;text-align:center;margin-bottom:8px;}
+  .cover-sub{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-text);text-align:center;margin:0 0 28px;}
+  .cover-vision{font-size:15px;font-style:italic;color:var(--ink-soft);text-align:center;max-width:520px;margin:0 auto 40px;line-height:1.6;}
+  .cover-toc{border-top:1px solid var(--card-border);border-bottom:1px solid var(--card-border);padding:28px 0;margin-bottom:32px;}
+  .cover-toc h3{text-align:center;margin-bottom:22px;}
+  .cover-toc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+  .toc-group-title{font-size:10.5px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
+  .toc-item{font-size:12.5px;color:var(--ink-soft);padding:3px 0;}
+  .cover-footer{text-align:center;font-size:13px;color:var(--ink-soft);font-weight:500;}
+  .logo-slot-cover{width:56px;height:56px;border-radius:16px;margin:0 auto 18px;cursor:default;}
+  .logo-slot-cover .icon{width:22px;height:22px;}
+
+  /* cover option A: bold poster */
+  .cover-a{background:var(--ink);color:#fff;border-radius:20px;padding:56px 48px 48px;}
+  .cover-a .platform-name{color:#C9CCD8;}
+  .cover-a .logo-slot-cover{border-color:rgba(255,255,255,0.35);color:#C9CCD8;background:rgba(255,255,255,0.08);}
+  .cover-a .cover-title{color:#fff;font-size:44px;}
+  .cover-a .cover-sub{color:var(--gold);}
+  .cover-a .cover-vision{color:#C9CCD8;}
+  .cover-a .cover-toc{background:#fff;border-radius:16px;padding:32px;border:none;color:var(--ink);}
+  .cover-a .cover-toc h3{color:var(--ink);}
+  .cover-a .cover-footer{color:var(--gold);}
+
+  /* cover option B: split panel */
+  .cover-b{display:flex;min-height:64vh;border-radius:20px;overflow:hidden;border:1px solid var(--card-border);max-width:900px;margin:2vh auto 0;}
+  .cover-b-left{background:var(--ink);color:#fff;flex:0 0 38%;padding:48px 36px;display:flex;flex-direction:column;justify-content:center;}
+  .cover-b-left .platform-mark{justify-content:flex-start;margin-bottom:36px;}
+  .cover-b-left .platform-name{color:#C9CCD8;}
+  .cover-b-left .logo-slot-cover{margin:0 0 18px;border-color:rgba(255,255,255,0.35);color:#C9CCD8;background:rgba(255,255,255,0.08);}
+  .cover-b-left h1{color:#fff;font-size:30px;text-align:left;margin-bottom:10px;}
+  .cover-b-left .cover-sub{color:var(--gold);text-align:left;margin:0 0 22px;}
+  .cover-b-left p.cover-vision{color:#C9CCD8;text-align:left;margin:0 0 32px;font-size:14px;max-width:none;}
+  .cover-b-left .cover-footer{color:var(--gold);text-align:left;font-size:12.5px;}
+  .cover-b-right{flex:1;background:#fff;padding:48px 40px;}
+  .cover-b-right h3{margin-bottom:24px;}
+  .cover-b-toc-grid{display:grid;grid-template-columns:1fr;gap:22px;}
+
+  /* hero (dashboard) */
+  .hero{
+    background:var(--ink);color:#fff;border-radius:18px;
+    padding:28px 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;
+    margin-bottom:20px;
+  }
+  .hero-left{max-width:640px;}
+  .hero-pill{
+    display:inline-block;font-size:12px;font-weight:600;color:var(--gold);
+    background:rgba(193,137,61,0.18);padding:4px 10px;border-radius:20px;margin-bottom:12px;
+  }
+  .hero h2{font-size:24px;font-weight:600;margin-bottom:8px;}
+  .hero p{font-size:14px;line-height:1.6;color:#C9CCD8;margin:0;}
+  .hero-right{flex-shrink:0;display:flex;align-items:center;gap:20px;}
+  .hero-icon{
+    width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.08);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hero-icon .icon{width:26px;height:26px;stroke:var(--gold);}
+
+  .row{display:flex;gap:20px;align-items:stretch;}
+  .row .card{margin-bottom:0;}
+
+  /* progress card */
+  .progress-panel{flex:1 1 62%;}
+  .progress-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .progress-head h3{margin:0;}
+  .progress-head span{font-size:13px;color:var(--ink-soft);}
+  .bar-track{background:var(--gray-soft);height:8px;border-radius:4px;overflow:hidden;}
+  .bar-fill{background:var(--gold);height:100%;width:0%;transition:width .2s ease;}
+  .quick-jump-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+  .chip{
+    position:relative;overflow:hidden;font-size:12.5px;font-weight:600;padding:7px 14px;
+    border-radius:20px;border:1px solid var(--card-border);color:var(--ink-soft);cursor:pointer;
+  }
+  .chip:hover{border-color:var(--gold);}
+  .chip-pct{margin-left:5px;font-weight:700;font-size:11px;opacity:0.75;}
+  .chip.complete{border-color:var(--gold);color:#fff;}
+  .chip.complete .chip-pct{display:none;}
+
+  /* per-stage-group breakdown chart, filling the space below the chips */
+  .group-chart{display:flex;align-items:flex-end;gap:14px;height:110px;margin-top:26px;padding-top:6px;}
+  .group-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+  .group-bar-track{width:100%;max-width:28px;flex:1;background:var(--gray-soft);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden;}
+  .group-bar-fill{width:100%;background:var(--gold);border-radius:6px;transition:height .25s ease;}
+  .group-bar-pct{font-size:10.5px;font-weight:700;color:var(--ink-soft);margin:6px 0 3px;}
+  .group-bar-label{font-size:10px;color:var(--gray-text);text-align:center;line-height:1.2;}
+
+  /* focus card */
+  .focus{flex:1 1 38%;display:flex;flex-direction:column;align-items:flex-start;position:relative;overflow:hidden;}
+  .focus-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .focus-icon{width:36px;height:36px;border-radius:50%;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .focus-icon .icon{width:18px;height:18px;stroke:var(--gold-text);}
+  .focus-title{font-size:17px;font-weight:600;margin:0 0 6px;}
+  .focus-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.55;margin:0 0 18px;}
+  .focus-bottom{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:auto;}
+  .ring{width:56px;height:56px;}
+  .ring text{font-family:'Poppins',sans-serif;font-size:15px;font-weight:600;fill:var(--ink);}
+
+  /* bottom row */
+  .card ul{margin:0;padding:0;list-style:none;}
+  .card li{display:flex;align-items:center;gap:10px;font-size:13.5px;padding:6px 0;color:var(--ink-soft);}
+  .li-icon{width:22px;height:22px;border-radius:50%;background:var(--teal-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .li-icon .icon{width:12px;height:12px;stroke:var(--teal-text);}
+  .link-icon{width:22px;height:22px;border-radius:50%;background:var(--gray-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .link-icon .icon{width:11px;height:11px;stroke:var(--gray-text);}
+  .quote-card{display:flex;flex-direction:column;justify-content:center;}
+  .quote-card p{font-family:'Poppins',serif;font-style:italic;font-size:15px;line-height:1.5;color:var(--ink);margin:0;}
+  .quote-card span{font-size:12px;color:var(--ink-soft);margin-top:10px;display:block;}
+
+  /* stage pages */
+  .letterhead{display:flex;align-items:center;gap:9px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--card-border);}
+  .letterhead .logo-slot{width:24px;height:24px;border-radius:7px;cursor:default;}
+  .letterhead .logo-slot .icon{width:12px;height:12px;}
+  .letterhead-name{font-size:13px;font-weight:600;color:var(--ink);}
+  .letterhead-divider{color:var(--card-border);font-size:12px;}
+  .letterhead-doc{font-size:11.5px;color:var(--gray-text);letter-spacing:0.2px;}
+  .stage-kicker{font-size:12px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
+  .stage-title{font-size:26px;font-weight:600;margin:0 0 10px;}
+  .stage-teach{font-size:14.5px;color:var(--ink-soft);line-height:1.6;max-width:720px;margin:0 0 22px;}
+  .stage-help-hint{
+    display:flex;gap:10px;align-items:flex-start;background:var(--teal-soft);color:var(--teal-text);
+    border-radius:12px;padding:12px 16px;font-size:12.5px;line-height:1.55;margin-bottom:20px;max-width:720px;
+  }
+  .stage-help-hint .icon{width:15px;height:15px;flex-shrink:0;margin-top:1px;}
+  .focus-checklist{list-style:none;margin:0;padding:0;}
+  .focus-item{padding:16px 0;border-bottom:1px solid var(--gray-soft);}
+  .focus-item:first-child{padding-top:0;}
+  .focus-item:last-child{border-bottom:none;padding-bottom:0;}
+  .focus-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px;}
+  .focus-item-check-label{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;color:var(--ink);cursor:pointer;flex:1;min-width:0;}
+  .focus-item-check-label input[type="checkbox"]{margin-top:3px;width:15px;height:15px;accent-color:var(--gold);flex-shrink:0;}
+  .focus-item-prompt{font-weight:600;}
+  .focus-info-btn{
+    width:20px;height:20px;border-radius:50%;border:1px solid var(--card-border);background:var(--gray-soft);
+    color:var(--gray-text);cursor:pointer;display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;padding:0;margin-top:1px;
+  }
+  .focus-info-btn:hover{background:var(--gold-soft);color:var(--gold-text);border-color:var(--gold);}
+  .focus-info-btn.active{background:var(--gold);color:#fff;border-color:var(--gold);}
+  .focus-info-btn .icon{width:11px;height:11px;stroke-width:2.5;}
+  .focus-item-guidance{display:none;font-size:13px;color:var(--ink-soft);line-height:1.6;margin:0 0 10px 25px;max-width:640px;}
+  .focus-item-guidance.show{display:block;}
+  .focus-item-answer{
+    display:block;margin-left:25px;width:calc(100% - 25px);min-height:74px;
+    border:1px solid var(--card-border);border-radius:10px;padding:10px 12px;
+    font-size:13.5px;font-family:'Inter',sans-serif;color:var(--ink);line-height:1.5;
+    resize:vertical;background:#fff;
+  }
+  .focus-item-answer:focus{outline:none;border-color:var(--gold);}
+  .stage-card-hint{font-size:12.5px;color:var(--gray-text);line-height:1.5;margin:-6px 0 12px;}
+  .notes-area{
+    display:block;width:100%;min-height:80px;border:1px solid var(--card-border);border-radius:10px;padding:12px 14px;
+    font-size:13.5px;color:var(--ink);line-height:1.5;font-family:'Inter',sans-serif;resize:vertical;background:#fff;
+  }
+  .notes-area:focus{outline:none;border-color:var(--gold);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:6px;}
+  .num-input{
+    border:1px solid var(--card-border);border-radius:10px;padding:9px 12px;font-size:14px;
+    font-family:'Inter',sans-serif;color:var(--ink);background:#fff;width:100%;
+  }
+  .num-input.small{width:90px;}
+  .calc-row{display:flex;gap:16px;flex-wrap:wrap;}
+  .calc-result{background:var(--teal-soft);color:var(--teal-text);border-radius:12px;padding:14px 18px;font-size:14px;font-weight:600;margin-top:6px;}
+  .resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:20px;}
+  .resource-list li{padding:5px 0;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;}
+  .kpi-card{background:var(--paper);border-radius:12px;padding:14px 16px;}
+  .kpi-label{font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:8px;}
+  .kpi-inputs{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+  .kpi-slash{color:var(--gray-text);}
+  .kpi-pct{font-size:12px;color:var(--gold-text);font-weight:600;margin-top:6px;}
+  .stage-nav{display:flex;justify-content:space-between;margin-top:8px;}
+
+  /* editable affordance */
+  body.edit-mode [contenteditable="true"]{
+    outline:1.5px dashed var(--gold);outline-offset:3px;border-radius:4px;cursor:text;
+  }
+  body.edit-mode [contenteditable="true"]:focus{outline-style:solid;background:rgba(193,137,61,0.06);}
+
+  /* footer credit mark */
+  .footer{margin-top:8px;padding-top:14px;border-top:1px solid var(--card-border);display:flex;justify-content:flex-end;}
+  .footer-mark{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--gray-text);letter-spacing:0.2px;}
+  .footer-mark-icon{
+    width:18px;height:18px;border-radius:5px;background:var(--ink);color:#fff;
+    font-family:'Poppins',sans-serif;font-weight:600;font-size:8.5px;letter-spacing:0.3px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+
+  .no-print{ }
+
+  /* completion screen */
+  .complete-hero{background:var(--ink);color:#fff;border-radius:18px;padding:48px 40px;text-align:center;max-width:640px;margin:6vh auto 24px;}
+  .complete-hero .icon{width:36px;height:36px;stroke:var(--gold);margin-bottom:16px;}
+  .complete-hero h2{color:#fff;font-size:26px;margin-bottom:10px;}
+  .complete-hero p{color:#C9CCD8;font-size:14.5px;line-height:1.6;margin:0 0 26px;}
+  .complete-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+
+  /* curated PDF report (built fresh from saved answers when Download PDF is clicked) */
+  #printableReport{display:none;}
+  .report-page{padding:0.6in 0.7in;}
+  .report-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:6in;}
+  .report-cover h1{font-size:36px;margin-bottom:10px;}
+  .report-cover p{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-text);}
+  .report-kicker{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
+  .report-page h2{font-size:24px;margin-bottom:20px;}
+  .report-item{margin-bottom:18px;}
+  .report-item h4{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+  .report-item p{font-size:13px;color:var(--ink-soft);line-height:1.65;margin:0;white-space:pre-wrap;}
+
+  @media print{
+    body *{visibility:hidden;}
+    #printableReport, #printableReport *{visibility:visible;}
+    #printableReport{display:block !important;position:absolute;top:0;left:0;width:100%;}
+    .report-page{page-break-after:always;}
+    .report-page:last-child{page-break-after:auto;}
+  }
+  @page{size:landscape;margin:0;}
+
+  @media (max-width:900px){
+    .app-shell{flex-direction:column;}
+    .sidebar{position:static;width:auto;height:auto;}
+    .row{flex-direction:column;}
+    .resource-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div id="paywall">
+  <div class="paywall-card">
+    <div class="platform-mark" style="justify-content:center;">
+      <span class="platform-icon">MD</span>
+      <span class="platform-name">Build &middot; Studios</span>
+    </div>
+    <h1 class="paywall-title">Studios</h1>
+    <p class="paywall-pitch">A guided path to planning and launching your studio &mdash; yours to keep, edit, and print.</p>
+    <div class="paywall-price">$249 <span>one-time</span></div>
+    <a class="btn btn-gold paywall-buy" id="buyLink" href="MD_Checkout.html?product=studios">Buy now &mdash; $249</a>
+    <div class="paywall-divider">Already have access?</div>
+    <p style="font-size:13px;color:var(--gray-text);margin:12px 0;">Sign in to your account to unlock this workspace</p>
+    <a class="btn btn-ghost" href="MD_Customer_Portal.html" style="width:100%;justify-content:center;">Sign in</a>
+    <p class="paywall-dev" onclick="devUnlock()">Skip to app (dev only, bypasses paywall)</p>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell" style="display:none;">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="platform-mark">
+        <span class="platform-icon">MD</span>
+        <span class="platform-name">Build</span>
+      </div>
+      <h1 class="product-title" contenteditable="false">Studios</h1>
+      <div class="workspace-row">
+        <div class="logo-slot" id="logoSlot" title="Click to add your logo" onclick="document.getElementById('logoInput').click()">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+        </div>
+        <input type="file" id="logoInput" accept="image/*" style="display:none" onchange="handleLogo(event)">
+        <span class="workspace-name studio-name" contenteditable="false">Your Studio</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item home" data-stage="dashboard" onclick="goTo('dashboard')">
+        <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+
+  <div class="nav-group collapsed">
+    <button class="nav-group-title" onclick="toggleGroup(this)"><span>Cover page</span><svg class="chevron icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+    <div class="nav-group-items">
+    <a class="nav-item" data-stage="cover" onclick="goTo('cover')">
+      <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+      <span class="nav-label">Option A</span>
+    </a>
+    <a class="nav-item" data-stage="cover-b" onclick="goTo('cover-b')">
+      <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span>
+      <span class="nav-label">Option B</span>
+    </a>
+    </div>
+  </div>
+
+  <div id="navGroupsRoot"></div>
+    </nav>
+
+    <div class="sidebar-footer no-print">
+      <button class="btn btn-ghost" id="editToggle" onclick="toggleEdit()">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        Edit content
+      </button>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <section class="page-section" id="page-cover">
+      <div class="cover-page cover-a">
+        <div class="cover-brand">
+          <span class="platform-icon">MD</span>
+          <span class="platform-name">Build &middot; Studios</span>
+        </div>
+        <span class="logo-slot logo-slot-cover"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+        <h1 class="cover-title studio-name" contenteditable="false">Your Studio</h1>
+        <p class="cover-sub" contenteditable="false">Studio Plan</p>
+        <p class="cover-vision" contenteditable="false">Add your vision here — what your studio offers, and why it matters.</p>
+        <div class="cover-toc">
+          <h3>Contents</h3>
+          <div class="cover-toc-grid">
+            <div>
+              <div class="toc-group-title">Foundation</div>
+              <div class="toc-item">1. Studio Vision</div>
+              <div class="toc-item">2. Studio Type & Services</div>
+              <div class="toc-item">3. Target Clients</div>
+            </div>
+            <div>
+              <div class="toc-group-title">Setup</div>
+              <div class="toc-item">4. Studio Name & Brand</div>
+              <div class="toc-item">5. Location & Space</div>
+              <div class="toc-item">6. Equipment & Tools</div>
+            </div>
+            <div>
+              <div class="toc-group-title">Operations</div>
+              <div class="toc-item">7. Pricing & Packages</div>
+              <div class="toc-item">8. Staffing</div>
+              <div class="toc-item">9. Launch & Growth</div>
+            </div>
+          </div>
+        </div>
+        <div class="cover-footer" contenteditable="false">Powered by: Michael Downes</div>
+      </div>
+    </section>
+
+    <section class="page-section" id="page-cover-b">
+      <div class="cover-b">
+        <div class="cover-b-left">
+          <div class="platform-mark">
+            <span class="platform-icon">MD</span>
+            <span class="platform-name">Build &middot; Studios</span>
+          </div>
+          <span class="logo-slot logo-slot-cover"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>
+          <h1 class="studio-name" contenteditable="false">Your Studio</h1>
+          <p class="cover-sub" contenteditable="false">Studio Plan</p>
+          <p class="cover-vision" contenteditable="false">Add your vision here — what your studio offers, and why it matters.</p>
+          <div class="cover-footer" contenteditable="false">Powered by: Michael Downes</div>
+        </div>
+        <div class="cover-b-right">
+          <h3>Contents</h3>
+          <div class="cover-b-toc-grid">
+            <div>
+              <div class="toc-group-title">Foundation</div>
+              <div class="toc-item">1. Studio Vision</div>
+              <div class="toc-item">2. Studio Type & Services</div>
+              <div class="toc-item">3. Target Clients</div>
+              <div class="toc-group-title" style="margin-top:14px;">Setup</div>
+              <div class="toc-item">4. Studio Name & Brand</div>
+              <div class="toc-item">5. Location & Space</div>
+              <div class="toc-item">6. Equipment & Tools</div>
+              <div class="toc-group-title" style="margin-top:14px;">Operations</div>
+              <div class="toc-item">7. Pricing & Packages</div>
+              <div class="toc-item">8. Staffing</div>
+              <div class="toc-item">9. Launch & Growth</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section active" id="page-dashboard">
+      <div class="hero">
+        <div class="hero-left">
+          <span class="hero-pill">Module 1 of 9</span>
+          <h2 contenteditable="false">Welcome to your Studio planning guide</h2>
+          <p contenteditable="false">Build your studio plan step by step — from vision to operations. Everything you need to launch and run a successful studio.</p>
+        </div>
+        <div class="hero-right">
+          <div class="hero-icon">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </div>
+          <button class="btn btn-gold no-print" onclick="continueJourney()">Continue</button>
+        </div>
+      </div>
+
+      <div class="stage-help-hint" style="max-width:none;margin-bottom:20px;">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <span contenteditable="false">How this works: every module follows the same pattern — read the short guidance under each question (tap the &#9432; icon), then write your own answer in the box. That's what actually becomes your studio plan. Everything you type is saved automatically as you go.</span>
+      </div>
+
+      <div class="row" style="margin-bottom:20px;">
+        <div class="card progress-panel">
+          <div class="progress-head">
+            <h3>Your progress</h3>
+            <span id="progressLabel">0 of 9 modules complete</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill" id="progressFill"></div></div>
+          <div class="quick-jump-row no-print" id="groupChipsRow"></div>
+          <div class="group-chart" id="groupChart"></div>
+        </div>
+
+        <div class="card focus">
+          <div class="focus-top">
+            <div class="focus-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg></div>
+            <h3 style="margin:0;">Next up</h3>
+          </div>
+          <p class="focus-title">Start with your Studio Vision</p>
+          <p class="focus-desc" contenteditable="false">Define your studio's purpose and direction — this sets the foundation for every decision you'll make.</p>
+          <div class="focus-bottom">
+            <svg class="ring" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#EFEDE4" stroke-width="5"></circle>
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#C1893D" stroke-width="5" stroke-linecap="round" stroke-dasharray="150.8" stroke-dashoffset="150.8" id="focusRing" transform="rotate(-90 28 28)"></circle>
+              <text x="28" y="32" text-anchor="middle" id="focusRingText">0%</text>
+            </svg>
+            <button class="btn btn-gold no-print" onclick="continueJourney()">Start here</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card" style="flex:1 1 33%;">
+          <h3>Recent activity</h3>
+          <ul>
+            <li contenteditable="false"><span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Account created</li>
+            <li contenteditable="false"><span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Studio name entered</li>
+            <li contenteditable="false"><span class="li-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>Logo added</li>
+          </ul>
+        </div>
+        <div class="card" style="flex:1 1 33%;">
+          <h3>Quick links</h3>
+          <ul>
+            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Templates</li>
+            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Studio tools</li>
+            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Downloads</li>
+          </ul>
+        </div>
+        <div class="card quote-card" style="flex:1 1 33%;">
+          <p contenteditable="false">"A studio is built on craft, consistency, and connection with your clients."</p>
+          <span>— on what matters</span>
+        </div>
+      </div>
+    </section>
+
+    <div id="modulesRoot"></div>
+
+    <section class="page-section" id="page-complete">
+      <div class="complete-hero">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        <h2 contenteditable="false">Your studio plan is complete.</h2>
+        <p contenteditable="false">You've worked through every module. Download a clean copy of everything you've written — just your answers, not the guidance — or go back and keep refining.</p>
+        <div class="complete-actions">
+          <button class="btn btn-gold" onclick="generateReport()">
+            <svg class="icon" viewBox="0 0 24 24" stroke="#fff" style="width:16px;height:16px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download PDF
+          </button>
+          <button class="btn btn-ghost" onclick="goTo('dashboard')" style="border-color:rgba(255,255,255,0.3);color:#fff;">Back to dashboard</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <span class="footer-mark">
+        <span class="footer-mark-icon">MD</span>
+        Build
+      </span>
+    </div>
+
+  </main>
+</div>
+
+<div id="printableReport"></div>
+
+<script>
+  var MODULES = [];
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function kpiCard(id, label){
+    return '<div class="kpi-card"><div class="kpi-label">' + esc(label) + '</div><div class="kpi-inputs">'
+      + '<input type="number" id="' + id + '-current" class="num-input small" placeholder="Current" oninput="updateKpiBar(\'' + id + '\')">'
+      + '<span class="kpi-slash">/</span>'
+      + '<input type="number" id="' + id + '-target" class="num-input small" placeholder="Target" oninput="updateKpiBar(\'' + id + '\')">'
+      + '</div><div class="bar-track"><div class="bar-fill" id="' + id + '-fill" style="width:0%;"></div></div><div class="kpi-pct" id="' + id + '-pct">0%</div></div>';
+  }
+  function resourceCard(title, items){
+    return '<div class="card"><h3>' + esc(title) + '</h3><ul class="resource-list">'
+      + items.map(function(i){ return '<li contenteditable="false">' + esc(i) + '</li>'; }).join('')
+      + '</ul></div>';
+  }
+
+  var PRICING_EXTRA = '<div class="card stage-card"><h3>Pricing calculator</h3><div class="calc-row"><div class="field"><label>Base hourly rate</label><input type="number" id="hourlyRate" class="num-input" placeholder="50" oninput="calcPricing()"></div><div class="field"><label>Sessions per week</label><input type="number" id="sessionsPerWeek" class="num-input" placeholder="15" oninput="calcPricing()"></div></div><div class="calc-result" id="pricingResult">Fill in the numbers above to calculate your pricing model.</div></div>';
+  var STAFFING_EXTRA = '<div class="card stage-card"><h3>Staffing overview</h3><div class="field"><label>Current team size</label><input type="number" id="teamSize" class="num-input small" placeholder="1" oninput="calcTeam()"></div><div class="calc-result" id="teamResult">Team size tracked.</div></div>';
+  function resourcesExtra(){
+    return '<div class="resource-grid">' + resourceCard('Planning',['Studio checklist','Space finder template','Equipment budget worksheet']) + resourceCard('Legal',['Business registration checklist','Studio liability template','Contractor agreements']) + resourceCard('Marketing',['Social media strategy','Launch announcement templates','Client onboarding checklist']) + resourceCard('Operations',['Studio schedule template','Pricing guide','Client intake forms']) + '</div>';
+  }
+
+  var ICON_BY_TITLE = {
+    "Studio Vision": '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>',
+    "Studio Type & Services": '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line>',
+    "Target Clients": '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+    "Studio Name & Brand": '<polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line>',
+    "Location & Space": '<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>',
+    "Equipment & Tools": '<rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line>',
+    "Pricing & Packages": '<line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>',
+    "Staffing": '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path>',
+    "Launch & Growth": '<line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>',
+    "Resources": '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>'
+  };
+  var DEFAULT_ICON = '<circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>';
+
+  async function loadModulesFromDB(){
+    try {
+      var prodRes = await mdSupabase.from('products').select('id').eq('slug', 'studios').single();
+      if (!prodRes.data) { MODULES = []; return; }
+      var modRes = await mdSupabase.from('modules').select('*').eq('product_id', prodRes.data.id).order('sort_order');
+      if (modRes.error || !modRes.data) { MODULES = []; return; }
+      MODULES = modRes.data.map(function(r){
+        var m = { id: r.id, group: r.stage_group, title: r.title, teach: r.teaching_text || '', focus: r.focus_items || [] };
+        if (r.title === 'Pricing & Packages') m.extra = PRICING_EXTRA;
+        else if (r.title === 'Staffing') m.extra = STAFFING_EXTRA;
+        else if (r.title === 'Resources') m.extra = resourcesExtra();
+        return m;
+      });
+    } catch (e) {
+      MODULES = [];
+    }
+  }
+
+  function renderSidebarNav(){
+    var root = document.getElementById('navGroupsRoot');
+    if (!root) return;
+    var groups = [];
+    var groupIndex = {};
+    MODULES.forEach(function(m){
+      if (!(m.group in groupIndex)) { groupIndex[m.group] = groups.length; groups.push({ name: m.group, items: [] }); }
+      groups[groupIndex[m.group]].items.push(m);
+    });
+    var html = '';
+    groups.forEach(function(g){
+      html += '<div class="nav-group">'
+        + '<button class="nav-group-title" onclick="toggleGroup(this)"><span>' + esc(g.name) + '</span><svg class="chevron icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></button>'
+        + '<div class="nav-group-items">';
+      g.items.forEach(function(m){
+        var icon = ICON_BY_TITLE[m.title] || DEFAULT_ICON;
+        html += '<a class="nav-item" data-stage="' + m.id + '" onclick="goTo(\'' + m.id + '\')">'
+          + '<span class="nav-icon"><svg class="icon" viewBox="0 0 24 24">' + icon + '</svg></span>'
+          + '<span class="nav-label">' + esc(m.title) + '</span>'
+          + '<span class="nav-dot" id="dot-' + m.id + '"></span>'
+          + '<button class="nav-toggle on" id="toggle-' + m.id + '" onclick="toggleModule(event,\'' + m.id + '\')" title="Show or hide this module"></button>'
+          + '</a>';
+      });
+      html += '</div></div>';
+    });
+    root.innerHTML = html;
+  }
+
+  function toggleGuidance(btn){
+    var item = btn.closest('.focus-item');
+    var guidance = item ? item.querySelector('.focus-item-guidance') : null;
+    if (!guidance) return;
+    var isShown = guidance.classList.toggle('show');
+    btn.classList.toggle('active', isShown);
+  }
+
+  function saveAnswer(el){
+    var key = el.getAttribute('data-answer-key');
+    if (!key) return;
+    try { localStorage.setItem(key, el.value); } catch(e) {}
+  }
+
+  function generateReport(){
+    var container = document.getElementById('printableReport');
+    if (!container) return;
+    var studioNameEl = document.querySelector('.studio-name');
+    var studioName = studioNameEl ? studioNameEl.textContent : 'Studio Plan';
+    var html = ''
+      + '<div class="report-page report-cover">'
+      +   '<h1>' + esc(studioName) + '</h1>'
+      +   '<p>Studio Plan</p>'
+      + '</div>';
+
+    MODULES.forEach(function(m){
+      var itemsHtml = '';
+      (m.focus || []).forEach(function(raw, i){
+        var item = normalizeFocusItem(raw);
+        var answer = loadAnswer('mdst_answer_' + m.id + '_' + i).trim();
+        if (answer) {
+          itemsHtml += '<div class="report-item"><h4>' + esc(item.prompt) + '</h4><p>' + esc(answer) + '</p></div>';
+        }
+      });
+      var notes = loadAnswer('mdst_notes_' + m.id).trim();
+      if (notes) {
+        itemsHtml += '<div class="report-item"><h4>Notes</h4><p>' + esc(notes) + '</p></div>';
+      }
+      if (itemsHtml) {
+        html += '<div class="report-page">'
+          +   '<div class="report-kicker">' + esc(m.group) + '</div>'
+          +   '<h2>' + esc(m.title) + '</h2>'
+          +   itemsHtml
+          + '</div>';
+      }
+    });
+
+    container.innerHTML = html;
+    window.print();
+  }
+
+  function loadAnswer(key){
+    try { return localStorage.getItem(key) || ''; } catch(e) { return ''; }
+  }
+
+  function normalizeFocusItem(item){
+    if (typeof item === 'string') return { prompt: item, guidance: '', placeholder: 'Type your answer here...' };
+    return {
+      prompt: item.prompt || '',
+      guidance: item.guidance || '',
+      placeholder: item.placeholder || 'Type your answer here...'
+    };
+  }
+
+  function moduleTemplate(m, idx){
+    var num = idx + 1;
+    var total = MODULES.length;
+    var backTarget = idx === 0 ? 'dashboard' : MODULES[idx - 1].id;
+    var isLast = idx === MODULES.length - 1;
+    var focusHtml = m.focus.map(function(raw, i){
+      var item = normalizeFocusItem(raw);
+      var answerKey = 'mdst_answer_' + m.id + '_' + i;
+      var doneKey = answerKey + '_done';
+      var savedAnswer = loadAnswer(answerKey);
+      var isDone = localStorage.getItem(doneKey) === 'true';
+      return '<div class="focus-item">'
+        + '<div class="focus-item-head">'
+        +   '<label class="focus-item-check-label">'
+        +     '<input type="checkbox" class="focus-check"' + (isDone ? ' checked' : '') + ' onchange="try{localStorage.setItem(\'' + doneKey + '\',this.checked)}catch(e){}">'
+        +     '<span class="focus-item-prompt" contenteditable="false">' + esc(item.prompt) + '</span>'
+        +   '</label>'
+        +   (item.guidance ? '<button type="button" class="focus-info-btn" onclick="toggleGuidance(this)" title="Why this matters"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></button>' : '')
+        + '</div>'
+        + (item.guidance ? '<p class="focus-item-guidance" contenteditable="false">' + esc(item.guidance) + '</p>' : '')
+        + '<textarea class="focus-item-answer" data-answer-key="' + answerKey + '" placeholder="' + esc(item.placeholder) + '" onblur="saveAnswer(this)">' + esc(savedAnswer) + '</textarea>'
+        + '</div>';
+    }).join('');
+    var notesKey = 'mdst_notes_' + m.id;
+    var savedNotes = loadAnswer(notesKey);
+    return ''
+      + '<div class="letterhead">'
+      +   '<span class="logo-slot"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></span>'
+      +   '<span class="studio-name letterhead-name" contenteditable="false">Your Studio</span>'
+      +   '<span class="letterhead-divider">&middot;</span>'
+      +   '<span class="letterhead-doc">Studio Plan</span>'
+      + '</div>'
+      + '<div class="stage-kicker">Module ' + num + ' of ' + total + ' &middot; ' + esc(m.group) + '</div>'
+      + '<h2 class="stage-title" contenteditable="false">' + esc(m.title) + '</h2>'
+      + '<p class="stage-teach" contenteditable="false">' + esc(m.teach) + '</p>'
+      + '<div class="card stage-card"><h3>Your focus</h3><div class="focus-checklist">' + focusHtml + '</div></div>'
+      + '<div class="card stage-card">'
+      +   '<h3>Notes, links &amp; references</h3>'
+      +   '<p class="stage-card-hint" contenteditable="false">Anything extra that doesn\'t fit above — research links, ideas to revisit, inspiration.</p>'
+      +   '<textarea class="notes-area" data-answer-key="' + notesKey + '" placeholder="Add your own notes, links, or references here..." onblur="saveAnswer(this)">' + esc(savedNotes) + '</textarea>'
+      + '</div>'
+      + (m.extra || '')
+      + '<div class="stage-nav no-print">'
+      +   '<button class="btn btn-ghost" onclick="goTo(\'' + backTarget + '\')">Back</button>'
+      +   '<button class="btn btn-gold" onclick="completeStage(\'' + m.id + '\')">' + (isLast ? 'Finish' : 'Continue') + '</button>'
+      + '</div>';
+  }
+
+  function renderModules(){
+    var root = document.getElementById('modulesRoot');
+    if(!root) return;
+    MODULES.forEach(function(m, idx){
+      var section = document.createElement('section');
+      section.className = 'page-section';
+      section.id = 'page-' + m.id;
+      section.innerHTML = moduleTemplate(m, idx);
+      root.appendChild(section);
+    });
+  }
+
+  var stageOrder = [];
+  var stageNames = {};
+  var coverIds = ["cover","cover-b"];
+  var chosenCover = localStorage.getItem('mdst_cover') || 'cover';
+  var STUDIO_NAME_KEY = 'mdst_studioname';
+  var STUDIO_LOGO_KEY = 'mdst_logo';
+  var doneSteps = [];
+  try { doneSteps = JSON.parse(localStorage.getItem('mdst_done') || '[]'); } catch(e) { doneSteps = []; }
+  var disabledSteps = [];
+  try { disabledSteps = JSON.parse(localStorage.getItem('mdst_disabled') || '[]'); } catch(e) { disabledSteps = []; }
+  var currentStage = localStorage.getItem('mdst_current') || '';
+
+  var GUMROAD_PRODUCT_PERMALINK = "studios";
+
+  function showApp(){
+    document.getElementById('paywall').style.display = 'none';
+    document.getElementById('appShell').style.display = 'flex';
+  }
+
+  function showPaywall(){
+    document.getElementById('paywall').style.display = 'flex';
+    document.getElementById('appShell').style.display = 'none';
+  }
+
+  function devUnlock(){
+    localStorage.setItem('mdst_unlocked', 'true');
+    showApp();
+  }
+
+  function verifyLicense(){
+    var key = document.getElementById('licenseKeyInput').value.trim();
+    var errEl = document.getElementById('licenseError');
+    errEl.textContent = '';
+    if(!key){ errEl.textContent = 'Enter your license key.'; return; }
+    fetch('https://api.gumroad.com/v2/licenses/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'product_permalink=' + encodeURIComponent(GUMROAD_PRODUCT_PERMALINK) + '&license_key=' + encodeURIComponent(key)
+    })
+    .then(r => r.json())
+    .then(d => {
+      if(d.success){ localStorage.setItem('mdst_unlocked', 'true'); showApp(); }
+      else { errEl.textContent = d.message || 'License key not recognized.'; }
+    })
+    .catch(e => { errEl.textContent = 'Network error. Try again.'; });
+  }
+
+  function handleLogo(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(evt){
+      try { localStorage.setItem(STUDIO_LOGO_KEY, evt.target.result); } catch(e) {}
+      loadLogo();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function loadLogo(){
+    try {
+      var data = localStorage.getItem(STUDIO_LOGO_KEY);
+      if(data){
+        document.getElementById('logoSlot').innerHTML = '<img src="' + data + '">';
+      }
+    } catch(e) {}
+  }
+
+  function toggleEdit(){
+    document.body.classList.toggle('edit-mode');
+    var btn = document.getElementById('editToggle');
+    if(document.body.classList.contains('edit-mode')){
+      btn.textContent = 'Done editing';
+      btn.style.background = 'var(--gold)';
+      btn.style.color = '#fff';
+    } else {
+      btn.textContent = 'Edit content';
+      btn.style.background = '';
+      btn.style.color = '';
+    }
+  }
+
+  function toggleGroup(btn){
+    btn.closest('.nav-group').classList.toggle('collapsed');
+  }
+
+  function goTo(stage){
+    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('page-' + stage).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    var item = document.querySelector('.nav-item[data-stage="' + stage + '"]');
+    if(item) item.classList.add('active');
+    localStorage.setItem('mdst_current', stage);
+    window.scrollTo(0,0);
+  }
+
+  function continueJourney(){
+    goTo(MODULES.length > 0 ? MODULES[0].id : 'dashboard');
+  }
+
+  function toggleModule(e, id){
+    e.stopPropagation();
+    var toggle = e.target.closest('.nav-toggle');
+    var item = toggle.closest('.nav-item');
+    var didDisable = !toggle.classList.contains('on');
+    toggle.classList.toggle('on');
+    disabledSteps = disabledSteps.filter(x => x !== id);
+    if(didDisable) disabledSteps.push(id);
+    try { localStorage.setItem('mdst_disabled', JSON.stringify(disabledSteps)); } catch(e) {}
+  }
+
+  function goToByTitle(title){
+    var m = MODULES.find(x => x.title === title);
+    if(m) goTo(m.id);
+  }
+
+  function completeStage(id){
+    if(!doneSteps.includes(id)) doneSteps.push(id);
+    try { localStorage.setItem('mdst_done', JSON.stringify(doneSteps)); } catch(e) {}
+    var nextIdx = MODULES.findIndex(m => m.id === id) + 1;
+    if(nextIdx < MODULES.length){
+      goTo(MODULES[nextIdx].id);
+    } else {
+      goTo('complete');
+    }
+  }
+
+  function updateProgress(){
+    var total = MODULES.length;
+    var done = doneSteps.length;
+    var pct = total > 0 ? Math.round(done * 100 / total) : 0;
+    document.getElementById('progressLabel').textContent = done + ' of ' + total + ' modules complete';
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('focusRingText').textContent = pct + '%';
+    var dasharray = 150.8 * (100 - pct) / 100;
+    document.getElementById('focusRing').setAttribute('stroke-dashoffset', dasharray);
+
+    MODULES.forEach(function(m){
+      var dot = document.getElementById('dot-' + m.id);
+      if(dot) dot.classList.toggle('done', doneSteps.includes(m.id));
+    });
+
+    var groups = {};
+    MODULES.forEach(m => {
+      if(!groups[m.group]) groups[m.group] = { total: 0, done: 0 };
+      groups[m.group].total++;
+      if(doneSteps.includes(m.id)) groups[m.group].done++;
+    });
+
+    var chipsHtml = '';
+    Object.keys(groups).forEach(g => {
+      var info = groups[g];
+      var pct2 = info.total > 0 ? Math.round(info.done * 100 / info.total) : 0;
+      chipsHtml += '<span class="chip' + (info.done === info.total ? ' complete' : '') + '">' + g + '<span class="chip-pct">' + pct2 + '%</span></span>';
+    });
+    document.getElementById('groupChipsRow').innerHTML = chipsHtml;
+
+    var chartHtml = '';
+    Object.keys(groups).forEach(g => {
+      var info = groups[g];
+      var barPct = info.total > 0 ? (info.done / info.total) * 100 : 0;
+      chartHtml += '<div class="group-bar-col">'
+        + '<div class="group-bar-track"><div class="group-bar-fill" style="height:' + barPct + '%"></div></div>'
+        + '<div class="group-bar-pct">' + Math.round(barPct) + '%</div>'
+        + '<div class="group-bar-label">' + esc(g) + '</div>'
+        + '</div>';
+    });
+    document.getElementById('groupChart').innerHTML = chartHtml;
+  }
+
+  window.addEventListener('load', async function(){
+    loadLogo();
+    // Check for dev mode via URL parameter
+    var urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.has('dev')){
+      devUnlock();
+    }
+    if(localStorage.getItem('mdst_unlocked')){
+      showApp();
+      // Load modules in background
+      loadModulesFromDB().then(function(){
+        if(MODULES.length > 0){
+          renderSidebarNav();
+          renderModules();
+          updateProgress();
+          if(currentStage && document.getElementById('page-' + currentStage)){
+            goTo(currentStage);
+          }
+        }
+      });
+    } else {
+      showPaywall();
+    }
+  });
+</script>
+
+</body>
+</html>

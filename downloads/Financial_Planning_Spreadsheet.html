@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Financial Planning Spreadsheet — MD Build</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: #212B42;
+    background: #FAFAF8;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 2px solid #C1893D;
+  }
+
+  .logo {
+    width: 50px;
+    height: 50px;
+    background: #212B42;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+
+  .header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .header p {
+    font-size: 14px;
+    color: #6E6D62;
+  }
+
+  .section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #212B42;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #F0EDE1;
+  }
+
+  .table-container {
+    overflow-x: auto;
+    background: white;
+    border: 1px solid #F0EDE1;
+    border-radius: 12px;
+    padding: 0;
+    margin-bottom: 20px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    background: #F5E8D3;
+    color: #8A5A1E;
+    padding: 14px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #C1893D;
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #F0EDE1;
+  }
+
+  tr:hover {
+    background: #FAFAF8;
+  }
+
+  input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid #F0EDE1;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #212B42;
+  }
+
+  .total-row {
+    background: #F5E8D3;
+    font-weight: 600;
+    color: #8A5A1E;
+  }
+
+  .total-row td {
+    border-top: 2px solid #C1893D;
+  }
+
+  .number {
+    text-align: right;
+  }
+
+  .info-box {
+    background: #DFEEEA;
+    border-left: 4px solid #2F8577;
+    padding: 16px;
+    border-radius: 8px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: #1F5C51;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid #F0EDE1;
+    font-size: 12px;
+    color: #6E6D62;
+  }
+
+  @media print {
+    body { background: white; }
+    .table-container { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="logo">MD</div>
+    <h1>Financial Planning Spreadsheet</h1>
+    <p>Excel workbook with formulas for budgeting and forecasting</p>
+  </div>
+
+  <!-- Startup Costs -->
+  <div class="section">
+    <h2 class="section-title">Startup Costs</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Expense Category</th>
+            <th>Item</th>
+            <th class="number">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="3"><strong>Equipment & Technology</strong></td>
+            <td>Computer/Laptop</td>
+            <td class="number"><input type="number" placeholder="0" value="1200"></td>
+          </tr>
+          <tr>
+            <td>Software Licenses</td>
+            <td class="number"><input type="number" placeholder="0" value="500"></td>
+          </tr>
+          <tr>
+            <td>Office Equipment</td>
+            <td class="number"><input type="number" placeholder="0" value="400"></td>
+          </tr>
+          <tr>
+            <td rowspan="3"><strong>Business Setup</strong></td>
+            <td>Legal/Registration</td>
+            <td class="number"><input type="number" placeholder="0" value="300"></td>
+          </tr>
+          <tr>
+            <td>Business Insurance</td>
+            <td class="number"><input type="number" placeholder="0" value="600"></td>
+          </tr>
+          <tr>
+            <td>Branding/Logo</td>
+            <td class="number"><input type="number" placeholder="0" value="500"></td>
+          </tr>
+          <tr>
+            <td rowspan="2"><strong>Marketing</strong></td>
+            <td>Website Development</td>
+            <td class="number"><input type="number" placeholder="0" value="1500"></td>
+          </tr>
+          <tr>
+            <td>Initial Marketing</td>
+            <td class="number"><input type="number" placeholder="0" value="800"></td>
+          </tr>
+          <tr>
+            <td rowspan="1"><strong>Working Capital</strong></td>
+            <td>3-Month Operating Reserve</td>
+            <td class="number"><input type="number" placeholder="0" value="3000"></td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="2">TOTAL STARTUP COSTS</td>
+            <td class="number">$8,700</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Monthly Revenue Projection -->
+  <div class="section">
+    <h2 class="section-title">12-Month Revenue Projection</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Units Sold</th>
+            <th>Unit Price</th>
+            <th class="number">Revenue</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>January</td>
+            <td><input type="number" placeholder="0" value="5"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$995</td>
+          </tr>
+          <tr>
+            <td>February</td>
+            <td><input type="number" placeholder="0" value="8"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$1,592</td>
+          </tr>
+          <tr>
+            <td>March</td>
+            <td><input type="number" placeholder="0" value="12"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$2,388</td>
+          </tr>
+          <tr>
+            <td>April</td>
+            <td><input type="number" placeholder="0" value="15"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$2,985</td>
+          </tr>
+          <tr>
+            <td>May</td>
+            <td><input type="number" placeholder="0" value="18"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$3,582</td>
+          </tr>
+          <tr>
+            <td>June</td>
+            <td><input type="number" placeholder="0" value="20"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$3,980</td>
+          </tr>
+          <tr>
+            <td>July</td>
+            <td><input type="number" placeholder="0" value="22"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$4,378</td>
+          </tr>
+          <tr>
+            <td>August</td>
+            <td><input type="number" placeholder="0" value="25"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$4,975</td>
+          </tr>
+          <tr>
+            <td>September</td>
+            <td><input type="number" placeholder="0" value="28"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$5,572</td>
+          </tr>
+          <tr>
+            <td>October</td>
+            <td><input type="number" placeholder="0" value="30"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$5,970</td>
+          </tr>
+          <tr>
+            <td>November</td>
+            <td><input type="number" placeholder="0" value="32"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$6,368</td>
+          </tr>
+          <tr>
+            <td>December</td>
+            <td><input type="number" placeholder="0" value="35"></td>
+            <td><input type="number" placeholder="0" value="199"></td>
+            <td class="number">$6,965</td>
+          </tr>
+          <tr class="total-row">
+            <td colspan="3">TOTAL ANNUAL REVENUE</td>
+            <td class="number">$49,750</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Monthly Operating Expenses -->
+  <div class="section">
+    <h2 class="section-title">Monthly Operating Expenses</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Expense Category</th>
+            <th>Monthly Cost</th>
+            <th>Annual Cost</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Salary/Owner Draw</td>
+            <td class="number"><input type="number" placeholder="0" value="3000"></td>
+            <td class="number">$36,000</td>
+          </tr>
+          <tr>
+            <td>Software & Subscriptions</td>
+            <td class="number"><input type="number" placeholder="0" value="200"></td>
+            <td class="number">$2,400</td>
+          </tr>
+          <tr>
+            <td>Hosting & Domain</td>
+            <td class="number"><input type="number" placeholder="0" value="50"></td>
+            <td class="number">$600</td>
+          </tr>
+          <tr>
+            <td>Marketing & Advertising</td>
+            <td class="number"><input type="number" placeholder="0" value="300"></td>
+            <td class="number">$3,600</td>
+          </tr>
+          <tr>
+            <td>Professional Services</td>
+            <td class="number"><input type="number" placeholder="0" value="150"></td>
+            <td class="number">$1,800</td>
+          </tr>
+          <tr>
+            <td>Office/Workspace</td>
+            <td class="number"><input type="number" placeholder="0" value="200"></td>
+            <td class="number">$2,400</td>
+          </tr>
+          <tr>
+            <td>Utilities & Internet</td>
+            <td class="number"><input type="number" placeholder="0" value="100"></td>
+            <td class="number">$1,200</td>
+          </tr>
+          <tr>
+            <td>Insurance</td>
+            <td class="number"><input type="number" placeholder="0" value="150"></td>
+            <td class="number">$1,800</td>
+          </tr>
+          <tr class="total-row">
+            <td>TOTAL MONTHLY EXPENSES</td>
+            <td class="number">$4,150</td>
+            <td class="number">$49,800</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <strong>💡 Tip:</strong> Review these expenses quarterly and adjust as needed. Look for opportunities to reduce costs without sacrificing quality or growth.
+    </div>
+  </div>
+
+  <!-- Profit & Loss Projection -->
+  <div class="section">
+    <h2 class="section-title">Year 1 Profit & Loss Projection</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="number">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Total Revenue</strong></td>
+            <td class="number"><strong>$49,750</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Total Expenses</strong></td>
+            <td class="number"><strong>$49,800</strong></td>
+          </tr>
+          <tr>
+            <td>Cost of Goods Sold (if applicable)</td>
+            <td class="number">$0</td>
+          </tr>
+          <tr class="total-row">
+            <td>NET PROFIT/LOSS (Year 1)</td>
+            <td class="number">-$50</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <strong>📊 Analysis:</strong> Year 1 shows break-even performance. Focus on customer retention and referrals in Year 2 to improve profitability.
+    </div>
+  </div>
+
+  <!-- Break-Even Analysis -->
+  <div class="section">
+    <h2 class="section-title">Break-Even Analysis</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th class="number">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fixed Costs (Monthly)</td>
+            <td class="number">$4,150</td>
+          </tr>
+          <tr>
+            <td>Variable Cost per Unit</td>
+            <td class="number">$0</td>
+          </tr>
+          <tr>
+            <td>Contribution Margin per Unit</td>
+            <td class="number">$199</td>
+          </tr>
+          <tr class="total-row">
+            <td>Break-Even Point (Units)</td>
+            <td class="number">21 units/month</td>
+          </tr>
+          <tr class="total-row">
+            <td>Break-Even Point (Revenue)</td>
+            <td class="number">$4,179/month</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Created with MD Build • Financial Planning Framework</p>
+    <p>Download as Excel to enable automatic calculations and formulas</p>
+  </div>
+</div>
+
+<script>
+  // Save input values to localStorage
+  document.querySelectorAll('input').forEach(el => {
+    el.addEventListener('change', function() {
+      const key = 'fp_' + this.name || this.id || Math.random();
+      localStorage.setItem(key, this.value);
+    });
+  });
+</script>
+
+</body>
+</html>
