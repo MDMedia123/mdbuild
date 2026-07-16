@@ -1,9 +1,3 @@
-import fetch from 'node-fetch';
-
-const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
-const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN || 'sandbox0fa29ce7e82a4d5f85c51971eaaea6f2.mailgun.org';
-const TEMPLATE_URL = 'https://mdbuild.vercel.app/Free_Business_Plan_Template.html';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -11,17 +5,26 @@ export default async function handler(req, res) {
 
   try {
     const { name, email, business, updates } = req.body;
+    const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
+    const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN;
+
+    if (!MAILGUN_API_KEY || !MAILGUN_DOMAIN) {
+      console.error('Missing Mailgun config:', { key: !!MAILGUN_API_KEY, domain: !!MAILGUN_DOMAIN });
+      return res.status(500).json({ error: 'Server configuration error' });
+    }
 
     if (!email || !name) {
       return res.status(400).json({ error: 'Name and email required' });
     }
 
-    // Send email via Mailgun
-    const emailData = new URLSearchParams();
-    emailData.append('from', `MD Build <noreply@${MAILGUN_DOMAIN}>`);
-    emailData.append('to', email);
-    emailData.append('subject', 'Your Free Business Plan Template is Ready');
-    emailData.append('html', `
+    const authHeader = 'Basic ' + Buffer.from(`api:${MAILGUN_API_KEY}`).toString('base64');
+    const TEMPLATE_URL = 'https://mdbuild.vercel.app/Free_Business_Plan_Template.html';
+
+    const formData = new URLSearchParams();
+    formData.append('from', `MD Build <noreply@${MAILGUN_DOMAIN}>`);
+    formData.append('to', email);
+    formData.append('subject', 'Your Free Business Plan Template is Ready');
+    formData.append('html', `
       <h2>Hi ${name}!</h2>
       <p>Your free Business Plan Template is ready to download.</p>
       <p><a href="${TEMPLATE_URL}" style="background: #C1893D; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Download Template</a></p>
@@ -33,30 +36,28 @@ export default async function handler(req, res) {
       </p>
     `);
 
-    const authHeader = 'Basic ' + Buffer.from(`api:${MAILGUN_API_KEY}`).toString('base64');
-
     const mailgunResponse = await fetch(`https://api.mailgun.net/v3/${MAILGUN_DOMAIN}/messages`, {
       method: 'POST',
       headers: {
         'Authorization': authHeader,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: emailData.toString()
+      body: formData.toString()
     });
 
+    const responseText = await mailgunResponse.text();
+
     if (!mailgunResponse.ok) {
-      const errorText = await mailgunResponse.text();
-      console.error('Mailgun error:', errorText);
-      return res.status(500).json({ error: 'Failed to send email' });
+      console.error('Mailgun error:', { status: mailgunResponse.status, body: responseText });
+      return res.status(500).json({ error: 'Failed to send email: ' + responseText });
     }
 
-    // Success
     return res.status(200).json({
       success: true,
       message: 'Email sent! Check your inbox.'
     });
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({ error: error.message });
+    console.error('Error in send-template-email:', error.message);
+    return res.status(500).json({ error: 'Server error: ' + error.message });
   }
 }
