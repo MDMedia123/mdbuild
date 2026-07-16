@@ -330,36 +330,50 @@
   </main>
 
   <script>
-    function handleDownload(event) {
+    async function handleDownload(event) {
       event.preventDefault();
 
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
       const business = document.getElementById('business').value;
       const updates = document.getElementById('updates').checked;
+      const btn = event.target.querySelector('button[type="submit"]');
 
-      // Store in localStorage (fake email collection for now)
-      const leads = JSON.parse(localStorage.getItem('md_leads') || '[]');
-      leads.push({
-        name: name,
-        email: email,
-        business: business,
-        updates: updates,
-        downloadedAt: new Date().toISOString()
-      });
-      localStorage.setItem('md_leads', JSON.stringify(leads));
+      // Show loading state
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
 
-      // Show success message
-      document.getElementById('successMessage').style.display = 'block';
-      document.getElementById('downloadForm').style.display = 'none';
+      try {
+        // Send email via Mailgun API
+        const response = await fetch('/api/send-template-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, business, updates })
+        });
 
-      // Trigger PDF download
-      const link = document.createElement('a');
-      link.href = 'downloads/Business_Plan_Template.pdf';
-      link.download = 'Business_Plan_Template.pdf';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        if (!response.ok) {
+          throw new Error('Failed to send email');
+        }
+
+        // Also store in localStorage for backup
+        const leads = JSON.parse(localStorage.getItem('md_leads') || '[]');
+        leads.push({
+          name: name,
+          email: email,
+          business: business,
+          updates: updates,
+          downloadedAt: new Date().toISOString()
+        });
+        localStorage.setItem('md_leads', JSON.stringify(leads));
+
+        // Show success message
+        document.getElementById('successMessage').style.display = 'block';
+        document.getElementById('downloadForm').style.display = 'none';
+      } catch (error) {
+        alert('Error sending email. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Download Template (Free)';
+      }
     }
   </script>
 </body>
