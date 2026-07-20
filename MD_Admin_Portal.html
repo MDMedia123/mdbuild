@@ -231,6 +231,10 @@
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="nav-label">Users</div>
       </div>
+      <div class="nav-item" onclick="showPage('email-campaign')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M2 6l10 7 10-7"></path></svg></div>
+        <div class="nav-label">Email Campaign</div>
+      </div>
       <div class="nav-item" onclick="showPage('settings')">
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"></path></svg></div>
         <div class="nav-label">Settings</div>
@@ -454,6 +458,58 @@
       </div>
     </div>
 
+    <!-- Email Campaign Page -->
+    <div id="email-campaign" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Email Campaign</h1>
+          <p class="page-header-sub">Send bulk emails to your audience</p>
+        </div>
+      </div>
+
+      <div class="card" style="max-width: 800px;">
+        <h2>Compose & Send</h2>
+        <form id="emailCampaignForm" onsubmit="handleSendEmails(event)">
+          <div class="form-field" style="text-align:left;">
+            <label>Email Addresses</label>
+            <textarea id="emailList" placeholder="Paste email addresses here (one per line or comma-separated)" style="width:100%;padding:12px;border:1px solid var(--card-border);border-radius:6px;min-height:120px;font-family:monospace;font-size:13px;" required></textarea>
+            <p style="font-size:12px;color:var(--gray-text);margin-top:8px;">Separate emails with commas or newlines</p>
+          </div>
+
+          <div class="form-field" style="text-align:left;">
+            <label>Subject Line</label>
+            <input type="text" id="emailSubject" placeholder="e.g., Get Your Free Business Plan Template" style="width:100%;padding:12px;border:1px solid var(--card-border);border-radius:6px;font-size:14px;" required>
+          </div>
+
+          <div class="form-field" style="text-align:left;">
+            <label>Message</label>
+            <textarea id="emailBody" placeholder="Write your message here. Include the template link: mdbuild.vercel.app/Free_Business_Plan_Template.html" style="width:100%;padding:12px;border:1px solid var(--card-border);border-radius:6px;min-height:200px;font-size:14px;" required></textarea>
+          </div>
+
+          <div style="display:flex;gap:12px;margin-top:20px;">
+            <button type="submit" class="btn btn-primary" id="sendBtn">Send Emails</button>
+            <button type="reset" class="btn" style="background:var(--card-border);color:var(--ink);">Clear</button>
+          </div>
+        </form>
+
+        <div id="campaignStatus" style="display:none;margin-top:20px;padding:16px;border-radius:6px;font-size:14px;"></div>
+      </div>
+
+      <div class="card" style="max-width: 800px;margin-top:20px;">
+        <h2>Campaign Stats</h2>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div>
+            <div style="font-size:12px;color:var(--gray-text);text-transform:uppercase;margin-bottom:8px;">Emails Sent Today</div>
+            <div style="font-size:32px;font-weight:700;color:var(--gold);" id="emailsSentToday">0</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--gray-text);text-transform:uppercase;margin-bottom:8px;">Total Sent</div>
+            <div style="font-size:32px;font-weight:700;color:var(--gold);" id="emailsSentTotal">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Settings Page -->
     <div id="settings" class="page">
       <div class="page-header">
@@ -607,6 +663,79 @@
       await loadOrders();
     } else {
       document.getElementById('loginError').textContent = 'Invalid credentials';
+    }
+  }
+
+  async function handleSendEmails(e){
+    e.preventDefault();
+    const emailList = document.getElementById('emailList').value.trim();
+    const subject = document.getElementById('emailSubject').value.trim();
+    const body = document.getElementById('emailBody').value.trim();
+    const statusEl = document.getElementById('campaignStatus');
+    const sendBtn = document.getElementById('sendBtn');
+
+    if (!emailList || !subject || !body) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = '#fee2e2';
+      statusEl.style.color = '#991b1b';
+      statusEl.textContent = 'Please fill in all fields';
+      return;
+    }
+
+    // Parse email list
+    const emails = emailList.split(/[,\n]+/).map(e => e.trim()).filter(e => e);
+    if (emails.length === 0) {
+      statusEl.style.display = 'block';
+      statusEl.style.background = '#fee2e2';
+      statusEl.style.color = '#991b1b';
+      statusEl.textContent = 'No valid email addresses found';
+      return;
+    }
+
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'Sending...';
+    statusEl.style.display = 'block';
+    statusEl.style.background = '#e0e7ff';
+    statusEl.style.color = '#3730a3';
+    statusEl.textContent = `Sending to ${emails.length} recipients...`;
+
+    try {
+      const response = await fetch('/api/send-bulk-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emails, subject, body })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send emails');
+      }
+
+      const result = await response.json();
+
+      // Update stats
+      const sent = parseInt(document.getElementById('emailsSentToday').textContent) + emails.length;
+      const total = parseInt(document.getElementById('emailsSentTotal').textContent) + emails.length;
+      document.getElementById('emailsSentToday').textContent = sent;
+      document.getElementById('emailsSentTotal').textContent = total;
+
+      // Show success
+      statusEl.style.background = '#dcfce7';
+      statusEl.style.color = '#166534';
+      statusEl.textContent = `✓ Emails sent successfully to ${emails.length} recipients!`;
+
+      // Clear form
+      document.getElementById('emailCampaignForm').reset();
+
+      setTimeout(() => {
+        statusEl.style.display = 'none';
+      }, 4000);
+    } catch (error) {
+      statusEl.style.background = '#fee2e2';
+      statusEl.style.color = '#991b1b';
+      statusEl.textContent = 'Error sending emails: ' + error.message;
+    } finally {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Send Emails';
     }
   }
 
