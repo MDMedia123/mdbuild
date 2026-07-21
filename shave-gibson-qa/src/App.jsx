@@ -202,8 +202,8 @@ function Hero() {
               <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, border: `1.5px solid ${COLORS.ink}`, color: COLORS.ink, background: 'none', cursor: 'pointer', transition: 'all 0.2s' }}>Explore Our Solutions</button>
             </div>
           </div>
-          <div style={{ position: 'relative', background: COLORS.teal100, aspectRatio: '1 / 0.85', borderRadius: 20, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 30px 60px -20px rgba(11,79,75,0.35), 0 10px 24px rgba(11,79,75,0.14)` }}>
-            <img src="/sg-hero-product.jpg" alt="S&G Products" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div style={{ position: 'relative', background: COLORS.teal100, aspectRatio: '1 / 0.85', borderRadius: 20, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `0 30px 60px -20px rgba(11,79,75,0.35), 0 10px 24px rgba(11,79,75,0.14)`, minHeight: 400 }}>
+            <img src="/sg-hero-product.jpg" alt="S&G Products" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           </div>
         </div>
       </div>

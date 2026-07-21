@@ -20,6 +20,20 @@
       "runtimeArgs": ["run", "dev"],
       "port": 5177,
       "cwd": "shave-gibson-qa"
+    },
+    {
+      "name": "sg-admin-backend",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["server.js"],
+      "port": 5000,
+      "cwd": "sg-admin-backend"
+    },
+    {
+      "name": "sg-admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "cwd": "sg-admin"
     }
   ]
 }

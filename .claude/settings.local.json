@@ -18,7 +18,8 @@
       "Bash(curl -s http://localhost:8800/MD_Media_Home.html)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8800/MD_Media_Home.html)",
       "Bash(python -m http.server 8806)",
-      "PowerShell(netstat -ano)"
+      "PowerShell(netstat -ano)",
+      "Bash(npm install *)"
     ]
   }
 }
