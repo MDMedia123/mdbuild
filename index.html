@@ -349,6 +349,7 @@
           <h3 class="product-title" contenteditable="false">Business Blueprint</h3>
           <div class="product-sub" contenteditable="false">Business Blueprint Workspace</div>
           <div id="price-business-launch" style="font-size:18px;font-weight:700;color:#C1893D;margin:8px 0;"></div>
+          <div id="status-business-launch" style="font-size:12px;color:#8B5CF6;font-weight:600;margin-bottom:8px;"></div>
           <div style="font-size:12px;color:var(--gray-text);margin-bottom:12px;font-weight:500;">Lifetime access • One-time payment</div>
           <p class="product-desc" contenteditable="false">From idea to launch-ready, one guided step at a time. Twenty-one modules walk you through everything a real business plan needs — vision, brand, offer, pricing, marketing, and finances — so you always know what comes next.</p>
           <ul class="product-features">
@@ -388,6 +389,7 @@
           <h3 class="product-title" contenteditable="false">Creative Studios</h3>
           <div class="product-sub" contenteditable="false">Creative Design Workspace</div>
           <div id="price-studios" style="font-size:18px;font-weight:700;color:#C1893D;margin:8px 0;"></div>
+          <div id="status-studios" style="font-size:12px;color:#8B5CF6;font-weight:600;margin-bottom:8px;"></div>
           <div style="font-size:12px;color:var(--gray-text);margin-bottom:12px;font-weight:500;">Lifetime access • One-time payment</div>
           <p class="product-desc" contenteditable="false">The creative home for your brand — logo exploration, visual identity, and design templates that pick up right where MD Business Launch leaves off. In development now.</p>
           <ul class="product-features">
@@ -767,16 +769,28 @@
       applyProductState(slug, bySlug[slug] || null);
       applyAccessDropdownState(slug, bySlug[slug] || null);
 
-      // Load and display prices from price_cents field
+      // Load and display prices and status from product data
       var product = bySlug[slug];
-      if(product && product.price_cents){
-        var price = '$' + (product.price_cents / 100).toFixed(0);
-        if(slug === 'business-launch'){
-          var priceEl = document.getElementById('price-business-launch');
-          if(priceEl) priceEl.textContent = price;
-        } else if(slug === 'studios'){
-          var priceEl = document.getElementById('price-studios');
-          if(priceEl) priceEl.textContent = price;
+      if(product){
+        if(product.price_cents){
+          var price = '$' + (product.price_cents / 100).toFixed(0);
+          if(slug === 'business-launch'){
+            var priceEl = document.getElementById('price-business-launch');
+            if(priceEl) priceEl.textContent = price;
+          } else if(slug === 'studios'){
+            var priceEl = document.getElementById('price-studios');
+            if(priceEl) priceEl.textContent = price;
+          }
+        }
+        // Display status message
+        if(product.status_message){
+          if(slug === 'business-launch'){
+            var statusEl = document.getElementById('status-business-launch');
+            if(statusEl) statusEl.textContent = product.status_message;
+          } else if(slug === 'studios'){
+            var statusEl = document.getElementById('status-studios');
+            if(statusEl) statusEl.textContent = product.status_message;
+          }
         }
       }
     });
