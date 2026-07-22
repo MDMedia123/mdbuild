@@ -41,14 +41,49 @@ export default async function handler(req, res) {
 
       formData.append('subject', subject);
       formData.append('html', `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <p>${body.replace(/\n/g, '<br>')}</p>
-          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;">
-          <p style="color: #6b7280; font-size: 12px;">
-            MD Build — All your tools. One platform.<br>
-            <a href="https://mdbuild.vercel.app" style="color: #C1893D; text-decoration: none;">mdbuild.vercel.app</a>
-          </p>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background-color:#f5f5f5;">
+          <div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+            <!-- Header -->
+            <div style="background:linear-gradient(135deg,#1F2937 0%,#111827 100%);padding:32px 24px;text-align:center;">
+              <div style="font-size:28px;font-weight:700;color:#C1893D;margin-bottom:8px;">MD Build</div>
+              <div style="color:#D1D5DB;font-size:14px;">All your tools. One platform.</div>
+            </div>
+
+            <!-- Content -->
+            <div style="padding:32px 24px;color:#374151;line-height:1.6;">
+              <div style="margin-bottom:24px;font-size:16px;">
+                ${body.replace(/\n/g, '<br>')}
+              </div>
+
+              <div style="margin:32px 0;">
+                <a href="https://buildbymd.com" style="display:inline-block;background-color:#C1893D;color:white;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">
+                  Get Started
+                </a>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:24px;text-align:center;font-size:12px;color:#6b7280;">
+              <div style="margin-bottom:12px;">
+                <strong>MD Build</strong><br>
+                All your tools. One platform.
+              </div>
+              <div>
+                <a href="https://buildbymd.com" style="color:#C1893D;text-decoration:none;">buildbymd.com</a>
+              </div>
+              <div style="margin-top:12px;font-size:11px;color:#9ca3af;">
+                © 2025 MD Media. All rights reserved.
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
       `);
 
       try {
