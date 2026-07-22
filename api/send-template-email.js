@@ -31,32 +31,115 @@ export default async function handler(req, res) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MD Build</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:Arial,sans-serif;">
-<div style="max-width:600px;margin:20px auto;background-color:#ffffff;border-radius:8px;">
-<div style="background:#1F2937;padding:32px 24px;text-align:center;">
-<div style="font-size:28px;font-weight:bold;color:#C1893D;margin:0 0 8px 0;">MD Build</div>
-<div style="color:#D1D5DB;font-size:14px;margin:0;">Your template is ready!</div>
+<body style="margin:0;padding:0;background-color:#fafafa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#fafafa;">
+<tr>
+<td align="center" style="padding:20px;">
+<table width="100%" max-width="600" border="0" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;">
+
+<!-- Header -->
+<tr>
+<td style="padding:24px;border-bottom:1px solid #e5e7eb;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td style="font-size:16px;font-weight:bold;">
+<span style="background-color:#1a2847;color:white;padding:6px 10px;border-radius:4px;font-size:14px;margin-right:8px;">MD</span><span style="color:#1a2847;font-weight:bold;">Build</span>
+</td>
+<td align="right" style="font-size:12px;color:#6b7280;">
+Free Template | Your first step starts now.
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<!-- Hero Section -->
+<tr>
+<td style="padding:48px 24px;background-color:#f9fafb;text-align:center;">
+<h1 style="margin:0 0 16px 0;font-size:36px;font-weight:700;color:#1a2847;line-height:1.2;">You're all set!</h1>
+<p style="margin:0 0 24px 0;font-size:16px;color:#6b7280;line-height:1.6;">Your free Business Plan Template is ready to download.</p>
+<p style="margin:0;font-size:13px;color:#9ca3af;line-height:1.5;">We've created this template to help you take the first step toward building a stronger, smarter business.</p>
+</td>
+</tr>
+
+<!-- CTA Button -->
+<tr>
+<td style="padding:32px 24px;text-align:center;">
+<a href="${TEMPLATE_URL}" style="background-color:#b8860b;color:white;padding:14px 40px;text-decoration:none;font-weight:bold;font-size:15px;border-radius:6px;display:inline-block;">Download Your Free Template ↓</a>
+<p style="margin:12px 0 0 0;font-size:12px;color:#6b7280;">Or copy this link: ${TEMPLATE_URL}</p>
+</td>
+</tr>
+
+<!-- What You Get Section -->
+<tr>
+<td style="padding:48px 24px;text-align:center;">
+<h2 style="margin:0 0 32px 0;font-size:24px;font-weight:700;color:#1a2847;">What you get</h2>
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td width="25%" style="padding:16px;">
+<div style="font-size:28px;margin-bottom:8px;">📋</div>
+<p style="margin:0 0 8px 0;font-weight:600;color:#1a2847;font-size:13px;">Professionally Designed</p>
+<p style="margin:0;font-size:12px;color:#6b7280;">Clean, easy-to-use and ready to customise.</p>
+</td>
+<td width="25%" style="padding:16px;">
+<div style="font-size:28px;margin-bottom:8px;">⏱️</div>
+<p style="margin:0 0 8px 0;font-weight:600;color:#1a2847;font-size:13px;">Save Time</p>
+<p style="margin:0;font-size:12px;color:#6b7280;">Skip the blank page and start with a proven framework.</p>
+</td>
+<td width="25%" style="padding:16px;">
+<div style="font-size:28px;margin-bottom:8px;">🚀</div>
+<p style="margin:0 0 8px 0;font-weight:600;color:#1a2847;font-size:13px;">Built for Action</p>
+<p style="margin:0;font-size:12px;color:#6b7280;">Practical structure to help you plan, launch and grow.</p>
+</td>
+<td width="25%" style="padding:16px;">
+<div style="font-size:28px;margin-bottom:8px;">📊</div>
+<p style="margin:0 0 8px 0;font-weight:600;color:#1a2847;font-size:13px;">Focused on Results</p>
+<p style="margin:0;font-size:12px;color:#6b7280;">Every section helps you move closer to your goals.</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<!-- Ready to Build More Section -->
+<tr>
+<td style="padding:48px 24px;background-color:#f9fafb;border-top:1px solid #e5e7eb;">
+<h2 style="margin:0 0 16px 0;font-size:24px;font-weight:700;color:#1a2847;">Ready to build more?</h2>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">MD Build gives you everything you need to plan, launch and grow your business — all in one place.</p>
+<a href="https://buildbymd.com" style="background-color:#b8860b;color:white;padding:12px 32px;text-decoration:none;font-weight:bold;font-size:14px;border-radius:6px;display:inline-block;">Explore MD Build →</a>
+<p style="margin:16px 0 0 0;font-size:13px;color:#6b7280;"><strong>MD Business Launch</strong> — 21 guided modules, $49 lifetime access</p>
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td style="padding:32px 24px;border-top:1px solid #e5e7eb;text-align:center;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td style="text-align:center;padding-bottom:16px;">
+<div style="font-weight:bold;color:#1a2847;margin-bottom:4px;">MD Build</div>
+<div style="font-size:13px;color:#6b7280;margin-bottom:12px;">We're excited to be part of your journey</div>
+<div>
+<a href="https://linkedin.com" style="margin:0 8px;text-decoration:none;color:#6b7280;">in</a>
+<a href="https://instagram.com" style="margin:0 8px;text-decoration:none;color:#6b7280;">ig</a>
+<a href="https://youtube.com" style="margin:0 8px;text-decoration:none;color:#6b7280;">yt</a>
 </div>
-<div style="padding:32px 24px;color:#374151;font-size:15px;line-height:1.6;">
-<p style="margin:0 0 16px 0;font-weight:600;font-size:16px;">Hi ${name}!</p>
-<p style="margin:0 0 24px 0;">Your free Business Plan Template is ready to download. This comprehensive template includes all 21 sections of a professional business plan — everything you need to launch with clarity.</p>
-<div style="margin:32px 0;text-align:center;">
-<a href="${TEMPLATE_URL}" style="background-color:#C1893D;color:white;padding:14px 40px;text-decoration:none;font-weight:bold;font-size:16px;border-radius:6px;display:inline-block;">Download Template</a>
-</div>
-<div style="background-color:#f9fafb;border-left:4px solid #C1893D;padding:16px;margin:24px 0;">
-<p style="margin:0 0 8px 0;font-weight:bold;">Ready to go deeper?</p>
-<p style="margin:0 0 12px 0;">Take your template to completion with <strong>MD Business Launch</strong> — a 21-module guided platform that walks you through everything from idea validation to first sale.</p>
-<p style="margin:0 0 16px 0;"><strong>Just $49 for lifetime access.</strong></p>
-<a href="https://buildbymd.com" style="background-color:#374151;color:white;padding:10px 24px;text-decoration:none;font-weight:bold;font-size:14px;border-radius:6px;display:inline-block;">Explore MD Business Launch</a>
-</div>
-<p style="margin:24px 0 0 0;font-size:12px;color:#6b7280;">${updates ? '✓ You\'ve opted in to receive tips on building your business.' : 'You won\'t receive additional emails unless you opt in.'}</p>
-</div>
-<div style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:24px;text-align:center;font-size:12px;color:#6b7280;">
-<p style="margin:0 0 12px 0;"><strong>MD Build</strong><br>All your tools. One platform.</p>
-<p style="margin:0 0 12px 0;"><a href="https://buildbymd.com" style="color:#C1893D;text-decoration:none;">buildbymd.com</a></p>
-<p style="margin:0;font-size:11px;">© 2025 MD Media. All rights reserved.</p>
-</div>
-</div>
+</td>
+</tr>
+<tr>
+<td style="border-top:1px solid #e5e7eb;padding-top:16px;font-size:11px;color:#9ca3af;">
+<p style="margin:0 0 8px 0;"><a href="#" style="color:#b8860b;text-decoration:none;">Privacy Policy</a> | <a href="#" style="color:#b8860b;text-decoration:none;">Terms of Use</a> | <a href="#" style="color:#b8860b;text-decoration:none;">Unsubscribe</a></p>
+<p style="margin:0;">© 2025 MD Build. All rights reserved.</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
 </body>
 </html>`;
 

@@ -48,24 +48,71 @@ export default async function handler(req, res) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MD Build</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:Arial,sans-serif;">
-<div style="max-width:600px;margin:20px auto;background-color:#ffffff;border-radius:8px;">
-<div style="background:#1F2937;padding:32px 24px;text-align:center;">
-<div style="font-size:28px;font-weight:bold;color:#C1893D;margin:0 0 8px 0;">MD Build</div>
-<div style="color:#D1D5DB;font-size:14px;margin:0;">All your tools. One platform.</div>
-</div>
-<div style="padding:32px 24px;color:#374151;font-size:15px;line-height:1.6;">
+<body style="margin:0;padding:0;background-color:#fafafa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color:#fafafa;">
+<tr>
+<td align="center" style="padding:20px;">
+<table width="100%" max-width="600" border="0" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;">
+
+<!-- Header -->
+<tr>
+<td style="padding:24px;border-bottom:1px solid #e5e7eb;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td style="font-size:16px;font-weight:bold;">
+<span style="background-color:#1a2847;color:white;padding:6px 10px;border-radius:4px;font-size:14px;margin-right:8px;">MD</span><span style="color:#1a2847;font-weight:bold;">Build</span>
+</td>
+<td align="right" style="font-size:12px;color:#6b7280;">
+All your tools. One platform.
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<!-- Main Content -->
+<tr>
+<td style="padding:48px 24px;text-align:center;color:#374151;font-size:15px;line-height:1.6;">
 ${body.replace(/\n/g, '<br>')}
-<div style="margin:32px 0;">
-<a href="https://buildbymd.com" style="background-color:#C1893D;color:white;padding:12px 32px;text-decoration:none;font-weight:bold;font-size:14px;border-radius:6px;display:inline-block;">Get Started</a>
+</td>
+</tr>
+
+<!-- CTA Button -->
+<tr>
+<td style="padding:16px 24px;text-align:center;">
+<a href="https://buildbymd.com" style="background-color:#b8860b;color:white;padding:12px 32px;text-decoration:none;font-weight:bold;font-size:14px;border-radius:6px;display:inline-block;">Get Started</a>
+</td>
+</tr>
+
+<!-- Footer -->
+<tr>
+<td style="padding:32px 24px;border-top:1px solid #e5e7eb;text-align:center;">
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td style="text-align:center;padding-bottom:16px;">
+<div style="font-weight:bold;color:#1a2847;margin-bottom:4px;">MD Build</div>
+<div style="font-size:13px;color:#6b7280;margin-bottom:12px;">We're excited to be part of your journey</div>
+<div>
+<a href="https://linkedin.com" style="margin:0 8px;text-decoration:none;color:#6b7280;">in</a>
+<a href="https://instagram.com" style="margin:0 8px;text-decoration:none;color:#6b7280;">ig</a>
+<a href="https://youtube.com" style="margin:0 8px;text-decoration:none;color:#6b7280;">yt</a>
 </div>
-</div>
-<div style="background-color:#f9fafb;border-top:1px solid #e5e7eb;padding:24px;text-align:center;font-size:12px;color:#6b7280;">
-<p style="margin:0 0 12px 0;"><strong>MD Build</strong><br>All your tools. One platform.</p>
-<p style="margin:0 0 12px 0;"><a href="https://buildbymd.com" style="color:#C1893D;text-decoration:none;">buildbymd.com</a></p>
-<p style="margin:0;font-size:11px;">© 2025 MD Media. All rights reserved.</p>
-</div>
-</div>
+</td>
+</tr>
+<tr>
+<td style="border-top:1px solid #e5e7eb;padding-top:16px;font-size:11px;color:#9ca3af;">
+<p style="margin:0 0 8px 0;"><a href="#" style="color:#b8860b;text-decoration:none;">Privacy Policy</a> | <a href="#" style="color:#b8860b;text-decoration:none;">Terms of Use</a> | <a href="#" style="color:#b8860b;text-decoration:none;">Unsubscribe</a></p>
+<p style="margin:0;">© 2025 MD Build. All rights reserved.</p>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+</table>
+</td>
+</tr>
+</table>
 </body>
 </html>`;
 
