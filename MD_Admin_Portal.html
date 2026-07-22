@@ -780,6 +780,7 @@
       await loadModules();
       await loadCustomers();
       await loadOrders();
+      loadCampaignStats();
     } else {
       document.getElementById('loginError').textContent = 'Invalid credentials';
     }
@@ -832,10 +833,21 @@
       const result = await response.json();
 
       // Update stats
-      const sent = parseInt(document.getElementById('emailsSentToday').textContent) + emails.length;
-      const total = parseInt(document.getElementById('emailsSentTotal').textContent) + emails.length;
-      document.getElementById('emailsSentToday').textContent = sent;
-      document.getElementById('emailsSentTotal').textContent = total;
+      const today = new Date().toISOString().split('T')[0];
+      const stats = JSON.parse(localStorage.getItem('campaignStats') || '{"lastDay":"","sent":0,"total":0}');
+
+      // Reset today count if it's a new day
+      if (stats.lastDay !== today) {
+        stats.lastDay = today;
+        stats.sent = 0;
+      }
+
+      stats.sent += emails.length;
+      stats.total += emails.length;
+      localStorage.setItem('campaignStats', JSON.stringify(stats));
+
+      document.getElementById('emailsSentToday').textContent = stats.sent;
+      document.getElementById('emailsSentTotal').textContent = stats.total;
 
       // Show success
       statusEl.style.background = '#dcfce7';
@@ -888,6 +900,22 @@
     } catch(err) {
       console.error('Error loading dashboard:', err);
     }
+  }
+
+  // Campaign Stats
+  function loadCampaignStats(){
+    const today = new Date().toISOString().split('T')[0];
+    const stats = JSON.parse(localStorage.getItem('campaignStats') || '{"lastDay":"","sent":0,"total":0}');
+
+    // Reset today count if it's a new day
+    if (stats.lastDay !== today) {
+      stats.lastDay = today;
+      stats.sent = 0;
+      localStorage.setItem('campaignStats', JSON.stringify(stats));
+    }
+
+    document.getElementById('emailsSentToday').textContent = stats.sent;
+    document.getElementById('emailsSentTotal').textContent = stats.total;
   }
 
   // Products
