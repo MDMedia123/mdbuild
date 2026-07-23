@@ -172,6 +172,14 @@
 
     <form id="businessPlanForm">
 
+      <!-- PDF Cover Page -->
+      <div id="pdfCover" style="page-break-after: always; padding: 60px 40px; text-align: center; background: linear-gradient(135deg, #1a2847 0%, #0f1a3a 100%); color: white; border-radius: 0; margin: -32px -32px 32px -32px; display: none;">
+        <h1 style="font-size: 48px; margin: 0 0 12px 0; font-weight: 700;">Business Plan</h1>
+        <p id="coverCompanyName" style="font-size: 28px; margin: 0 0 40px 0; color: #c1893d; font-weight: 600;">Your Company Name</p>
+        <p style="font-size: 14px; margin: 20px 0; color: rgba(255,255,255,0.8);">Prepared: <span id="coverDate"></span></p>
+        <p style="font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 40px;">Created with MD Build's Business Plan Template</p>
+      </div>
+
       <!-- 1. Executive Summary -->
       <div class="section">
         <h2><span class="section-number">1</span>Executive Summary</h2>
@@ -326,6 +334,15 @@ function downloadPDF() {
   const element = document.getElementById('businessPlanForm');
   const businessName = document.getElementById('companyName').value || 'Business Plan';
 
+  // Show cover page
+  const cover = document.getElementById('pdfCover');
+  const coverCompanyName = document.getElementById('coverCompanyName');
+  const coverDate = document.getElementById('coverDate');
+
+  cover.style.display = 'block';
+  coverCompanyName.textContent = businessName;
+  coverDate.textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
   const opt = {
     margin: 10,
     filename: `${businessName}_BusinessPlan.pdf`,
@@ -335,6 +352,7 @@ function downloadPDF() {
   };
 
   html2pdf().set(opt).from(element).save().then(() => {
+    cover.style.display = 'none';
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = 'Download as PDF';
