@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Plan Template | MD Build</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ink: #1a2847;
+      --gold: #c1893d;
+      --gray-text: #6b7280;
+      --gray-light: #f9fafb;
+      --border: #e5e7eb;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+    header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .logo-gold { color: var(--gold); }
+
+    .btn-download {
+      background: var(--gold);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .btn-download:hover { background: #ad7833; }
+    .btn-download:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .main {
+      padding: 40px 0;
+    }
+
+    .hero {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+
+    .hero p {
+      font-size: 16px;
+      color: var(--gray-text);
+    }
+
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: var(--gray-text);
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--ink);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(193, 137, 61, 0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+
+    .footer {
+      text-align: center;
+      padding: 40px 0;
+      color: var(--gray-text);
+      font-size: 13px;
+    }
+
+    .loading { opacity: 0.6; }
+
+    .section-number {
+      display: inline-block;
+      background: var(--gold);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 32px;
+      font-weight: 700;
+      margin-right: 12px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-content">
+      <div class="logo"><span class="logo-gold">MD</span> Build</div>
+      <button class="btn-download" onclick="downloadPDF()">Download as PDF</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+  <div class="main">
+    <div class="hero">
+      <h1>Business Plan Template</h1>
+      <p>Create a comprehensive business plan in minutes. Fill in each section below and download as PDF when ready.</p>
+    </div>
+
+    <form id="businessPlanForm">
+
+      <!-- 1. Executive Summary -->
+      <div class="section">
+        <h2><span class="section-number">1</span>Executive Summary</h2>
+        <span class="section-subtitle">A concise overview of your entire business plan (3-4 paragraphs)</span>
+
+        <div class="form-group">
+          <label>What is your business idea?</label>
+          <textarea id="executiveSummary" placeholder="Describe your business idea, target market, and value proposition..."></textarea>
+        </div>
+      </div>
+
+      <!-- 2. Company Description -->
+      <div class="section">
+        <h2><span class="section-number">2</span>Company Description</h2>
+        <span class="section-subtitle">Details about your company structure and mission</span>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Company Name</label>
+            <input type="text" id="companyName" placeholder="e.g., My Digital Marketing Agency">
+          </div>
+          <div class="form-group">
+            <label>Business Type</label>
+            <select id="businessType">
+              <option value="">Select...</option>
+              <option value="Service">Service-based</option>
+              <option value="Product">Product-based</option>
+              <option value="SaaS">SaaS</option>
+              <option value="Retail">Retail</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Mission Statement</label>
+          <textarea id="mission" placeholder="What is your company's mission?"></textarea>
+        </div>
+      </div>
+
+      <!-- 3. Market Analysis -->
+      <div class="section">
+        <h2><span class="section-number">3</span>Market Analysis</h2>
+        <span class="section-subtitle">Understanding your target market and competition</span>
+
+        <div class="form-group">
+          <label>Who is your target customer?</label>
+          <textarea id="targetCustomer" placeholder="Describe your ideal customer: age, location, income, pain points, etc."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Market Size & Opportunity</label>
+          <textarea id="marketSize" placeholder="What is the total addressable market? What's the opportunity?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Competitive Landscape</label>
+          <textarea id="competition" placeholder="Who are your main competitors? What are their strengths/weaknesses?"></textarea>
+        </div>
+      </div>
+
+      <!-- 4. Products & Services -->
+      <div class="section">
+        <h2><span class="section-number">4</span>Products & Services</h2>
+        <span class="section-subtitle">What you're selling and how it solves customer problems</span>
+
+        <div class="form-group">
+          <label>What products/services do you offer?</label>
+          <textarea id="offerings" placeholder="Describe your main offerings and how they benefit customers..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Pricing Strategy</label>
+          <textarea id="pricing" placeholder="How will you price your products/services? (Premium, affordable, value-based, etc.)"></textarea>
+        </div>
+      </div>
+
+      <!-- 5. Marketing & Sales Strategy -->
+      <div class="section">
+        <h2><span class="section-number">5</span>Marketing & Sales Strategy</h2>
+        <span class="section-subtitle">How you'll attract and convert customers</span>
+
+        <div class="form-group">
+          <label>How will you acquire customers?</label>
+          <textarea id="customerAcquisition" placeholder="Social media, content marketing, paid ads, partnerships, word of mouth, etc."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Sales Process</label>
+          <textarea id="salesProcess" placeholder="How will customers move from awareness to purchase?"></textarea>
+        </div>
+      </div>
+
+      <!-- 6. Operations & Team -->
+      <div class="section">
+        <h2><span class="section-number">6</span>Operations & Team</h2>
+        <span class="section-subtitle">Your business structure and key personnel</span>
+
+        <div class="form-group">
+          <label>Key Team Members & Roles</label>
+          <textarea id="team" placeholder="List your team members, their roles, and relevant experience..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Business Operations</label>
+          <textarea id="operations" placeholder="How will you operate your business? (Location, tools, processes, etc.)"></textarea>
+        </div>
+      </div>
+
+      <!-- 7. Financial Projections -->
+      <div class="section">
+        <h2><span class="section-number">7</span>Financial Projections</h2>
+        <span class="section-subtitle">Your financial outlook for the first 3 years</span>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Year 1 Revenue Goal</label>
+            <input type="text" id="year1Revenue" placeholder="e.g., $50,000">
+          </div>
+          <div class="form-group">
+            <label>Year 2 Revenue Goal</label>
+            <input type="text" id="year2Revenue" placeholder="e.g., $100,000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Major Expenses</label>
+          <textarea id="expenses" placeholder="What are your main expenses? (Salaries, equipment, marketing, etc.)"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Break-Even Analysis</label>
+          <textarea id="breakEven" placeholder="When do you expect to break even? What are your key assumptions?"></textarea>
+        </div>
+      </div>
+
+      <!-- 8. Funding Requirements -->
+      <div class="section">
+        <h2><span class="section-number">8</span>Funding & Milestones</h2>
+        <span class="section-subtitle">What resources you need and key milestones</span>
+
+        <div class="form-group">
+          <label>Starting Capital Needed</label>
+          <input type="text" id="fundingNeeded" placeholder="e.g., $25,000">
+        </div>
+
+        <div class="form-group">
+          <label>Key Milestones (First 12 Months)</label>
+          <textarea id="milestones" placeholder="What are your key goals? (e.g., Launch product, acquire 50 customers, reach $25K revenue)"></textarea>
+        </div>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+<div class="footer">
+  <p>© 2025 MD Build. Created with care for ambitious builders.</p>
+</div>
+
+<script>
+function downloadPDF() {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = 'Generating PDF...';
+
+  const element = document.getElementById('businessPlanForm');
+  const businessName = document.getElementById('companyName').value || 'Business Plan';
+
+  const opt = {
+    margin: 10,
+    filename: `${businessName}_BusinessPlan.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+  };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = 'Download as PDF';
+  });
+}
+
+// Auto-save to localStorage
+const formInputs = document.querySelectorAll('input, textarea, select');
+formInputs.forEach(input => {
+  input.addEventListener('change', () => {
+    localStorage.setItem('businessPlan_' + input.id, input.value);
+  });
+
+  // Load from localStorage
+  const saved = localStorage.getItem('businessPlan_' + input.id);
+  if (saved) input.value = saved;
+});
+</script>
+
+</body>
+</html>

@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     }
 
     const authHeader = 'Basic ' + Buffer.from(`api:${MAILGUN_API_KEY}`).toString('base64');
-    const dlLink = 'https://buildbymd.com/Free_Business_Plan_Template.html';
+    const toolLink = 'https://mdbuild.vercel.app/BusinessPlanTemplate.html';
 
     const html = `<!DOCTYPE html>
 <html>
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
 
 <!-- CTA Button -->
 <tr><td style="padding: 24px 40px; text-align: center;">
-<a href="${dlLink}" style="background: #c1893d; color: white; padding: 14px 40px; text-decoration: none; font-weight: bold; font-size: 15px; border-radius: 6px; display: inline-block; border: none;">Download Your Free Template</a>
+<a href="${toolLink}" style="background: #c1893d; color: white; padding: 14px 40px; text-decoration: none; font-weight: bold; font-size: 15px; border-radius: 6px; display: inline-block; border: none;">Start Your Business Plan</a>
 </td></tr>
 
 <!-- Upsell -->
