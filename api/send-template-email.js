@@ -20,59 +20,7 @@ export default async function handler(req, res) {
     const authHeader = 'Basic ' + Buffer.from(`api:${MAILGUN_API_KEY}`).toString('base64');
     const toolLink = 'https://buildbymd.com/BusinessPlanTemplate.html';
 
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f9fafb;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb;">
-<tr><td align="center" style="padding: 40px 0;">
-<table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 12px; overflow: hidden;">
-
-<!-- Header -->
-<tr><td style="padding: 40px 40px 20px 40px; text-align: center; border-bottom: 1px solid #e5e7eb;">
-<div style="font-size: 24px; font-weight: 700; color: #c1893d; margin: 0;">MD Build</div>
-<div style="font-size: 14px; color: #6b7280; margin-top: 4px;">Your first step starts now</div>
-</td></tr>
-
-<!-- Hero -->
-<tr><td style="padding: 40px 40px; text-align: center; background: #f9fafb;">
-<h1 style="margin: 0 0 12px 0; font-size: 32px; font-weight: 700; color: #1a2847; line-height: 1.3;">You're all set!</h1>
-<p style="margin: 0 0 24px 0; font-size: 16px; color: #6b7280; line-height: 1.5;">Your free Business Plan Template is ready to download.</p>
-</td></tr>
-
-<!-- Content -->
-<tr><td style="padding: 0 40px; color: #374151; font-size: 15px; line-height: 1.6;">
-<p style="margin: 0 0 20px 0;">Hi ${name},</p>
-<p style="margin: 0 0 24px 0;">Your comprehensive Business Plan Template with all 21 sections is ready. Everything you need to launch with clarity.</p>
-</td></tr>
-
-<!-- CTA Button -->
-<tr><td style="padding: 24px 40px; text-align: center;">
-<a href="${toolLink}" style="background: #c1893d; color: white; padding: 14px 40px; text-decoration: none; font-weight: bold; font-size: 15px; border-radius: 6px; display: inline-block; border: none;">Start Your Business Plan</a>
-</td></tr>
-
-<!-- Upsell -->
-<tr><td style="padding: 24px 40px; background: #f9fafb; border-top: 1px solid #e5e7eb;">
-<p style="margin: 0 0 12px 0; font-weight: 600; color: #1a2847;">Ready to go deeper?</p>
-<p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280; line-height: 1.6;">Take your template to completion with <strong>MD Business Launch</strong> — 21 guided modules that walk you through everything from idea validation to first sale.</p>
-<p style="margin: 0 0 16px 0; font-weight: 600; color: #1a2847;">Just $49 for lifetime access</p>
-<a href="https://buildbymd.com" style="background: #1a2847; color: white; padding: 10px 24px; text-decoration: none; font-weight: bold; font-size: 14px; border-radius: 6px; display: inline-block;">Learn More</a>
-</td></tr>
-
-<!-- Footer -->
-<tr><td style="padding: 24px 40px; text-align: center; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;">
-<p style="margin: 0 0 8px 0;"><strong>MD Build</strong><br>All your tools. One platform.</p>
-<p style="margin: 8px 0; font-size: 11px;">© 2025 MD Build. All rights reserved.</p>
-</td></tr>
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>`;
+    const html = `<html><body style="margin:0;padding:0;font-family:Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center"><table width="100%" style="max-width:600px;background:#fff;" cellpadding="0" cellspacing="0"><tr><td style="padding:32px;background:#f9fafb;text-align:center;border-bottom:3px solid #c1893d;"><h1 style="margin:0;font-size:24px;font-weight:bold;color:#1a2847;">You're All Set!</h1><p style="margin:6px 0 0 0;font-size:13px;color:#6b7280;">Your free Business Plan Template is ready</p></td></tr><tr><td style="padding:28px 32px;color:#374151;font-size:13px;line-height:1.6;"><p style="margin:0 0 12px 0;font-weight:bold;">Hi ${name},</p><p style="margin:0 0 16px 0;">Your comprehensive Business Plan Template with all 21 sections is ready. Everything you need to launch with clarity.</p><p style="text-align:center;margin:20px 0;"><a href="${toolLink}" style="display:inline-block;background:#c1893d;color:white;padding:12px 40px;text-decoration:none;font-weight:bold;font-size:13px;border-radius:4px;">Start Building Your Plan</a></p></td></tr><tr><td style="padding:20px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;"><p style="margin:0 0 10px 0;font-weight:bold;color:#1a2847;font-size:13px;">Ready to go deeper?</p><p style="margin:0 0 10px 0;font-size:12px;color:#6b7280;line-height:1.5;">Take your template to completion with MD Business Launch — 21 modules, everything from idea to first sale.</p><p style="margin:0 0 12px 0;font-weight:bold;color:#1a2847;font-size:13px;">Just $49 for lifetime access</p><p style="margin:0;"><a href="https://buildbymd.com" style="display:inline-block;background:#1a2847;color:white;padding:8px 28px;text-decoration:none;font-weight:bold;font-size:12px;border-radius:4px;">Learn More</a></p></td></tr><tr><td style="padding:20px 32px;text-align:center;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;"><p style="margin:0 0 4px 0;"><strong>MD Build</strong></p><p style="margin:0;">© 2025 MD Build. All rights reserved.</p></td></tr></table></td></tr></table></body></html>`;
 
     const formData = new URLSearchParams();
     formData.append('from', `MD Build <noreply@${MAILGUN_DOMAIN}>`);
