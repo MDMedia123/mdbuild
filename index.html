@@ -721,12 +721,14 @@
       if (actionsLive) actionsLive.style.display = '';
       if (actionsOff) actionsOff.style.display = 'none';
       if (devSkip) devSkip.style.display = '';
+      card.classList.remove('soon');
     } else {
-      if (statusBadge) statusBadge.style.display = '';
+      if (statusBadge) statusBadge.style.display = 'inline-block';
       if (badgeNew) badgeNew.style.display = 'none';
       if (actionsLive) actionsLive.style.display = 'none';
       if (actionsOff) actionsOff.style.display = '';
       if (devSkip) devSkip.style.display = 'none';
+      card.classList.add('soon');
     }
   }
 
