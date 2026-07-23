@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     }
 
     const authHeader = 'Basic ' + Buffer.from(`api:${MAILGUN_API_KEY}`).toString('base64');
-    const toolLink = 'https://mdbuild.vercel.app/BusinessPlanTemplate.html';
+    const toolLink = 'https://buildbymd.com/BusinessPlanTemplate.html';
 
     const html = `<!DOCTYPE html>
 <html>
