@@ -712,6 +712,23 @@
         <textarea id="productDescription" required></textarea>
       </div>
       <div class="form-field">
+        <label>Icon</label>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <select id="productIcon" style="flex:1;padding:8px;border:1px solid var(--card-border);border-radius:6px;font-size:14px;">
+            <option value="">Choose an icon...</option>
+            <option value="rocket">🚀 Rocket (Launch)</option>
+            <option value="palette">🎨 Palette (Design)</option>
+            <option value="chart">📊 Chart (Analytics)</option>
+            <option value="settings">⚙️ Settings (Tools)</option>
+            <option value="star">⭐ Star (Premium)</option>
+            <option value="zap">⚡ Zap (Power)</option>
+            <option value="heart">❤️ Heart (Favorite)</option>
+            <option value="book">📖 Book (Learning)</option>
+          </select>
+          <div id="iconPreview" style="width:48px;height:48px;border:1px solid var(--card-border);border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--gold-soft);font-size:24px;"></div>
+        </div>
+      </div>
+      <div class="form-field">
         <label>Price ($)</label>
         <input type="number" id="productPrice" step="0.01" placeholder="e.g., 199">
       </div>
@@ -979,6 +996,8 @@
 
         document.getElementById('productPrice').value = price;
         document.getElementById('productStatus').value = status;
+        document.getElementById('productIcon').value = product.icon || '';
+        updateIconPreview();
         document.getElementById('productModal').classList.add('active');
       }
     } catch(err) {
@@ -1030,9 +1049,10 @@
     const description = document.getElementById('productDescription').value.trim();
     const price = document.getElementById('productPrice').value.trim();
     const status = document.getElementById('productStatus').value.trim();
+    const icon = document.getElementById('productIcon').value.trim();
     const enabled = document.getElementById('productEnabled').checked;
 
-    console.log('Saving product:', { name, description, price, status, enabled });
+    console.log('Saving product:', { name, description, price, status, icon, enabled });
 
     if(!name){
       alert('Product name is required');
@@ -1042,6 +1062,11 @@
     try {
       // Create update data with available fields
       const updateData = { name, slug, description, enabled };
+
+      // Store icon
+      if(icon){
+        updateData.icon = icon;
+      }
 
       // Store price in price_cents field (numerical storage)
       if(price){
@@ -1082,6 +1107,29 @@
       alert('Error: ' + (err.message || 'Unknown error'));
     }
   }
+
+  function updateIconPreview(){
+    const iconValue = document.getElementById('productIcon').value;
+    const preview = document.getElementById('iconPreview');
+    const icons = {
+      'rocket': '🚀',
+      'palette': '🎨',
+      'chart': '📊',
+      'settings': '⚙️',
+      'star': '⭐',
+      'zap': '⚡',
+      'heart': '❤️',
+      'book': '📖'
+    };
+    preview.textContent = icons[iconValue] || '';
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const iconSelect = document.getElementById('productIcon');
+    if(iconSelect){
+      iconSelect.addEventListener('change', updateIconPreview);
+    }
+  });
 
   // Modules
   async function loadModules(){
