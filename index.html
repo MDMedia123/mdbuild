@@ -701,7 +701,7 @@
   function applyProductState(slug, product){
     var card = document.querySelector('[data-product-slug="' + slug + '"]');
     if (!card) return;
-    if (!product || !product.enabled) { card.style.display = 'none'; return; }
+    if (!product) { card.style.display = 'none'; return; }
     card.style.display = '';
 
     var statusBadge = document.getElementById('statusBadge-' + slug);
