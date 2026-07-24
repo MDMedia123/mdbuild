@@ -755,6 +755,20 @@
   // Generic card for any product beyond the two built-in ones. Those two keep
   // their hand-built cards (rich feature list, preview modal, real links) —
   // this is a plain fallback for products that don't have that yet.
+  function getIconSvg(iconName){
+    var icons = {
+      'rocket': '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>',
+      'palette': '<circle cx="13.5" cy="6.5" r=".5"></circle><circle cx="17.5" cy="10.5" r=".5"></circle><circle cx="8.5" cy="7.5" r=".5"></circle><circle cx="6.5" cy="12.5" r=".5"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>',
+      'chart': '<polyline points="18 20 18 10"></polyline><polyline points="12 20 12 4"></polyline><polyline points="6 20 6 14"></polyline>',
+      'settings': '<circle cx="12" cy="12" r="3"></circle><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m2.12 2.12l4.24 4.24M1 12h6m6 0h6m-16.78 7.78l4.24-4.24m2.12-2.12l4.24-4.24"></path>',
+      'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>',
+      'zap': '<polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>',
+      'heart': '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
+      'book': '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>'
+    };
+    return icons[iconName] || icons['rocket'];
+  }
+
   function genericProductCardHtml(product){
     var isLive = !!product.enabled;
     var note = product.status_note || 'Coming soon';
@@ -772,7 +786,7 @@
 
   async function loadProductCards(){
     var slugs = ['business-launch', 'business-launch-pro', 'studios', 'marketing'];
-    var { data, error } = await mdSupabase.from('products').select('id,name,description,enabled,status_note,price_cents,slug,sort_order').order('sort_order');
+    var { data, error } = await mdSupabase.from('products').select('id,name,description,enabled,status_note,price_cents,slug,sort_order,icon').order('sort_order');
     var bySlug = {};
     (data || []).forEach(function(p){ bySlug[p.slug] = p; });
     slugs.forEach(function(slug){
@@ -782,6 +796,16 @@
       // Load and display prices and status from product data
       var product = bySlug[slug];
       if(product){
+        // Update icon if set in database
+        if(product.icon){
+          var card = document.querySelector('[data-product-slug="' + slug + '"]');
+          if(card){
+            var iconEl = card.querySelector('.product-icon svg');
+            if(iconEl){
+              iconEl.innerHTML = getIconSvg(product.icon);
+            }
+          }
+        }
         if(product.price_cents){
           var price = '$' + (product.price_cents / 100).toFixed(0);
           if(slug === 'business-launch'){
