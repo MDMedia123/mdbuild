@@ -137,8 +137,6 @@
   .paywall-license-row{display:flex;gap:8px;}
   .paywall-license-row .num-input{flex:1;}
   .paywall-error{font-size:12px;color:#A32D2D;min-height:16px;margin:10px 0 0;}
-  .paywall-dev{font-size:10.5px;color:var(--gray-soft);cursor:pointer;margin:18px 0 0;letter-spacing:0.5px;}
-  .paywall-dev:hover{color:var(--gray-text);}
   @media print{ #paywall{display:none !important;} }
 
   /* cover page - shared */
@@ -385,7 +383,6 @@
     <div class="paywall-divider">Already have access?</div>
     <p style="font-size:13px;color:var(--gray-text);margin:12px 0;">Sign in to your account to unlock this workspace</p>
     <a class="btn btn-ghost" href="MD_Customer_Portal.html" style="width:100%;justify-content:center;">Sign in</a>
-    <p class="paywall-dev" onclick="devUnlock()">Skip to app (dev only, bypasses paywall)</p>
   </div>
 </div>
 
@@ -845,11 +842,6 @@
     document.getElementById('appShell').style.display = 'none';
   }
 
-  function devUnlock(){
-    localStorage.setItem('mdst_unlocked', 'true');
-    showApp();
-  }
-
   function verifyLicense(){
     var key = document.getElementById('licenseKeyInput').value.trim();
     var errEl = document.getElementById('licenseError');
@@ -992,11 +984,6 @@
 
   window.addEventListener('load', async function(){
     loadLogo();
-    // Check for dev mode via URL parameter
-    var urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.has('dev')){
-      devUnlock();
-    }
     if(localStorage.getItem('mdst_unlocked')){
       showApp();
       // Load modules in background
