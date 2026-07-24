@@ -715,6 +715,17 @@
     if (statusBadge) statusBadge.textContent = note;
     if (statusBtn) statusBtn.textContent = note;
 
+    // Force Creative Studios badge to always show
+    if (slug === 'studios') {
+      if (statusBadge) statusBadge.style.display = 'inline-block';
+      if (badgeNew) badgeNew.style.display = 'none';
+      if (actionsLive) actionsLive.style.display = 'none';
+      if (actionsOff) actionsOff.style.display = '';
+      if (devSkip) devSkip.style.display = 'none';
+      card.classList.add('soon');
+      return;
+    }
+
     if (product.enabled) {
       if (statusBadge) statusBadge.style.display = 'none';
       if (badgeNew) badgeNew.style.display = '';
