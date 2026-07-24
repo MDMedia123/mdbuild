@@ -369,11 +369,6 @@
               <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
           </div>
-          <!-- EDIT ME / DEV ONLY: skips the paywall entirely for testing. Remove
-               this link before this page is shown to real customers. -->
-          <a class="btn btn-ghost btn-sm" id="devSkip-business-launch" href="MD_Business_Launch_Dashboard.html?dev=1" style="margin-top:10px;border-style:dashed;color:var(--gray-text);">
-            Skip to app (dev only, bypasses paywall)
-          </a>
           <div class="product-actions" id="actionsOff-business-launch" style="display:none;">
             <button class="btn btn-disabled btn-block" disabled id="statusBtn-business-launch">Coming soon</button>
           </div>
@@ -406,9 +401,6 @@
               <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
             </a>
           </div>
-          <a class="btn btn-ghost btn-sm" id="devSkip-studios" href="MD_Studios_Dashboard.html?dev=1" style="margin-top:10px;border-style:dashed;color:var(--gray-text);">
-            Skip to app (dev only, bypasses paywall)
-          </a>
         </article>
 
         <!-- Any product beyond MD Business Launch / MD Studios (e.g. new ones
@@ -709,7 +701,6 @@
     var badgeNew = document.getElementById('badgeNew-' + slug);
     var actionsLive = document.getElementById('actionsLive-' + slug);
     var actionsOff = document.getElementById('actionsOff-' + slug);
-    var devSkip = document.getElementById('devSkip-' + slug);
     var note = product.status_note || 'Coming soon';
 
     if (statusBadge) statusBadge.textContent = note;
@@ -721,7 +712,6 @@
       if (badgeNew) badgeNew.style.display = 'none';
       if (actionsLive) actionsLive.style.display = 'none';
       if (actionsOff) actionsOff.style.display = '';
-      if (devSkip) devSkip.style.display = 'none';
       card.classList.add('soon');
       return;
     }
@@ -731,14 +721,12 @@
       if (badgeNew) badgeNew.style.display = '';
       if (actionsLive) actionsLive.style.display = '';
       if (actionsOff) actionsOff.style.display = 'none';
-      if (devSkip) devSkip.style.display = '';
       card.classList.remove('soon');
     } else {
       if (statusBadge) statusBadge.style.display = 'inline-block';
       if (badgeNew) badgeNew.style.display = 'none';
       if (actionsLive) actionsLive.style.display = 'none';
       if (actionsOff) actionsOff.style.display = '';
-      if (devSkip) devSkip.style.display = 'none';
       card.classList.add('soon');
     }
   }
