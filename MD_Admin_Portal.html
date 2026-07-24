@@ -1000,7 +1000,14 @@
 
         document.getElementById('productPrice').value = price;
         document.getElementById('productStatus').value = status;
-        document.getElementById('productIcon').value = product.icon || '';
+        if(product.icon){
+          document.getElementById('productIcon').value = product.icon;
+          const label = ICONS_LIBRARY[product.icon]?.label || 'Choose an icon...';
+          document.getElementById('selectedIconLabel').textContent = label;
+        } else {
+          document.getElementById('productIcon').value = '';
+          document.getElementById('selectedIconLabel').textContent = 'Choose an icon...';
+        }
         updateIconPreview();
         document.getElementById('productModal').classList.add('active');
       }
