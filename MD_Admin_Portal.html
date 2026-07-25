@@ -182,11 +182,6 @@
         <p id="loginError" style="color:var(--ink);font-size:12px;min-height:16px;margin:8px 0;text-align:center;"></p>
         <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:11px;">Sign in</button>
       </form>
-
-      <p style="font-size:11px;color:var(--gray-text);margin:16px 0 0;line-height:1.5;">
-        Test credentials:<br>
-        <strong>admin@md.com</strong> / <strong>admin123</strong>
-      </p>
     </div>
   </div>
 </div>
@@ -267,8 +262,8 @@
       <div class="stat-grid">
         <div class="stat-card">
           <div class="stat-label">Total Revenue</div>
-          <div class="stat-value">$24,580</div>
-          <div class="stat-change">↑ 12% from last month</div>
+          <div class="stat-value" id="stat-revenue">$0</div>
+          <div class="stat-change" id="stat-revenue-change"></div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Active Customers</div>
