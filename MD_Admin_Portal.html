@@ -972,16 +972,16 @@
           <div class="grid-item-desc">${p.description || 'No description'}</div>
           <div style="font-size:14px;font-weight:600;color:var(--gold);margin-bottom:12px;">${price}</div>
           ${status ? `<div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;">${status}</div>` : ''}
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;" data-product-id="${p.id}">
             <div style="display:flex;align-items:center;gap:6px;">
               <span style="font-weight:600;">${p.enabled ? 'Active' : 'Inactive'}</span>
-              <div class="toggle ${p.enabled ? 'on' : ''}" onclick="toggleProduct('${p.id}', 'active', ${!p.enabled})" style="margin:0;">
+              <div class="toggle active-toggle ${p.enabled ? 'on' : ''}" data-product-id="${p.id}" data-enabled="${p.enabled}" style="margin:0;cursor:pointer;">
                 <div class="toggle-knob"></div>
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
               <span style="font-weight:600;">${isVisible ? 'Visible' : 'Hidden'}</span>
-              <div class="toggle ${isVisible ? 'on' : ''}" onclick="toggleProduct('${p.id}', 'visible', ${!isVisible})" style="margin:0;">
+              <div class="toggle visible-toggle ${isVisible ? 'on' : ''}" data-product-id="${p.id}" data-visible="${isVisible}" style="margin:0;cursor:pointer;">
                 <div class="toggle-knob"></div>
               </div>
             </div>
@@ -995,10 +995,32 @@
       `;
       }).join('');
       console.log('Grid HTML updated successfully');
+      setupToggleEventListeners();
     } catch(err) {
       console.error('Error loading products:', err);
       alert('Error loading products: ' + err.message);
     }
+  }
+
+  function setupToggleEventListeners(){
+    const grid = document.getElementById('productsGrid');
+    if(!grid) return;
+
+    grid.addEventListener('click', (e) => {
+      const toggle = e.target.closest('.toggle');
+      if(!toggle) return;
+
+      const productId = toggle.dataset.productId;
+      if(!productId) return;
+
+      if(toggle.classList.contains('active-toggle')){
+        const currentEnabled = toggle.dataset.enabled === 'true';
+        toggleProduct(productId, 'active', !currentEnabled);
+      } else if(toggle.classList.contains('visible-toggle')){
+        const currentVisible = toggle.dataset.visible === 'true';
+        toggleProduct(productId, 'visible', !currentVisible);
+      }
+    });
   }
 
   async function editProduct(productId){
