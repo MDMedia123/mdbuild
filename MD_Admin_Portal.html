@@ -222,10 +222,6 @@
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M9 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h3m0-18v18m0-18h9a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-9"></path></svg></div>
         <div class="nav-label">Orders</div>
       </div>
-      <div class="nav-item" onclick="window.location.href='MD_Admin_Users.html'">
-        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
-        <div class="nav-label">Users</div>
-      </div>
       <div class="nav-item" onclick="showPage('email-campaign')">
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M2 6l10 7 10-7"></path></svg></div>
         <div class="nav-label">Email Campaign</div>
@@ -653,6 +649,22 @@
       </div>
 
       <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Admin Users</h2>
+        <div style="display:grid;gap:16px;">
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Admin Email</label>
+            <input type="email" id="adminEmail" placeholder="admin@example.com" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Admin Password</label>
+            <input type="password" id="adminPassword" placeholder="Set admin password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <button class="btn btn-gold" onclick="addAdminUser()" style="width:fit-content;">Add Admin User</button>
+          <p style="font-size:12px;color:var(--gray-text);margin:0;">Store admin credentials securely. Current admin login: admin@md.com</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
         <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">System Status</h2>
         <div style="display:grid;gap:16px;">
           <div style="padding:12px;background:var(--paper);border-radius:8px;border-left:3px solid var(--gold);">
@@ -793,7 +805,17 @@
     var email = document.getElementById('loginEmail').value.trim();
     var password = document.getElementById('loginPassword').value.trim();
 
-    if(email === 'admin@md.com' && password === 'admin123'){
+    // Get admin users from localStorage, with default fallback
+    let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    if(adminUsers.length === 0){
+      // Initialize with default admin user
+      adminUsers = [{email: 'admin@md.com', password: 'admin123'}];
+    }
+
+    // Check if credentials match any admin user
+    const validUser = adminUsers.find(u => u.email === email && u.password === password);
+
+    if(validUser){
       localStorage.setItem('admin_user', JSON.stringify({email: email, name: 'Administrator'}));
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('portalShell').style.display = 'flex';
@@ -806,6 +828,35 @@
     } else {
       document.getElementById('loginError').textContent = 'Invalid credentials';
     }
+  }
+
+  function addAdminUser(){
+    const email = document.getElementById('adminEmail').value.trim();
+    const password = document.getElementById('adminPassword').value.trim();
+
+    if(!email || !password){
+      alert('Email and password are required');
+      return;
+    }
+
+    let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    if(adminUsers.length === 0){
+      adminUsers = [{email: 'admin@md.com', password: 'admin123'}];
+    }
+
+    // Check if user already exists
+    if(adminUsers.find(u => u.email === email)){
+      alert('Admin user with this email already exists');
+      return;
+    }
+
+    // Add new admin user
+    adminUsers.push({email, password});
+    localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+
+    alert(`Admin user "${email}" added successfully!`);
+    document.getElementById('adminEmail').value = '';
+    document.getElementById('adminPassword').value = '';
   }
 
   async function handleSendEmails(e){
