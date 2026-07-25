@@ -943,8 +943,17 @@
   // Products
   async function loadProducts(){
     try {
-      const { data: products, error } = await mdSupabase.from('products').select('id,name,description,enabled,visible,status_note,price_cents,slug,sort_order').order('sort_order');
-      if(error) throw error;
+      // Try with visible column first, fall back to without if column doesn't exist
+      let { data: products, error } = await mdSupabase.from('products').select('id,name,description,enabled,visible,status_note,price_cents,slug,sort_order').order('sort_order');
+
+      if(error && error.message.includes('visible')){
+        // Column doesn't exist yet, try without it
+        const { data: productsNoVisible, error: error2 } = await mdSupabase.from('products').select('id,name,description,enabled,status_note,price_cents,slug,sort_order').order('sort_order');
+        if(error2) throw error2;
+        products = productsNoVisible;
+      } else if(error) {
+        throw error;
+      }
 
       const grid = document.getElementById('productsGrid');
       console.log('Loading products:', products);
