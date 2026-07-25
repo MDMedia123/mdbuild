@@ -706,13 +706,23 @@
     if (statusBadge) statusBadge.textContent = note;
     if (statusBtn) statusBtn.textContent = note;
 
-    // Force Creative Studios badge to always show
+    // Creative Studios: Show preview now, "Coming soon" when launched
     if (slug === 'studios') {
-      if (statusBadge) statusBadge.style.display = 'inline-block';
-      if (badgeNew) badgeNew.style.display = 'none';
-      if (actionsLive) actionsLive.style.display = 'none';
-      if (actionsOff) actionsOff.style.display = '';
-      card.classList.add('soon');
+      if (product.enabled && product.visible) {
+        // Launched - show "Coming soon" button instead of Launch
+        if (statusBadge) statusBadge.style.display = 'none';
+        if (badgeNew) badgeNew.style.display = 'none';
+        if (actionsLive) actionsLive.style.display = 'none';
+        if (actionsOff) actionsOff.style.display = '';
+        card.classList.add('soon');
+      } else {
+        // Coming soon - show Preview button, keep Coming soon badge
+        if (statusBadge) statusBadge.style.display = 'inline-block';
+        if (badgeNew) badgeNew.style.display = 'none';
+        if (actionsLive) actionsLive.style.display = '';
+        if (actionsOff) actionsOff.style.display = 'none';
+        card.classList.add('soon');
+      }
       return;
     }
 
