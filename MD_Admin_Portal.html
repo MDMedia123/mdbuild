@@ -727,7 +727,13 @@
       <div class="form-field">
         <label>
           <input type="checkbox" id="productEnabled" checked>
-          Enabled (visible to customers)
+          Active (Published)
+        </label>
+      </div>
+      <div class="form-field">
+        <label>
+          <input type="checkbox" id="productVisible" checked>
+          Visible (Fully available, not just a teaser)
         </label>
       </div>
       <div class="modal-actions">
@@ -937,7 +943,7 @@
   // Products
   async function loadProducts(){
     try {
-      const { data: products, error } = await mdSupabase.from('products').select('id,name,description,enabled,status_note,price_cents,slug,sort_order').order('sort_order');
+      const { data: products, error } = await mdSupabase.from('products').select('id,name,description,enabled,visible,status_note,price_cents,slug,sort_order').order('sort_order');
       if(error) throw error;
 
       const grid = document.getElementById('productsGrid');
@@ -948,6 +954,7 @@
 
         // Status is stored in status_note field
         let status = p.status_note || '';
+        let isVisible = p.visible !== false; // Default to true if not set
 
         console.log('Displaying product:', { name: p.name, price, status });
         return `
@@ -956,13 +963,22 @@
           <div class="grid-item-desc">${p.description || 'No description'}</div>
           <div style="font-size:14px;font-weight:600;color:var(--gold);margin-bottom:12px;">${price}</div>
           ${status ? `<div style="font-size:12px;color:var(--ink-soft);margin-bottom:12px;">${status}</div>` : ''}
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span class="grid-item-status">${p.enabled ? 'Active' : 'Disabled'}</span>
-            <div class="toggle ${p.enabled ? 'on' : ''}" onclick="toggleProduct('${p.id}', ${!p.enabled})" style="margin:0;">
-              <div class="toggle-knob"></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:12px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-weight:600;">${p.enabled ? 'Active' : 'Inactive'}</span>
+              <div class="toggle ${p.enabled ? 'on' : ''}" onclick="toggleProduct('${p.id}', 'active', ${!p.enabled})" style="margin:0;">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-weight:600;">${isVisible ? 'Visible' : 'Hidden'}</span>
+              <div class="toggle ${isVisible ? 'on' : ''}" onclick="toggleProduct('${p.id}', 'visible', ${!isVisible})" style="margin:0;">
+                <div class="toggle-knob"></div>
+              </div>
             </div>
           </div>
-          <div class="grid-item-action">
+          <div class="grid-item-action" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+            <button class="btn btn-sm" onclick="viewProduct('${p.slug}')" style="background:var(--gold);color:#fff;border:none;">View</button>
             <button class="btn btn-ghost btn-sm" onclick="editProduct('${p.id}')">Edit</button>
             <button class="btn btn-ghost btn-sm" onclick="deleteProduct('${p.id}')">Delete</button>
           </div>
@@ -986,6 +1002,7 @@
         document.getElementById('productSlug').value = product.slug || '';
         document.getElementById('productDescription').value = product.description || '';
         document.getElementById('productEnabled').checked = product.enabled || false;
+        document.getElementById('productVisible').checked = product.visible !== false;
 
         // Price is stored in price_cents field (convert from cents to dollars)
         let price = product.price_cents ? (product.price_cents / 100).toFixed(0) : '';
@@ -1012,13 +1029,26 @@
     }
   }
 
-  async function toggleProduct(productId, enabled){
+  async function toggleProduct(productId, field, value){
     try {
-      await mdSupabase.from('products').update({ enabled: enabled }).eq('id', productId);
+      const update = {};
+      if(field === 'active') update.enabled = value;
+      else if(field === 'visible') update.visible = value;
+      await mdSupabase.from('products').update(update).eq('id', productId);
       loadProducts();
     } catch(err) {
       console.error('Error toggling product:', err);
     }
+  }
+
+  function viewProduct(slug){
+    // Map product slugs to their URLs
+    const productUrls = {
+      'business-blueprint': '/MD_Business_Blueprint_Dashboard.html',
+      'creative-studios': '/MD_Studios_Dashboard.html'
+    };
+    const url = productUrls[slug] || '/';
+    window.open(url, '_blank');
   }
 
   async function deleteProduct(productId){
@@ -1041,6 +1071,10 @@
     document.getElementById('productPrice').value = '';
     document.getElementById('productStatus').value = '';
     document.getElementById('productEnabled').checked = true;
+    document.getElementById('productVisible').checked = true;
+    document.getElementById('productIcon').value = '';
+    document.getElementById('selectedIconLabel').textContent = 'Choose an icon...';
+    updateIconPreview();
     document.getElementById('productModal').classList.add('active');
   }
 
@@ -1057,8 +1091,9 @@
     const status = document.getElementById('productStatus').value.trim();
     const icon = document.getElementById('productIcon').value.trim();
     const enabled = document.getElementById('productEnabled').checked;
+    const visible = document.getElementById('productVisible').checked;
 
-    console.log('Saving product:', { name, description, price, status, icon, enabled });
+    console.log('Saving product:', { name, description, price, status, icon, enabled, visible });
 
     if(!name){
       alert('Product name is required');
@@ -1067,7 +1102,7 @@
 
     try {
       // Create update data with available fields
-      const updateData = { name, slug, description, enabled };
+      const updateData = { name, slug, description, enabled, visible };
 
       // Store icon
       if(icon){
