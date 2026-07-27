@@ -7,6 +7,10 @@
     {
       "source": "/users",
       "destination": "/MD_Admin_Users.html"
+    },
+    {
+      "source": "/FreeBusinessPlanTemplate",
+      "destination": "/FreeBusinessPlanTemplate.html"
     }
   ]
 }

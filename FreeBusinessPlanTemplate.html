@@ -359,14 +359,16 @@ function downloadPDF() {
   });
 }
 
-// Auto-save to localStorage
+// Auto-save to sessionStorage (fresh email links always start empty)
 const formInputs = document.querySelectorAll('input, textarea, select');
 formInputs.forEach(input => {
-  input.addEventListener('change', () => {
-    localStorage.setItem('businessPlan_' + input.id, input.value);
-  });
-  const saved = localStorage.getItem('businessPlan_' + input.id);
+  // Load only from sessionStorage (current browser session only)
+  const saved = sessionStorage.getItem('businessPlan_' + input.id);
   if (saved) input.value = saved;
+  // Auto-save on change
+  input.addEventListener('change', () => {
+    sessionStorage.setItem('businessPlan_' + input.id, input.value);
+  });
 });
 </script>
 
