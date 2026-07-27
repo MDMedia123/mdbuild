@@ -427,10 +427,26 @@ function downloadPDF() {
     jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
   };
 
-  html2pdf().set(opt).from(pdfContent, 'html').save().then(() => {
+  // Add timeout to catch hanging
+  const timeout = setTimeout(() => {
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = 'Download as PDF';
+    alert('PDF generation took too long. Please try again or contact support.');
+  }, 30000); // 30 second timeout
+
+  html2pdf().set(opt).from(pdfContent, 'html').save().then(() => {
+    clearTimeout(timeout);
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = 'Download as PDF';
+  }).catch(error => {
+    clearTimeout(timeout);
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.textContent = 'Download as PDF';
+    console.error('PDF generation error:', error);
+    alert('Error generating PDF: ' + error.message + '. Please try again.');
   });
 }
 
