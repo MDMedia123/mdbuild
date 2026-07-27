@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard-mdbuilds3cr3t
+Disallow: /api/
+
+Sitemap: https://buildbymd.com/sitemap.xml
