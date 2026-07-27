@@ -364,51 +364,95 @@ function downloadPDF() {
       <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-          font-family: 'Segoe UI', Arial, sans-serif;
-          color: #2c3e50;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          color: #1a2847;
           line-height: 1.7;
-          background: white;
-          padding: 30px;
+          background: #f9fafb;
+          padding: 40px;
+        }
+        .header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 40px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #e5e7eb;
+        }
+        .logo-box {
+          background: #1a2847;
+          color: #c1893d;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-weight: 700;
+          font-size: 12px;
+        }
+        .logo-text {
+          font-weight: 600;
+          font-size: 14px;
+          color: #1a2847;
         }
         .cover {
           text-align: center;
-          padding: 60px 0;
-          border-bottom: 3px solid #c1893d;
+          padding: 60px 40px;
+          background: white;
+          border-radius: 12px;
           margin-bottom: 40px;
           page-break-after: always;
+          border: 1px solid #e5e7eb;
         }
         .cover h1 {
           font-size: 42px;
           color: #1a2847;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
           font-weight: 700;
         }
         .cover .subtitle {
-          font-size: 18px;
+          font-size: 16px;
           color: #c1893d;
           font-weight: 600;
           margin-bottom: 20px;
         }
         .cover .date {
           font-size: 13px;
-          color: #7f8c8d;
-        }
-        h2 {
-          font-size: 20px;
-          color: #1a2847;
-          border-bottom: 2px solid #c1893d;
-          padding-bottom: 10px;
-          margin: 32px 0 16px 0;
-          page-break-after: avoid;
-          font-weight: 700;
+          color: #6b7280;
         }
         .section {
-          margin-bottom: 28px;
+          background: white;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          padding: 28px;
+          margin-bottom: 20px;
           page-break-inside: avoid;
         }
+        .section-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+        .section-num {
+          background: #c1893d;
+          color: white;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 14px;
+          flex-shrink: 0;
+        }
+        .section-title {
+          font-size: 18px;
+          color: #1a2847;
+          font-weight: 600;
+          margin: 0;
+        }
         p {
-          margin-bottom: 10px;
-          text-align: justify;
+          margin-bottom: 12px;
+          font-size: 14px;
+          line-height: 1.6;
         }
         strong {
           color: #1a2847;
@@ -416,19 +460,23 @@ function downloadPDF() {
         }
         .footer {
           text-align: center;
-          font-size: 11px;
-          color: #95a5a6;
-          margin-top: 60px;
+          font-size: 12px;
+          color: #6b7280;
+          margin-top: 40px;
           padding-top: 20px;
-          border-top: 1px solid #ecf0f1;
+          border-top: 1px solid #e5e7eb;
         }
         @media print {
-          body { padding: 25px; }
-          .cover { padding: 40px 0; margin-bottom: 30px; }
+          body { background: white; }
         }
       </style>
     </head>
     <body>
+      <div class="header">
+        <div class="logo-box">MD</div>
+        <div class="logo-text">Build</div>
+      </div>
+
       <div class="cover">
         <h1>${businessName}</h1>
         <div class="subtitle">Business Plan</div>
@@ -436,44 +484,65 @@ function downloadPDF() {
       </div>
 
       <div class="section">
-        <h2>1. Executive Summary</h2>
+        <div class="section-header">
+          <div class="section-num">1</div>
+          <h2 class="section-title">Executive Summary</h2>
+        </div>
         <p>${data.executiveSummary || '(Not provided)'}</p>
       </div>
 
       <div class="section">
-        <h2>2. Company Description</h2>
+        <div class="section-header">
+          <div class="section-num">2</div>
+          <h2 class="section-title">Company Description</h2>
+        </div>
         <p><strong>Company Name:</strong> ${data.companyName}</p>
         <p><strong>Business Type:</strong> ${data.businessType || '(Not provided)'}</p>
         <p><strong>Mission:</strong> ${data.mission || '(Not provided)'}</p>
       </div>
 
       <div class="section">
-        <h2>3. Market Analysis</h2>
+        <div class="section-header">
+          <div class="section-num">3</div>
+          <h2 class="section-title">Market Analysis</h2>
+        </div>
         <p><strong>Target Customer:</strong> ${data.targetCustomer || '(Not provided)'}</p>
         <p><strong>Market Size:</strong> ${data.marketSize || '(Not provided)'}</p>
         <p><strong>Competition:</strong> ${data.competition || '(Not provided)'}</p>
       </div>
 
       <div class="section">
-        <h2>4. Products & Services</h2>
+        <div class="section-header">
+          <div class="section-num">4</div>
+          <h2 class="section-title">Products & Services</h2>
+        </div>
         <p><strong>Offerings:</strong> ${data.offerings || '(Not provided)'}</p>
         <p><strong>Pricing:</strong> ${data.pricing || '(Not provided)'}</p>
       </div>
 
       <div class="section">
-        <h2>5. Marketing & Sales Strategy</h2>
+        <div class="section-header">
+          <div class="section-num">5</div>
+          <h2 class="section-title">Marketing & Sales Strategy</h2>
+        </div>
         <p><strong>Customer Acquisition:</strong> ${data.customerAcquisition || '(Not provided)'}</p>
         <p><strong>Sales Process:</strong> ${data.salesProcess || '(Not provided)'}</p>
       </div>
 
       <div class="section">
-        <h2>6. Operations & Team</h2>
+        <div class="section-header">
+          <div class="section-num">6</div>
+          <h2 class="section-title">Operations & Team</h2>
+        </div>
         <p><strong>Team:</strong> ${data.team || '(Not provided)'}</p>
         <p><strong>Operations:</strong> ${data.operations || '(Not provided)'}</p>
       </div>
 
       <div class="section">
-        <h2>7. Financial Projections</h2>
+        <div class="section-header">
+          <div class="section-num">7</div>
+          <h2 class="section-title">Financial Projections</h2>
+        </div>
         <p><strong>Year 1 Revenue Goal:</strong> ${data.year1Revenue || '(Not provided)'}</p>
         <p><strong>Year 2 Revenue Goal:</strong> ${data.year2Revenue || '(Not provided)'}</p>
         <p><strong>Major Expenses:</strong> ${data.expenses || '(Not provided)'}</p>
@@ -481,7 +550,10 @@ function downloadPDF() {
       </div>
 
       <div class="section">
-        <h2>8. Funding & Milestones</h2>
+        <div class="section-header">
+          <div class="section-num">8</div>
+          <h2 class="section-title">Funding & Milestones</h2>
+        </div>
         <p><strong>Starting Capital Needed:</strong> ${data.fundingNeeded || '(Not provided)'}</p>
         <p><strong>Key Milestones:</strong> ${data.milestones || '(Not provided)'}</p>
       </div>
