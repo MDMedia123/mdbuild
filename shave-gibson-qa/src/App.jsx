@@ -18,7 +18,7 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.slice(1) || 'home';
-      setPage(hash === 'about' ? 'about' : 'home');
+      setPage(hash === 'about' ? 'about' : hash === 'solutions' ? 'solutions' : hash === 'why-sg' ? 'why-sg' : 'home');
     };
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
@@ -28,7 +28,7 @@ export default function App() {
   return (
     <div style={{ width: '100%', fontFamily: "'Inter', sans-serif", color: COLORS.ink, background: COLORS.bg, lineHeight: 1.6, margin: 0, padding: 0 }}>
       <Header />
-      {page === 'about' ? <AboutPage /> : <HomePage />}
+      {page === 'about' ? <AboutPage /> : page === 'solutions' ? <SolutionsPage /> : page === 'why-sg' ? <WhySGPage /> : <HomePage />}
       <Footer />
     </div>
   );
@@ -40,10 +40,8 @@ function HomePage() {
       <Hero />
       <PatternDivider />
       <Journey />
-      <Industries />
       <Innovation />
       <PatternDivider />
-      <Solutions />
       <Machines />
       <WhyChoose />
       <Certifications />
@@ -52,15 +50,158 @@ function HomePage() {
   );
 }
 
-function AboutPage() {
+function SolutionsPage() {
+  const products = [
+    {
+      title: 'Folding Cartons',
+      desc: 'Sophisticated, high-quality folding carton solutions for premium packaging across food, beverage, beauty, and luxury goods.',
+      icon: '📦',
+      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=85&fit=crop&crop=entropy',
+      color: COLORS.teal700,
+      iconBg: COLORS.teal700,
+    },
+    {
+      title: 'Paper Bag Manufacture',
+      desc: 'Eco-friendly paper bags and carrier bags with custom printing for retail and hospitality applications.',
+      icon: '🛍️',
+      image: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&q=85&fit=crop&crop=entropy',
+      color: '#FF9500',
+      iconBg: '#FF9500',
+    },
+    {
+      title: 'Point of Sale',
+      desc: 'Eye-catching point of sale displays, counter units, and promotional materials that drive retail engagement.',
+      icon: '🏪',
+      image: 'https://images.unsplash.com/photo-1555611533-eea19becfd09?w=600&q=85&fit=crop&crop=entropy',
+      color: '#6B5B95',
+      iconBg: '#6B5B95',
+    },
+  ];
+
+  const features = [
+    { icon: '💡', title: 'End-to-end expertise', desc: 'From design to delivery, we have got you covered.' },
+    { icon: '🌱', title: 'Sustainable by design', desc: 'Innovative solutions that reduce impact.' },
+    { icon: '✓', title: 'Quality you can trust', desc: 'Uncompromising standards. Consistent results.' },
+    { icon: '🚚', title: 'Reliable delivery', desc: 'On time, every time. Across Southern Africa.' },
+  ];
+
   return (
     <>
-      <section style={{ position: 'relative', height: '600px', overflow: 'hidden' }}>
-        <img src="/sg-facility-current.jpg" alt="Shave & Gibson Facility" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(14,110,104,0.7) 0%, rgba(14,110,104,0.4) 100%)' }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-end', padding: '60px 40px', maxWidth: 1240, margin: '0 auto' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#fff', marginBottom: 10, opacity: 0.9 }}>Our Story</div>
-          <h1 style={{ fontSize: 'clamp(36px,5vw,56px)', lineHeight: 1.06, textTransform: 'uppercase', fontWeight: 800, letterSpacing: '-0.015em', color: '#fff', maxWidth: 600 }}>Built on <span style={{ color: COLORS.teal400 }}>Excellence</span></h1>
+      <section style={{ padding: '80px 40px', background: '#fff' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto', textAlign: 'center', marginBottom: 60 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 16 }}>Our Best Offering</div>
+          <h1 style={{ fontSize: 'clamp(36px,4.5vw,52px)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 20, lineHeight: 1.1 }}>Our packaging <span style={{ color: COLORS.teal700 }}>solutions</span></h1>
+          <p style={{ fontSize: 16, color: COLORS.muted, maxWidth: 700, margin: '0 auto', lineHeight: 1.8 }}>From concept to shelf, we deliver comprehensive packaging and printing solutions tailored to your brand's unique needs.</p>
+        </div>
+
+        {/* Premium Product Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 28, maxWidth: 1240, margin: '0 auto' }}>
+          {[
+            { title: 'Folding Cartons', desc: 'Sophisticated, high-quality folding carton solutions for premium packaging across food, beverage, beauty, and luxury goods.', icon: '📦', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=85&fit=crop&crop=entropy', bgColor: '#1a3a38', textColor: COLORS.teal400 },
+            { title: 'Paper Bag Manufacture', desc: 'Eco-friendly paper bags and carrier bags with custom printing for retail and hospitality applications.', icon: '🛍️', image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b3f4?w=600&q=85&fit=crop&crop=entropy', bgColor: '#2a2416', textColor: '#FF9500' },
+            { title: 'Point of Sale', desc: 'Eye-catching point of sale displays, counter units, and promotional materials that drive retail engagement.', icon: '🏪', image: 'https://images.unsplash.com/photo-1441986300352-c5ecb3172e4d?w=600&q=85&fit=crop&crop=entropy', bgColor: '#1a1f2e', textColor: '#9B7DD4' },
+          ].map((product, i) => (
+            <div key={i} style={{ borderRadius: 20, overflow: 'hidden', background: product.bgColor, transition: 'all 0.4s ease', cursor: 'pointer', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 600, boxShadow: '0 10px 40px rgba(0,0,0,0.3)' }} onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-12px)'; e.currentTarget.style.boxShadow = '0 40px 100px rgba(0,0,0,0.4)'; }} onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)'; }}>
+              {/* Premium Image */}
+              <div style={{ width: '100%', height: 400, overflow: 'hidden', position: 'relative' }}>
+                <img src={product.image} alt={product.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
+
+              {/* Premium Content */}
+              <div style={{ padding: 40, display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                {/* Icon and Title */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 28, marginBottom: 16 }}>{product.icon}</div>
+                  <h3 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.015em', margin: 0, color: '#fff', lineHeight: 1.2 }}>{product.title}</h3>
+                </div>
+
+                {/* Description */}
+                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', lineHeight: 1.8, marginBottom: 28, margin: 0 }}>{product.desc}</p>
+
+                {/* CTA */}
+                <a href="#solutions" style={{ fontSize: 12, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: product.textColor, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', transition: 'all 0.3s ease' }} onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.8'; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}>EXPLORE SOLUTIONS →</a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section style={{ padding: '60px 40px', background: '#fff' }}>
+        <div style={{ maxWidth: 1240, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 40 }}>
+            {features.map((feature, i) => (
+              <div key={i} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>{feature.icon}</div>
+                <h4 style={{ fontSize: 16, fontWeight: 800, letterSpacing: '-0.015em', marginBottom: 8, color: COLORS.ink }}>{feature.title}</h4>
+                <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6, margin: 0 }}>{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function WhySGPage() {
+  return (
+    <>
+      <Solutions />
+    </>
+  );
+}
+
+function AboutPage() {
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  const heroSlides = [
+    { kicker: 'SINCE 1981', title: 'Built on Excellence', desc: 'For over four decades, we\'ve been trusted by leading brands to deliver packaging and printing solutions that make an impact.', cta: 'OUR STORY', image: '/sg-facility-current.jpg' },
+    { kicker: 'Our Facilities', title: 'State of the Art', desc: 'Modern manufacturing facilities equipped with cutting-edge technology and staffed by experienced professionals.', cta: 'EXPLORE', image: '/sg-facility-current.jpg' },
+    { kicker: 'Our People', title: 'Driven by Passion', desc: 'A talented team committed to excellence, innovation, and creating lasting value for every customer.', cta: 'LEARN MORE', image: '/sg-team.jpg' },
+    { kicker: 'Our Promise', title: 'Quality Assured', desc: 'Uncompromising standards across every process, every product, every delivery, every single day.', cta: 'DISCOVER', image: '/sg-facility-current.jpg' },
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroIndex((prevIndex) => (prevIndex + 1) % heroSlides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [heroSlides.length]);
+
+  const currentSlide = heroSlides[heroIndex];
+
+  return (
+    <>
+      <section style={{ position: 'relative', height: '500px', overflow: 'hidden', background: '#1a1a1a' }}>
+        {/* Background Image with fade transition */}
+        <img src={currentSlide.image} alt={currentSlide.title} style={{ position: 'absolute', width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', opacity: 0.4, transition: 'opacity 0.8s ease-in-out' }} />
+
+        {/* Dark Overlay */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(26,26,26,0.95) 0%, rgba(26,26,26,0.7) 50%, rgba(26,26,26,0.3) 100%)' }} />
+
+        {/* Content Grid */}
+        <div style={{ position: 'absolute', inset: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, maxWidth: 1400, margin: '0 auto', padding: '0 60px', alignItems: 'center' }}>
+          {/* Left Content with fade transition */}
+          <div style={{ color: '#fff', zIndex: 10, transition: 'opacity 0.6s ease-in-out', opacity: 1 }}>
+            <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal400, marginBottom: 12 }}>{currentSlide.kicker}</div>
+            <h1 style={{ fontSize: 'clamp(36px,4.5vw,52px)', fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 16, lineHeight: 1.1 }}>
+              {currentSlide.title.split(' ').map((word, i) => (
+                i === currentSlide.title.split(' ').length - 1 ?
+                <span key={i} style={{ color: COLORS.teal400 }}>{word}</span> :
+                <span key={i}>{word} </span>
+              ))}
+            </h1>
+            <p style={{ fontSize: 15, lineHeight: 1.7, marginBottom: 28, opacity: 0.9, maxWidth: 450 }}>{currentSlide.desc}</p>
+            <button style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '12px 28px', background: COLORS.teal700, color: '#fff', border: 'none', fontSize: 13, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', cursor: 'pointer', borderRadius: 6, transition: 'all 0.3s' }} onMouseEnter={(e) => { e.currentTarget.style.background = COLORS.teal400; }} onMouseLeave={(e) => { e.currentTarget.style.background = COLORS.teal700; }}>
+              {currentSlide.cta} →
+            </button>
+          </div>
+
+          {/* Right Image with fade transition */}
+          <div style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 5, transition: 'opacity 0.8s ease-in-out', opacity: 1 }}>
+            <img src={currentSlide.image} alt={currentSlide.title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 8, boxShadow: '0 40px 80px rgba(0,0,0,0.4)', transition: 'opacity 0.8s ease-in-out' }} />
+          </div>
         </div>
       </section>
 
@@ -111,22 +252,46 @@ function AboutPage() {
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>Nationwide Presence</div>
           <h2 style={{ fontSize: 'clamp(26px,2.8vw,36px)', fontWeight: 800, letterSpacing: '-0.015em', marginBottom: 50 }}>Our <span style={{ color: COLORS.teal700 }}>Locations</span></h2>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'start' }}>
-            <div style={{ background: COLORS.teal100, borderRadius: 20, padding: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400, color: COLORS.teal700, fontSize: 18, fontWeight: 600 }}>
-              [Interactive Map Coming Soon]
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 60, alignItems: 'center' }}>
+            {/* Map Section */}
+            <div style={{ background: COLORS.teal100, borderRadius: 20, padding: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 450, position: 'relative', overflow: 'hidden' }}>
+              <svg viewBox="0 0 500 600" style={{ width: '100%', height: '100%', maxWidth: '100%' }}>
+                {/* South Africa Map Simplified */}
+                <path d="M 50 100 L 120 80 L 150 90 L 160 120 L 180 140 L 200 130 L 220 150 L 240 140 L 250 170 L 260 200 L 270 220 L 280 210 L 290 230 L 300 240 L 310 250 L 320 270 L 330 280 L 340 290 L 350 300 L 360 310 L 370 330 L 380 350 L 390 370 L 400 390 L 410 410 L 420 430 L 430 450 L 440 470 L 450 490 L 460 510 L 450 520 L 440 530 L 430 540 L 400 550 L 350 560 L 300 565 L 250 568 L 200 570 L 150 568 L 100 560 L 80 540 L 70 510 L 60 480 L 50 450 L 45 400 L 40 350 L 38 300 L 40 250 L 45 200 L 50 150 L 50 100 Z" fill={COLORS.teal100} stroke={COLORS.teal700} strokeWidth="2"/>
+
+                {/* Location Markers */}
+                {/* Cape Town */}
+                <circle cx="80" cy="520" r="12" fill={COLORS.teal700}/>
+                <text x="80" y="560" textAnchor="middle" fontSize="14" fontWeight="700" fill={COLORS.ink}>Cape Town</text>
+
+                {/* Durban */}
+                <circle cx="320" cy="340" r="12" fill={COLORS.teal700}/>
+                <text x="320" y="385" textAnchor="middle" fontSize="14" fontWeight="700" fill={COLORS.ink}>Durban Port</text>
+
+                {/* Johannesburg */}
+                <circle cx="200" cy="240" r="12" fill={COLORS.teal700}/>
+                <text x="200" y="225" textAnchor="middle" fontSize="14" fontWeight="700" fill={COLORS.ink}>Johannesburg</text>
+
+                {/* S&G Logo positions */}
+                <text x="80" y="490" textAnchor="middle" fontSize="24" fill={COLORS.teal700} fontWeight="800">S&G</text>
+                <text x="320" y="360" textAnchor="middle" fontSize="24" fill={COLORS.teal700} fontWeight="800">S&G</text>
+                <text x="200" y="270" textAnchor="middle" fontSize="24" fill={COLORS.teal700} fontWeight="800">S&G</text>
+              </svg>
             </div>
-            <div style={{ display: 'grid', gap: 14 }}>
+
+            {/* Facilities List */}
+            <div style={{ display: 'grid', gap: 12 }}>
               {[
-                { facility: 'Bags manufacturing', location: 'Mobeni, Durban' },
-                { facility: 'Cartons manufacturing', location: 'Mobeni, Durban' },
-                { facility: 'SG displays manufacturing', location: 'Mobeni, Durban' },
-                { facility: 'Sales office & warehouse', location: 'Cape Town' },
-                { facility: 'Sales office', location: 'Johannesburg' },
-                { facility: 'Security printing division', location: 'Durban' },
+                { facility: 'Bags manufacturing', location: 'Mobeni, Durban', region: 'durban' },
+                { facility: 'Cartons manufacturing', location: 'Mobeni, Durban', region: 'durban' },
+                { facility: 'SG displays manufacturing', location: 'Mobeni, Durban', region: 'durban' },
+                { facility: 'Sales office & warehouse', location: 'Cape Town', region: 'capetown' },
+                { facility: 'Sales office', location: 'Johannesburg', region: 'jhb' },
+                { facility: 'Security printing division', location: 'Durban', region: 'durban' },
               ].map((item, i) => (
-                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 12, padding: '14px', borderRadius: 8, background: '#fff', border: `1px solid ${COLORS.line}`, transition: 'all 0.2s' }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 10px 30px rgba(14,110,104,0.15)`; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                  <div style={{ background: COLORS.teal700, color: '#fff', padding: '14px 16px', borderRadius: 6, fontSize: 13, fontWeight: 700, textAlign: 'center' }}>{item.facility}</div>
-                  <div style={{ background: COLORS.ink, color: '#fff', padding: '14px 16px', borderRadius: 6, fontSize: 13, fontWeight: 600, textAlign: 'center' }}>{item.location}</div>
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '12px 16px', borderRadius: 8, background: '#fff', border: `1px solid ${COLORS.line}`, transition: 'all 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 8px 24px rgba(14,110,104,0.2)`; e.currentTarget.style.transform = 'translateY(-2px)'; }} onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                  <div style={{ background: COLORS.teal700, color: '#fff', padding: '12px 14px', borderRadius: 6, fontSize: 13, fontWeight: 700, textAlign: 'center' }}>{item.facility}</div>
+                  <div style={{ background: COLORS.ink, color: '#fff', padding: '12px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, textAlign: 'center' }}>{item.location}</div>
                 </div>
               ))}
             </div>
@@ -158,9 +323,9 @@ function Header() {
         </a>
         <div style={{ display: 'flex', gap: 26, fontSize: '12.5px', fontWeight: 600, letterSpacing: '0.03em', textTransform: 'uppercase', alignItems: 'center' }}>
           <a href="#solutions" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Solutions</a>
-          <a href="#industries" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Industries</a>
+          <a href="#why-sg" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Why S&G</a>
           <a href="#innovation" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Sustainability</a>
-          <a href="#about" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>About</a>
+          <a href="#about" style={{ color: COLORS.ink, cursor: 'pointer', textDecoration: 'none' }}>Our Story</a>
           <div style={{ position: 'relative' }} onMouseLeave={() => setContactOpen(false)}>
             <button onMouseEnter={() => setContactOpen(true)} onClick={() => setContactOpen(!contactOpen)} style={{ background: 'none', border: 'none', color: COLORS.ink, fontWeight: 600, cursor: 'pointer', fontSize: '12.5px', textTransform: 'uppercase' }}>Contact ▼</button>
             {contactOpen && (
@@ -245,6 +410,18 @@ function Journey() {
             ))}
           </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+function OurStory() {
+  return (
+    <section style={{ background: COLORS.teal700, color: '#fff', padding: '80px 0', cursor: 'pointer', transition: 'all 0.3s' }} onClick={() => window.location.hash = 'about'} onMouseEnter={(e) => e.currentTarget.style.opacity = 0.9} onMouseLeave={(e) => e.currentTarget.style.opacity = 1}>
+      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
+        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginBottom: 16 }}>Learn More</div>
+        <h2 style={{ fontSize: 'clamp(32px,4vw,48px)', fontWeight: 800, letterSpacing: '-0.015em', marginBottom: 24, lineHeight: 1.2 }}>Our Story</h2>
+        <p style={{ fontSize: 18, maxWidth: 600, lineHeight: 1.8, opacity: 0.95 }}>From the very beginning, our business has revolved around customer satisfaction, innovation, production quality, and a commitment to continuous technological advancement.</p>
       </div>
     </section>
   );
@@ -414,89 +591,340 @@ function Certifications() {
 }
 
 function CTA() {
+  const [selectedDivision, setSelectedDivision] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+
+  const divisions = [
+    { id: 'cartons', name: 'Folding Cartons', icon: '📦' },
+    { id: 'bags', name: 'Paper Bag Manufacture', icon: '🛍️' },
+    { id: 'displays', name: 'SG Displays', icon: '🎯' },
+    { id: 'printing', name: 'Security Printing', icon: '🔐' },
+  ];
+
+  const regions = [
+    { id: 'durban', name: 'Durban', facilities: 'Manufacturing Hub - All Divisions', email: 'durban@shavegibson.com', phone: '+27 (31) 000-0000' },
+    { id: 'capetown', name: 'Cape Town', facilities: 'Sales Office & Warehouse', email: 'capetown@shavegibson.com', phone: '+27 (21) 000-0000' },
+    { id: 'jhb', name: 'Johannesburg', facilities: 'Sales Office', email: 'jhb@shavegibson.com', phone: '+27 (11) 000-0000' },
+  ];
+
   return (
-    <section style={{ background: COLORS.teal700, color: '#fff', padding: '80px 0' }}>
+    <section style={{ background: COLORS.teal700, color: '#fff', padding: '100px 0' }}>
       <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
-        <h2 style={{ color: '#fff', marginBottom: 24, textAlign: 'center', fontSize: 'clamp(28px,3.2vw,40px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.015em' }}>Let's build better packaging together.</h2>
-        <p style={{ textAlign: 'center', fontSize: 16, marginBottom: 32, opacity: 0.9, lineHeight: 1.6 }}>Get in touch with our team to discuss your next project.</p>
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, border: '1.5px solid rgba(255,255,255,0.7)', color: '#fff', background: 'none', cursor: 'pointer' }}>Get in Touch</button>
-          <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 26px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, background: '#fff', color: COLORS.teal700, border: 'none', cursor: 'pointer' }}>Request Quote</button>
+        <h2 style={{ color: '#fff', marginBottom: 16, textAlign: 'center', fontSize: 'clamp(28px,3.2vw,40px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '-0.015em' }}>Let's build better packaging together.</h2>
+        <p style={{ textAlign: 'center', fontSize: 16, marginBottom: 50, opacity: 0.9, lineHeight: 1.6 }}>Select your division and region to get in touch with the right team.</p>
+
+        {/* Division Selection */}
+        <div style={{ marginBottom: 50 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginBottom: 20, textAlign: 'center' }}>Which division?</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            {divisions.map((div) => (
+              <button
+                key={div.id}
+                onClick={() => setSelectedDivision(div.id)}
+                style={{
+                  padding: 24,
+                  background: selectedDivision === div.id ? '#fff' : 'rgba(255,255,255,0.1)',
+                  border: `2px solid ${selectedDivision === div.id ? '#fff' : 'rgba(255,255,255,0.3)'}`,
+                  borderRadius: 12,
+                  color: selectedDivision === div.id ? COLORS.teal700 : '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  fontSize: 16,
+                  fontWeight: 700,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 12,
+                  textAlign: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedDivision !== div.id) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                    e.currentTarget.style.borderColor = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedDivision !== div.id) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                  }
+                }}
+              >
+                <span style={{ fontSize: 28 }}>{div.icon}</span>
+                {div.name}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Region Selection */}
+        <div style={{ marginBottom: 50 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.8)', marginBottom: 20, textAlign: 'center' }}>Which region?</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+            {regions.map((reg) => (
+              <button
+                key={reg.id}
+                onClick={() => setSelectedRegion(reg.id)}
+                style={{
+                  padding: 24,
+                  background: selectedRegion === reg.id ? '#fff' : 'rgba(255,255,255,0.1)',
+                  border: `2px solid ${selectedRegion === reg.id ? '#fff' : 'rgba(255,255,255,0.3)'}`,
+                  borderRadius: 12,
+                  color: selectedRegion === reg.id ? COLORS.teal700 : '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  textAlign: 'left',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  lineHeight: 1.6
+                }}
+                onMouseEnter={(e) => {
+                  if (selectedRegion !== reg.id) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                    e.currentTarget.style.borderColor = '#fff';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (selectedRegion !== reg.id) {
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
+                  }
+                }}
+              >
+                <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>📍 {reg.name}</div>
+                <div style={{ fontSize: 12, opacity: 0.9, marginBottom: 12 }}>{reg.facilities}</div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>{reg.email}</div>
+                <div style={{ fontSize: 11, opacity: 0.8 }}>{reg.phone}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Contact CTA */}
+        {selectedDivision && selectedRegion && (
+          <div style={{ textAlign: 'center', animation: 'fadeIn 0.3s ease' }}>
+            <p style={{ fontSize: 16, marginBottom: 24, opacity: 0.95 }}>Great! You've selected <strong>{divisions.find(d => d.id === selectedDivision)?.name}</strong> in <strong>{regions.find(r => r.id === selectedRegion)?.name}</strong>.</p>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '16px 32px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, background: '#fff', color: COLORS.teal700, border: 'none', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>Get in Touch →</button>
+              <button style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '16px 32px', fontWeight: 700, fontSize: 13, letterSpacing: '0.03em', textTransform: 'uppercase', borderRadius: 999, border: '1.5px solid rgba(255,255,255,0.7)', color: '#fff', background: 'none', cursor: 'pointer', transition: 'all 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = '#fff'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.7)'}>Request Quote →</button>
+            </div>
+          </div>
+        )}
+
+        {!selectedDivision && !selectedRegion && (
+          <div style={{ textAlign: 'center', opacity: 0.8 }}>
+            <p style={{ fontSize: 14 }}>Select a division and region above to get started</p>
+          </div>
+        )}
       </div>
     </section>
   );
 }
 
 function InteractiveTimeline() {
-  const [active, setActive] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [imageRotation, setImageRotation] = useState(0);
 
-  const events = [
-    { year: '1981', title: 'The Beginning', desc: 'Alan Gibson and Neville Shave purchase Group Print & Packaging' },
-    { year: '1995', title: 'Strategic Leap', desc: 'Acquisition of Stradprint & Security Printing Division' },
-    { year: '2005', title: 'New Era', desc: 'Acquired by Chairman Simon Downes for expansion' },
+  const milestones = [
+    { year: '1981', title: 'Group Print is Founded', desc: 'Brothers Neville and Alan Gibson Downes establish Group Print, laying the foundation for our future in packaging and printing.', images: ['/sg-facility-current.jpg', '/sg-facility-historical.jpg'], feature1: 'Founding', feature2: 'South Africa', feature3: 'Durban' },
+    { year: '1989', title: 'STADPRINT Acquisition', desc: 'The security and printing business Stadprint is acquired, expanding our capabilities in high-security solutions.', images: ['/sg-facility-current.jpg', '/sg-displays.jpg'] },
+    { year: '1994', title: 'AFRICAID SOLD', desc: 'Africaid sold to Altech, marking a strategic milestone in our portfolio management.', images: ['/sg-facility-current.jpg', 'https://images.unsplash.com/photo-1585399363565-24270a8319d1?w=600&q=85&fit=crop&crop=entropy'] },
+    { year: '2001', title: 'New Ownership', desc: 'The company is acquired by Chairman and Simon Downes, bringing fresh vision and strategic direction.', images: ['/sg-facility-current.jpg', '/sg-truck.jpg'] },
+    { year: '2005', title: 'CENSUS Project', desc: 'S&G Security Printing prints the 2011 Census papers for South Africa, demonstrating our security printing excellence.', images: ['/sg-facility-current.jpg', '/sg-pos-display.jpg'] },
+    { year: '2011', title: 'Strategic Expansion', desc: 'Strategic expansion and market consolidation strengthens our position as a market leader.', images: ['/sg-facility-current.jpg', '/sg-facility-historical.jpg'] },
+    { year: '2019', title: 'COUNTERPOINT & EARTHPAK', desc: 'Acquire interest in Counterpoint Trading and launch earthpak sustainable packaging solution.', images: ['/sg-facility-current.jpg', '/sg-displays.jpg'] },
+    { year: '2021', title: 'Plant Expansion', desc: 'The Shave & Gibson Bags factory moves from Hammarsdale to Mobeni with expanded capacity.', images: ['/sg-facility-current.jpg', '/sg-truck.jpg'] },
+    { year: '2023', title: 'S&G BAGS', desc: 'Shave & Gibson Packaging acquires remaining interest of Counterpoint Trading.', images: ['/sg-facility-current.jpg', '/sg-pos-display.jpg'] },
+    { year: '2024', title: 'Logistics Hub', desc: 'New state-of-the-art logistics hub built on Lerwick Road, enhancing distribution capabilities.', images: ['/sg-facility-current.jpg', 'https://images.unsplash.com/photo-1585399363565-24270a8319d1?w=600&q=85&fit=crop&crop=entropy'] },
+    { year: '2025', title: 'BARROWS Acquisition', desc: 'S&G Packaging acquires Barrows corrugated display division, expanding product portfolio.', images: ['/sg-facility-current.jpg', '/sg-facility-historical.jpg'] },
   ];
 
+  useEffect(() => {
+    const imageInterval = setInterval(() => {
+      setImageRotation((prev) => (prev + 1) % 2);
+    }, 3000);
+    return () => clearInterval(imageInterval);
+  }, []);
+
+  useEffect(() => {
+    const yearInterval = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % milestones.length);
+    }, 5000);
+    return () => clearInterval(yearInterval);
+  }, [milestones.length]);
+
+  const currentMilestone = milestones[activeIndex];
+  const currentImage = currentMilestone.images[imageRotation];
+
   return (
-    <section style={{ padding: '60px 0', background: COLORS.teal100 }}>
-      <div style={{ maxWidth: 1240, margin: '0 auto', padding: '0 40px' }}>
-        <div style={{ marginBottom: 40 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 10 }}>Our Growth</div>
-          <h2 style={{ fontSize: 'clamp(24px,2.5vw,32px)', fontWeight: 800, letterSpacing: '-0.015em' }}>From humble beginnings to <span style={{ color: COLORS.teal700 }}>industry leader</span></h2>
+    <section style={{ padding: '60px 0', background: '#fff' }}>
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '0 40px' }}>
+        {/* Header */}
+        <div style={{ marginBottom: 32 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: COLORS.teal700, marginBottom: 8 }}>Our History</div>
+          <h1 style={{ fontSize: 'clamp(32px,4vw,44px)', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 12, lineHeight: 1.1 }}>A journey of growth, <span style={{ color: COLORS.teal700 }}>innovation</span> and impact.</h1>
+          <p style={{ fontSize: 15, color: COLORS.muted, maxWidth: 700, lineHeight: 1.7 }}>For more than four decades, we've evolved with purpose, investing in technology, people, and sustainable solutions that create value for our customers and communities.</p>
         </div>
 
-        <div style={{ position: 'relative', padding: '40px 0' }}>
-          {/* Timeline line */}
-          <div style={{ position: 'absolute', top: '40px', left: '60px', right: '60px', height: '3px', background: COLORS.teal400, zIndex: 0 }} />
+        {/* Horizontal Timeline Selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28, overflowX: 'auto', paddingBottom: 12 }}>
+          <button
+            onClick={() => setActiveIndex(Math.max(0, activeIndex - 1))}
+            disabled={activeIndex === 0}
+            style={{
+              background: 'none',
+              border: `2px solid ${COLORS.teal700}`,
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              cursor: activeIndex === 0 ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: COLORS.teal700,
+              fontSize: 20,
+              opacity: activeIndex === 0 ? 0.5 : 1,
+              transition: 'all 0.2s'
+            }}
+          >
+            ‹
+          </button>
 
-          {/* Timeline dots and events */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 30, position: 'relative', zIndex: 1 }}>
-            {events.map((event, i) => (
-              <div key={i} style={{ textAlign: 'center' }}>
-                {/* Clickable dot */}
-                <div
-                  onClick={() => setActive(i)}
+          <div style={{ display: 'flex', gap: 24, alignItems: 'center', flex: 1, minWidth: 0 }}>
+            {/* Timeline line */}
+            <div style={{ position: 'relative', height: '3px', background: COLORS.line, flex: 1, display: 'flex', alignItems: 'center' }}>
+              {/* Progress line */}
+              <div style={{
+                position: 'absolute',
+                height: '3px',
+                background: COLORS.teal700,
+                left: 0,
+                width: `${((activeIndex + 1) / milestones.length) * 100}%`,
+                transition: 'width 0.4s ease'
+              }} />
+              {/* Year dots */}
+              {milestones.map((m, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveIndex(i)}
                   style={{
-                    width: 32,
-                    height: 32,
+                    position: 'absolute',
+                    left: `${(i / (milestones.length - 1)) * 100}%`,
+                    transform: 'translateX(-50%)',
+                    width: activeIndex === i ? 18 : 12,
+                    height: activeIndex === i ? 18 : 12,
                     borderRadius: '50%',
-                    background: active === i ? COLORS.teal700 : '#fff',
-                    border: `3px solid ${COLORS.teal700}`,
-                    margin: '0 auto 24px',
+                    background: activeIndex === i ? COLORS.teal700 : '#fff',
+                    border: `2px solid ${COLORS.teal700}`,
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
-                    transform: active === i ? 'scale(1.3)' : 'scale(1)',
+                    zIndex: 10
                   }}
-                  onMouseEnter={(e) => {
-                    if (active !== i) {
-                      e.currentTarget.style.transform = 'scale(1.15)';
-                      e.currentTarget.style.background = COLORS.teal400;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (active !== i) {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.background = '#fff';
-                    }
-                  }}
+                  title={m.year}
                 />
+              ))}
+            </div>
+          </div>
 
-                {/* Year label */}
-                <div style={{ fontSize: 24, fontWeight: 800, color: COLORS.teal700, marginBottom: 8 }}>{event.year}</div>
+          <button
+            onClick={() => setActiveIndex(Math.min(milestones.length - 1, activeIndex + 1))}
+            disabled={activeIndex === milestones.length - 1}
+            style={{
+              background: 'none',
+              border: `2px solid ${COLORS.teal700}`,
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              cursor: activeIndex === milestones.length - 1 ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: COLORS.teal700,
+              fontSize: 20,
+              opacity: activeIndex === milestones.length - 1 ? 0.5 : 1,
+              transition: 'all 0.2s'
+            }}
+          >
+            ›
+          </button>
+        </div>
 
-                {/* Expandable content */}
-                <div
-                  style={{
-                    maxHeight: active === i ? '200px' : '0px',
-                    overflow: 'hidden',
-                    transition: 'max-height 0.3s ease',
-                  }}
-                >
-                  <h3 style={{ fontSize: 16, fontWeight: 800, color: COLORS.ink, marginBottom: 8 }}>{event.title}</h3>
-                  <p style={{ fontSize: 13, color: COLORS.muted, lineHeight: 1.6 }}>{event.desc}</p>
-                </div>
-              </div>
-            ))}
+        {/* Year Labels Under Timeline */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 32, gap: 8 }}>
+          {milestones.map((m, i) => (
+            <span key={i} style={{
+              fontSize: activeIndex === i ? 16 : 13,
+              fontWeight: activeIndex === i ? 800 : 600,
+              color: activeIndex === i ? COLORS.teal700 : COLORS.muted,
+              transition: 'all 0.4s ease',
+              cursor: 'pointer',
+              padding: activeIndex === i ? '8px 12px' : '4px 6px',
+              borderRadius: 6,
+              background: activeIndex === i ? COLORS.teal100 : 'transparent'
+            }} onClick={() => setActiveIndex(i)}>{m.year}</span>
+          ))}
+        </div>
+
+        {/* Content + Image */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, alignItems: 'stretch' }}>
+          {/* Left Content */}
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.teal700, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{currentMilestone.year}</div>
+              <h2 style={{ fontSize: 'clamp(24px,3vw,36px)', fontWeight: 800, color: COLORS.ink, marginBottom: 16, lineHeight: 1.2 }}>{currentMilestone.title}</h2>
+              <p style={{ fontSize: 15, color: COLORS.muted, lineHeight: 1.7, marginBottom: 24 }}>{currentMilestone.desc}</p>
+            </div>
+            <button style={{
+              alignSelf: 'flex-start',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '12px 24px',
+              background: 'none',
+              border: `2px solid ${COLORS.teal700}`,
+              color: COLORS.teal700,
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              cursor: 'pointer',
+              borderRadius: 6,
+              transition: 'all 0.3s'
+            }} onMouseEnter={(e) => {
+              e.currentTarget.style.background = COLORS.teal700;
+              e.currentTarget.style.color = '#fff';
+            }} onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none';
+              e.currentTarget.style.color = COLORS.teal700;
+            }}>
+              Explore This Era →
+            </button>
+          </div>
+
+          {/* Right Image with auto-rotation */}
+          <div style={{
+            borderRadius: 12,
+            overflow: 'hidden',
+            background: COLORS.bg,
+            minHeight: 360,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: COLORS.muted,
+            fontSize: 14,
+            fontWeight: 500
+          }}>
+            <img
+              src={currentImage}
+              alt={currentMilestone.title}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+                transition: 'opacity 0.6s ease-in-out'
+              }}
+            />
           </div>
         </div>
       </div>
