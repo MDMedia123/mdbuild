@@ -468,6 +468,18 @@
 
       <div class="card" style="max-width: 800px;">
         <h2>Compose & Send</h2>
+
+        <div class="form-field" style="text-align:left;margin-bottom:20px;">
+          <label>Email Template</label>
+          <select id="emailTemplate" onchange="loadEmailTemplate()" style="width:100%;padding:12px;border:1px solid var(--card-border);border-radius:6px;font-size:14px;">
+            <option value="">-- Select a Template --</option>
+            <option value="free-template">Free Business Plan Template Campaign</option>
+            <option value="blueprint">Business Blueprint Promotion</option>
+            <option value="custom">Custom Email</option>
+          </select>
+          <p style="font-size:12px;color:var(--gray-text);margin-top:8px;">Choose a pre-built template or write custom</p>
+        </div>
+
         <form id="emailCampaignForm" onsubmit="handleSendEmails(event)">
           <div class="form-field" style="text-align:left;">
             <label>Email Addresses</label>
@@ -857,6 +869,32 @@
     alert(`Admin user "${email}" added successfully!`);
     document.getElementById('adminEmail').value = '';
     document.getElementById('adminPassword').value = '';
+  }
+
+  function loadEmailTemplate(){
+    const templateSelect = document.getElementById('emailTemplate').value;
+    const subjectField = document.getElementById('emailSubject');
+    const bodyField = document.getElementById('emailBody');
+
+    const templates = {
+      'free-template': {
+        subject: 'Your Free Business Plan Template is Ready',
+        body: '<html><body style="margin:0;padding:0;font-family:\'Segoe UI\',Arial,sans-serif;background:#f3f4f6;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:10px 0;"><table width="100%" style="max-width:600px;background:#fff;" cellpadding="0" cellspacing="0"><tr><td style="padding:24px 28px;background:linear-gradient(135deg,#1a2847 0%,#2d3e5f 100%);text-align:center;"><div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;"><div style="background:#1a2847;padding:6px 10px;border-radius:4px;font-size:14px;font-weight:700;color:#c1893d;">MD</div><span style="color:#fff;font-size:16px;font-weight:700;">Build</span></div><p style="margin:0;font-size:13px;color:#c1893d;font-weight:600;">Your free Business Plan Template is ready to use</p></td></tr><tr><td style="padding:24px 28px;color:#1a2847;"><p style="margin:0 0 12px 0;font-size:13px;font-weight:600;">Hi there,</p><p style="margin:0 0 16px 0;font-size:13px;color:#374151;line-height:1.5;">Get your free Business Plan Template with all 21 sections. Fill it out in minutes and download as PDF. No credit card needed.</p><table width="100%" style="margin:16px 0;"><tr><td style="background:#f0f9ff;border-left:4px solid #2f8577;padding:12px;border-radius:4px;"><p style="margin:0;font-size:11px;color:#1a2847;font-weight:600;">What\'s inside:</p><p style="margin:4px 0 0 0;font-size:11px;color:#374151;line-height:1.4;">✓ 8 guided sections • Auto-save • PDF download • Editable templates</p></td></tr></table><p style="text-align:center;margin:16px 0;"><a href="https://buildbymd.com/FreeBusinessPlanTemplate" style="display:inline-block;background:#c1893d;color:white;padding:12px 40px;text-decoration:none;font-weight:bold;font-size:13px;border-radius:6px;box-shadow:0 4px 12px rgba(193,137,61,0.3);">Start Building Your Plan →</a></p></td></tr><tr><td style="padding:0;"><table width="100%" style="background:#f9fafb;"><tr><td style="padding:20px 28px;text-align:center;border-top:1px solid #e5e7eb;"><h3 style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:#1a2847;">Want the Full Platform?</h3><p style="margin:0 0 10px 0;font-size:12px;color:#6b7280;line-height:1.4;">Get Business Blueprint — 21 modules with everything from idea to first sale, plus lifetime access.</p><table width="100%" style="margin:8px 0;"><tr><td style="background:#fff4e6;padding:10px;border-radius:6px;text-align:center;"><p style="margin:0;font-size:11px;font-weight:bold;color:#8A5A1E;">Just $49 for Lifetime Access</p></td></tr></table><p style="margin:10px 0 0 0;"><a href="https://buildbymd.com" style="display:inline-block;background:#1a2847;color:white;padding:8px 28px;text-decoration:none;font-weight:bold;font-size:11px;border-radius:6px;">Explore Business Blueprint</a></p></td></tr></table></td></tr><tr><td style="padding:12px 28px;text-align:center;border-top:1px solid #e5e7eb;font-size:10px;color:#6b7280;"><p style="margin:0 0 2px 0;"><strong>MD Build</strong> • Built Better Businesses</p><p style="margin:0;">© 2025 MD Build. All rights reserved.</p></td></tr></table></td></tr></table></body></html>'
+      },
+      'blueprint': {
+        subject: 'Introducing Business Blueprint - Everything You Need to Launch',
+        body: 'Subject: Introducing Business Blueprint\n\nBuild your business the right way.\n\n21 guided modules covering:\n✓ Strategy & Planning\n✓ Brand & Positioning  \n✓ Product Development\n✓ Go-to-Market Strategy\n✓ Financial Planning\n✓ Operations\n✓ Launch Tracking\n\nLifetime access for just $49\n\nGet started: https://buildbymd.com\n\n© 2025 MD Build'
+      }
+    };
+
+    if(templates[templateSelect]){
+      const template = templates[templateSelect];
+      subjectField.value = template.subject;
+      bodyField.value = template.body;
+    } else {
+      subjectField.value = '';
+      bodyField.value = '';
+    }
   }
 
   async function handleSendEmails(e){
