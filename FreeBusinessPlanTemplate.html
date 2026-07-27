@@ -362,19 +362,78 @@ function downloadPDF() {
     <head>
       <title>${businessName} - Business Plan</title>
       <style>
-        body { font-family: Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
-        h1 { font-size: 28px; text-align: center; color: #1a2847; }
-        h2 { font-size: 18px; color: #1a2847; border-bottom: 2px solid #c1893d; padding-bottom: 8px; margin-top: 24px; page-break-after: avoid; }
-        p { margin: 0 0 12px 0; }
-        .date { text-align: center; color: #666; font-size: 12px; margin-bottom: 32px; }
-        .section { margin-bottom: 24px; }
-        strong { color: #1a2847; }
-        @media print { body { margin: 20px; } }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+          font-family: 'Segoe UI', Arial, sans-serif;
+          color: #2c3e50;
+          line-height: 1.7;
+          background: white;
+          padding: 30px;
+        }
+        .cover {
+          text-align: center;
+          padding: 60px 0;
+          border-bottom: 3px solid #c1893d;
+          margin-bottom: 40px;
+          page-break-after: always;
+        }
+        .cover h1 {
+          font-size: 42px;
+          color: #1a2847;
+          margin-bottom: 16px;
+          font-weight: 700;
+        }
+        .cover .subtitle {
+          font-size: 18px;
+          color: #c1893d;
+          font-weight: 600;
+          margin-bottom: 20px;
+        }
+        .cover .date {
+          font-size: 13px;
+          color: #7f8c8d;
+        }
+        h2 {
+          font-size: 20px;
+          color: #1a2847;
+          border-bottom: 2px solid #c1893d;
+          padding-bottom: 10px;
+          margin: 32px 0 16px 0;
+          page-break-after: avoid;
+          font-weight: 700;
+        }
+        .section {
+          margin-bottom: 28px;
+          page-break-inside: avoid;
+        }
+        p {
+          margin-bottom: 10px;
+          text-align: justify;
+        }
+        strong {
+          color: #1a2847;
+          font-weight: 600;
+        }
+        .footer {
+          text-align: center;
+          font-size: 11px;
+          color: #95a5a6;
+          margin-top: 60px;
+          padding-top: 20px;
+          border-top: 1px solid #ecf0f1;
+        }
+        @media print {
+          body { padding: 25px; }
+          .cover { padding: 40px 0; margin-bottom: 30px; }
+        }
       </style>
     </head>
     <body>
-      <h1>${businessName}</h1>
-      <p class="date">Business Plan • Prepared ${today}</p>
+      <div class="cover">
+        <h1>${businessName}</h1>
+        <div class="subtitle">Business Plan</div>
+        <div class="date">Prepared: ${today}</div>
+      </div>
 
       <div class="section">
         <h2>1. Executive Summary</h2>
@@ -427,7 +486,9 @@ function downloadPDF() {
         <p><strong>Key Milestones:</strong> ${data.milestones || '(Not provided)'}</p>
       </div>
 
-      <p style="text-align: center; font-size: 12px; color: #999; margin-top: 48px;">© 2025 MD Build. Created with MD Build's Business Plan Template.</p>
+      <div class="footer">
+        <p>© 2025 MD Build. Created with MD Build's Business Plan Template.</p>
+      </div>
     </body>
     </html>
   `;
