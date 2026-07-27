@@ -419,6 +419,12 @@ function downloadPDF() {
     </div>
   `;
 
+  // Create temporary element to hold the PDF content
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = pdfContent;
+  tempDiv.style.display = 'none';
+  document.body.appendChild(tempDiv);
+
   const opt = {
     margin: 10,
     filename: `${businessName}_BusinessPlan.pdf`,
@@ -429,19 +435,22 @@ function downloadPDF() {
 
   // Add timeout to catch hanging
   const timeout = setTimeout(() => {
+    document.body.removeChild(tempDiv);
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = 'Download as PDF';
     alert('PDF generation took too long. Please try again or contact support.');
   }, 30000); // 30 second timeout
 
-  html2pdf().set(opt).from(pdfContent, 'html').save().then(() => {
+  html2pdf().set(opt).from(tempDiv).save().then(() => {
     clearTimeout(timeout);
+    document.body.removeChild(tempDiv);
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = 'Download as PDF';
   }).catch(error => {
     clearTimeout(timeout);
+    document.body.removeChild(tempDiv);
     btn.disabled = false;
     btn.classList.remove('loading');
     btn.textContent = 'Download as PDF';
