@@ -326,128 +326,119 @@
 </div>
 
 <script>
-async function downloadPDF() {
-  try {
-    const btn = event.target;
-    btn.disabled = true;
-    btn.classList.add('loading');
-    btn.textContent = 'Generating PDF...';
+function downloadPDF() {
+  const btn = event.target;
+  const businessName = document.getElementById('companyName').value || 'Business Plan';
 
-    console.log('Starting PDF download...');
+  // Create a print window with formatted content
+  const printWindow = window.open('', '', 'height=600,width=800');
+  const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    const businessName = document.getElementById('companyName').value || 'Business Plan';
+  const data = {
+    executiveSummary: document.getElementById('executiveSummary').value,
+    companyName: businessName,
+    businessType: document.getElementById('businessType').value,
+    mission: document.getElementById('mission').value,
+    targetCustomer: document.getElementById('targetCustomer').value,
+    marketSize: document.getElementById('marketSize').value,
+    competition: document.getElementById('competition').value,
+    offerings: document.getElementById('offerings').value,
+    pricing: document.getElementById('pricing').value,
+    customerAcquisition: document.getElementById('customerAcquisition').value,
+    salesProcess: document.getElementById('salesProcess').value,
+    team: document.getElementById('team').value,
+    operations: document.getElementById('operations').value,
+    year1Revenue: document.getElementById('year1Revenue').value,
+    year2Revenue: document.getElementById('year2Revenue').value,
+    expenses: document.getElementById('expenses').value,
+    breakEven: document.getElementById('breakEven').value,
+    fundingNeeded: document.getElementById('fundingNeeded').value,
+    milestones: document.getElementById('milestones').value
+  };
 
-    // Get all form values
-    const data = {
-      executiveSummary: document.getElementById('executiveSummary').value,
-      companyName: businessName,
-      businessType: document.getElementById('businessType').value,
-      mission: document.getElementById('mission').value,
-      targetCustomer: document.getElementById('targetCustomer').value,
-      marketSize: document.getElementById('marketSize').value,
-      competition: document.getElementById('competition').value,
-      offerings: document.getElementById('offerings').value,
-      pricing: document.getElementById('pricing').value,
-      customerAcquisition: document.getElementById('customerAcquisition').value,
-      salesProcess: document.getElementById('salesProcess').value,
-      team: document.getElementById('team').value,
-      operations: document.getElementById('operations').value,
-      year1Revenue: document.getElementById('year1Revenue').value,
-      year2Revenue: document.getElementById('year2Revenue').value,
-      expenses: document.getElementById('expenses').value,
-      breakEven: document.getElementById('breakEven').value,
-      fundingNeeded: document.getElementById('fundingNeeded').value,
-      milestones: document.getElementById('milestones').value
-    };
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>${businessName} - Business Plan</title>
+      <style>
+        body { font-family: Arial, sans-serif; margin: 40px; color: #333; line-height: 1.6; }
+        h1 { font-size: 28px; text-align: center; color: #1a2847; }
+        h2 { font-size: 18px; color: #1a2847; border-bottom: 2px solid #c1893d; padding-bottom: 8px; margin-top: 24px; page-break-after: avoid; }
+        p { margin: 0 0 12px 0; }
+        .date { text-align: center; color: #666; font-size: 12px; margin-bottom: 32px; }
+        .section { margin-bottom: 24px; }
+        strong { color: #1a2847; }
+        @media print { body { margin: 20px; } }
+      </style>
+    </head>
+    <body>
+      <h1>${businessName}</h1>
+      <p class="date">Business Plan • Prepared ${today}</p>
 
-    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+      <div class="section">
+        <h2>1. Executive Summary</h2>
+        <p>${data.executiveSummary || '(Not provided)'}</p>
+      </div>
 
-    // Build text content for PDF
-    let pdfText = `BUSINESS PLAN\n${businessName}\nPrepared: ${today}\n\n`;
-    pdfText += `Created with MD Build's Business Plan Template\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `1. EXECUTIVE SUMMARY\n${data.executiveSummary || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `2. COMPANY DESCRIPTION\nCompany Name: ${data.companyName}\nBusiness Type: ${data.businessType || '(Not provided)'}\nMission: ${data.mission || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `3. MARKET ANALYSIS\nTarget Customer: ${data.targetCustomer || '(Not provided)'}\nMarket Size: ${data.marketSize || '(Not provided)'}\nCompetition: ${data.competition || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `4. PRODUCTS & SERVICES\nOfferings: ${data.offerings || '(Not provided)'}\nPricing: ${data.pricing || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `5. MARKETING & SALES STRATEGY\nCustomer Acquisition: ${data.customerAcquisition || '(Not provided)'}\nSales Process: ${data.salesProcess || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `6. OPERATIONS & TEAM\nTeam: ${data.team || '(Not provided)'}\nOperations: ${data.operations || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `7. FINANCIAL PROJECTIONS\nYear 1 Revenue Goal: ${data.year1Revenue || '(Not provided)'}\nYear 2 Revenue Goal: ${data.year2Revenue || '(Not provided)'}\nMajor Expenses: ${data.expenses || '(Not provided)'}\nBreak-Even Analysis: ${data.breakEven || '(Not provided)'}\n\n`;
-    pdfText += `${'='.repeat(80)}\n\n`;
-    pdfText += `8. FUNDING & MILESTONES\nStarting Capital Needed: ${data.fundingNeeded || '(Not provided)'}\nKey Milestones: ${data.milestones || '(Not provided)'}\n\n`;
-    pdfText += `© 2025 MD Build. Created with MD Build's Business Plan Template.`;
+      <div class="section">
+        <h2>2. Company Description</h2>
+        <p><strong>Company Name:</strong> ${data.companyName}</p>
+        <p><strong>Business Type:</strong> ${data.businessType || '(Not provided)'}</p>
+        <p><strong>Mission:</strong> ${data.mission || '(Not provided)'}</p>
+      </div>
 
-    console.log('Text built, checking for jsPDF...');
+      <div class="section">
+        <h2>3. Market Analysis</h2>
+        <p><strong>Target Customer:</strong> ${data.targetCustomer || '(Not provided)'}</p>
+        <p><strong>Market Size:</strong> ${data.marketSize || '(Not provided)'}</p>
+        <p><strong>Competition:</strong> ${data.competition || '(Not provided)'}</p>
+      </div>
 
-    // Check if jsPDF is available
-    if (!window.jsPDF) {
-      throw new Error('jsPDF library not loaded');
-    }
+      <div class="section">
+        <h2>4. Products & Services</h2>
+        <p><strong>Offerings:</strong> ${data.offerings || '(Not provided)'}</p>
+        <p><strong>Pricing:</strong> ${data.pricing || '(Not provided)'}</p>
+      </div>
 
-    // Use jsPDF to create PDF from text
-    const { jsPDF } = window;
-    console.log('Creating PDF document...');
+      <div class="section">
+        <h2>5. Marketing & Sales Strategy</h2>
+        <p><strong>Customer Acquisition:</strong> ${data.customerAcquisition || '(Not provided)'}</p>
+        <p><strong>Sales Process:</strong> ${data.salesProcess || '(Not provided)'}</p>
+      </div>
 
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
+      <div class="section">
+        <h2>6. Operations & Team</h2>
+        <p><strong>Team:</strong> ${data.team || '(Not provided)'}</p>
+        <p><strong>Operations:</strong> ${data.operations || '(Not provided)'}</p>
+      </div>
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 15;
-    const lineHeight = 5;
-    const maxWidth = pageWidth - 2 * margin;
+      <div class="section">
+        <h2>7. Financial Projections</h2>
+        <p><strong>Year 1 Revenue Goal:</strong> ${data.year1Revenue || '(Not provided)'}</p>
+        <p><strong>Year 2 Revenue Goal:</strong> ${data.year2Revenue || '(Not provided)'}</p>
+        <p><strong>Major Expenses:</strong> ${data.expenses || '(Not provided)'}</p>
+        <p><strong>Break-Even Analysis:</strong> ${data.breakEven || '(Not provided)'}</p>
+      </div>
 
-    // Split text into lines that fit page width
-    console.log('Splitting text...');
-    const lines = pdf.splitTextToSize(pdfText, maxWidth);
-    console.log(`Text split into ${lines.length} lines`);
+      <div class="section">
+        <h2>8. Funding & Milestones</h2>
+        <p><strong>Starting Capital Needed:</strong> ${data.fundingNeeded || '(Not provided)'}</p>
+        <p><strong>Key Milestones:</strong> ${data.milestones || '(Not provided)'}</p>
+      </div>
 
-    let yPosition = margin;
-    let pageNum = 1;
+      <p style="text-align: center; font-size: 12px; color: #999; margin-top: 48px;">© 2025 MD Build. Created with MD Build's Business Plan Template.</p>
+    </body>
+    </html>
+  `;
 
-    lines.forEach((line, index) => {
-      if (yPosition > pageHeight - margin) {
-        pdf.addPage();
-        yPosition = margin;
-        pageNum++;
-      }
-      pdf.text(line, margin, yPosition);
-      yPosition += lineHeight;
-    });
+  printWindow.document.write(html);
+  printWindow.document.close();
 
-    // Add page numbers
-    const totalPages = pdf.internal.pages.length - 1;
-    console.log(`Generated ${totalPages} pages`);
-
-    for (let i = 1; i <= totalPages; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(9);
-      pdf.text(`Page ${i}`, pageWidth - margin - 10, pageHeight - 10);
-    }
-
-    console.log('Saving PDF...');
-    pdf.save(`${businessName}_BusinessPlan.pdf`);
-    console.log('PDF saved successfully');
-
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    btn.textContent = 'Download as PDF';
-  } catch (error) {
-    console.error('PDF generation error:', error);
-    alert('Error generating PDF: ' + error.message);
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    btn.textContent = 'Download as PDF';
-  }
+  // Trigger print after content loads
+  setTimeout(() => {
+    printWindow.print();
+  }, 250);
 }
 
 // Auto-save to sessionStorage (fresh email links always start empty)
