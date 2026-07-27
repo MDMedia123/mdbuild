@@ -1,12 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/admin",
+      "source": "/dashboard-mdbuilds3cr3t",
       "destination": "/MD_Admin_Portal.html"
-    },
-    {
-      "source": "/users",
-      "destination": "/MD_Admin_Users.html"
     },
     {
       "source": "/FreeBusinessPlanTemplate",
