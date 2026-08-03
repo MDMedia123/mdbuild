@@ -250,7 +250,9 @@
   <script>
     const stripe = Stripe('pk_test_51Tt0ZkBCymbe4rHQo13LNX1Nzc3VKwvWRexx08GYF3I00W9wtP');
     const elements = stripe.elements();
-    const cardElement = elements.create('card');
+    const cardElement = elements.create('card', {
+      hidePostalCode: true
+    });
     cardElement.mount('#card-element');
 
     const form = document.getElementById('checkoutForm');
