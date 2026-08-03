@@ -32,8 +32,13 @@
     }
     .header-content {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
+      position: relative;
+    }
+    .header-content .btn-download {
+      position: absolute;
+      right: 0;
     }
     .logo {
       font-size: 18px;
@@ -158,10 +163,10 @@
 <header>
   <div class="container">
     <div class="header-content">
-      <a href="/" class="logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;">
+      <a href="/" class="logo" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:inherit;margin:0 auto;">
         <div style="width:32px;height:32px;background:#1a2847;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0;">MD</div>
         <span style="font-weight:600;font-size:16px;">Build</span>
-        <span style="color:#6b7280;margin-left:4px;font-size:13px;">Build Better Businesses</span>
+        <span style="color:#1a2847;margin-left:4px;font-size:13px;font-weight:600;">Build Better Businesses</span>
       </a>
       <button class="btn-download" onclick="downloadPDF()">Download as PDF</button>
     </div>
