@@ -236,7 +236,9 @@
 
     // Auto-sign in customer by storing email from URL
     if (email) {
-      localStorage.setItem('userEmail', decodeURIComponent(email));
+      const decodedEmail = decodeURIComponent(email);
+      localStorage.setItem('userEmail', decodedEmail);
+      localStorage.setItem('portal_user', decodedEmail); // For customer portal recognition
     }
   </script>
 </body>
