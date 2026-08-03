@@ -15,6 +15,10 @@
     {
       "source": "/checkout-success",
       "destination": "/checkout-success.html"
+    },
+    {
+      "source": "/MD_Business_Blueprint_Dashboard",
+      "destination": "/MD_Business_Blueprint_Dashboard.html"
     }
   ]
 }
