@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase Confirmed | MD Build</title>
+  <style>
+    :root {
+      --ink: #1a2847;
+      --gold: #C1893D;
+      --green: #10b981;
+      --gray-text: #6b7280;
+      --paper: #f9fafb;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      color: var(--ink);
+      padding: 20px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    header {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 20px 0;
+      margin-bottom: 40px;
+      border-radius: 8px;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: inherit;
+      font-weight: 600;
+    }
+    .logo-box {
+      width: 32px;
+      height: 32px;
+      background: var(--ink);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .success-card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .checkmark {
+      width: 72px;
+      height: 72px;
+      background: var(--green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 36px;
+      color: white;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--gray-text);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .details {
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 14px;
+    }
+    .detail-label { color: var(--gray-text); }
+    .detail-value { font-weight: 600; color: var(--ink); }
+    .access-box {
+      background: linear-gradient(135deg, #1a2847 0%, #0f1a3a 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .access-box h3 {
+      font-size: 15px;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .access-box p {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--gold);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: background 0.2s;
+      border: none;
+      cursor: pointer;
+      margin: 0 8px;
+    }
+    .btn:hover {
+      background: #b07a2f;
+    }
+    .btn-secondary {
+      background: white;
+      color: var(--ink);
+      border: 1px solid #e5e7eb;
+    }
+    .btn-secondary:hover {
+      background: var(--paper);
+    }
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+    .email-notice {
+      font-size: 12px;
+      color: var(--gray-text);
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--gray-text);
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-box">MD</div>
+        <span>Build</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="success-card">
+      <div class="checkmark">✓</div>
+      <h1>Purchase Confirmed!</h1>
+      <p class="subtitle">Thank you for your purchase. Your access to Business Blueprint is now active.</p>
+
+      <div class="details">
+        <div class="detail-item">
+          <span class="detail-label">Product</span>
+          <span class="detail-value">Business Blueprint</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Amount</span>
+          <span class="detail-value">$49.00</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Date</span>
+          <span class="detail-value" id="purchaseDate"></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Transaction ID</span>
+          <span class="detail-value" id="transactionId" style="font-size: 11px; font-family: monospace;"></span>
+        </div>
+      </div>
+
+      <div class="access-box">
+        <h3>Your Access is Active</h3>
+        <p>Sign in with the email address you used to purchase. Your 21-module blueprint is ready to explore.</p>
+        <div class="button-group">
+          <a href="/customer-portal" class="btn">Access Blueprint</a>
+          <a href="/" class="btn btn-secondary">Back to Home</a>
+        </div>
+      </div>
+
+      <div class="email-notice">
+        📧 A confirmation email has been sent to your inbox with your receipt and access details.
+      </div>
+    </div>
+
+    <footer>
+      <p>© 2026 MD Build. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    // Extract session ID from URL
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session');
+
+    if (sessionId) {
+      document.getElementById('transactionId').textContent = sessionId;
+    }
+
+    // Set purchase date
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    document.getElementById('purchaseDate').textContent = dateStr;
+  </script>
+</body>
+</html>

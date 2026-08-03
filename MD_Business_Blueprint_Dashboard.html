@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Blueprint Workspace | MD Build</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="md_media_config.js"></script>
+  <style>
+    :root {
+      --ink: #1a2847;
+      --gold: #C1893D;
+      --gray-text: #6b7280;
+      --paper: #f9fafb;
+      --card: #ffffff;
+      --card-border: #e5e7eb;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+    }
+    header {
+      background: white;
+      border-bottom: 1px solid var(--card-border);
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: inherit;
+      font-weight: 600;
+    }
+    .logo-box {
+      width: 32px;
+      height: 32px;
+      background: var(--ink);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .btn-logout {
+      padding: 8px 16px;
+      background: var(--paper);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--ink);
+    }
+    .btn-logout:hover {
+      background: var(--card-border);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 32px;
+    }
+    h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 15px;
+      color: var(--gray-text);
+      margin-bottom: 40px;
+    }
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .module-card {
+      background: white;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 28px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .module-card:hover {
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+      border-color: var(--gold);
+    }
+    .module-number {
+      display: inline-block;
+      background: var(--gold);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .module-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .module-desc {
+      font-size: 13px;
+      color: var(--gray-text);
+      line-height: 1.6;
+    }
+    .not-authenticated {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .not-authenticated h2 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .not-authenticated p {
+      font-size: 15px;
+      color: var(--gray-text);
+      margin-bottom: 24px;
+    }
+    .btn-signin {
+      display: inline-block;
+      padding: 12px 32px;
+      background: var(--gold);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+    .btn-signin:hover {
+      background: #b07a2f;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/" class="logo">
+      <div class="logo-box">MD</div>
+      <span>Build</span>
+    </a>
+    <div class="user-menu">
+      <span id="userEmail" style="font-size: 14px; color: var(--gray-text);"></span>
+      <button class="btn-logout" onclick="logout()">Sign out</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div id="authenticatedView">
+      <h1>Business Blueprint</h1>
+      <p class="subtitle">21 guided modules covering strategy, brand, product, marketing, operations, and launch</p>
+
+      <div class="modules-grid" id="modulesGrid">
+        <!-- Modules will be generated here -->
+      </div>
+    </div>
+
+    <div id="notAuthenticatedView" style="display:none;">
+      <div class="not-authenticated">
+        <h2>Access Your Business Blueprint</h2>
+        <p>Sign in with the email you used to purchase.</p>
+        <a href="/MD_Customer_Portal.html" class="btn-signin">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modules = [
+      { num: 1, title: "Your Foundation", desc: "Articulate your vision, mission, and core values" },
+      { num: 2, title: "Market Research", desc: "Understand your market, competitors, and opportunities" },
+      { num: 3, title: "Customer Definition", desc: "Define your ideal customer profile and personas" },
+      { num: 4, title: "Brand Strategy", desc: "Build your brand identity, voice, and positioning" },
+      { num: 5, title: "Product Strategy", desc: "Clarify your offering, features, and benefits" },
+      { num: 6, title: "Pricing Model", desc: "Develop your pricing strategy and monetization" },
+      { num: 7, title: "Go-to-Market Plan", desc: "Plan your launch strategy and initial channels" },
+      { num: 8, title: "Marketing Playbook", desc: "Create your customer acquisition strategy" },
+      { num: 9, title: "Sales Framework", desc: "Build your sales process and pipeline" },
+      { num: 10, title: "Operations Planning", desc: "Organize your team, processes, and workflows" },
+      { num: 11, title: "Financial Modeling", desc: "Project revenue, costs, and profitability" },
+      { num: 12, title: "Funding Strategy", desc: "Plan your capital needs and financing options" },
+      { num: 13, title: "Legal Structure", desc: "Choose your business entity and protect IP" },
+      { num: 14, title: "Technology Stack", desc: "Select tools and platforms for your business" },
+      { num: 15, title: "Metrics & KPIs", desc: "Define success metrics and tracking systems" },
+      { num: 16, title: "Risk Management", desc: "Identify risks and mitigation strategies" },
+      { num: 17, title: "Timeline & Milestones", desc: "Create your 12-month launch roadmap" },
+      { num: 18, title: "Communication Strategy", desc: "Build your messaging and content plan" },
+      { num: 19, title: "Partnership Strategy", desc: "Identify and plan strategic partnerships" },
+      { num: 20, title: "Launch Checklist", desc: "Final preparation before going live" },
+      { num: 21, title: "Post-Launch Growth", desc: "Scale, optimize, and grow your business" }
+    ];
+
+    async function checkAuth() {
+      const email = localStorage.getItem('userEmail');
+
+      if (!email) {
+        document.getElementById('authenticatedView').style.display = 'none';
+        document.getElementById('notAuthenticatedView').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('userEmail').textContent = email;
+      renderModules();
+    }
+
+    function renderModules() {
+      const grid = document.getElementById('modulesGrid');
+      grid.innerHTML = modules.map(m => `
+        <div class="module-card">
+          <div class="module-number">${m.num}</div>
+          <div class="module-title">${m.title}</div>
+          <div class="module-desc">${m.desc}</div>
+        </div>
+      `).join('');
+    }
+
+    function logout() {
+      localStorage.removeItem('userEmail');
+      window.location.href = '/';
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>

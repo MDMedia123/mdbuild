@@ -7,6 +7,14 @@
     {
       "source": "/FreeBusinessPlanTemplate",
       "destination": "/FreeBusinessPlanTemplate.html"
+    },
+    {
+      "source": "/checkout",
+      "destination": "/checkout.html"
+    },
+    {
+      "source": "/checkout-success",
+      "destination": "/checkout-success.html"
     }
   ]
 }

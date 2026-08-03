@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Business Blueprint | MD Build</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <link rel="stylesheet" href="md_build_styles.css">
+  <style>
+    :root {
+      --ink: #1a2847;
+      --gold: #C1893D;
+      --gray-text: #6b7280;
+      --paper: #f9fafb;
+      --card: #ffffff;
+      --card-border: #e5e7eb;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+      color: var(--ink);
+      padding: 20px;
+    }
+    .container { max-width: 600px; margin: 0 auto; }
+    header {
+      background: white;
+      border-bottom: 1px solid var(--card-border);
+      padding: 20px 0;
+      margin-bottom: 40px;
+      border-radius: 8px;
+    }
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: inherit;
+      font-weight: 600;
+    }
+    .logo-box {
+      width: 32px;
+      height: 32px;
+      background: var(--ink);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .checkout-card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+      margin-bottom: 40px;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--gray-text);
+      margin-bottom: 32px;
+    }
+    .product-summary {
+      background: var(--paper);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      border-left: 4px solid var(--gold);
+    }
+    .product-name {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .product-desc {
+      font-size: 13px;
+      color: var(--gray-text);
+      margin-bottom: 12px;
+    }
+    .product-price {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(193, 137, 61, 0.1);
+    }
+    #card-element {
+      padding: 12px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      background: white;
+    }
+    #card-element.StripeElement--focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(193, 137, 61, 0.1);
+    }
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--gold);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: background 0.2s;
+    }
+    .btn:hover:not(:disabled) {
+      background: #b07a2f;
+    }
+    .btn:disabled {
+      background: var(--gray-text);
+      cursor: not-allowed;
+    }
+    .error {
+      color: #dc2626;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .success {
+      color: #16a34a;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--gray-text);
+      margin-top: 40px;
+    }
+    .security-badge {
+      text-align: center;
+      font-size: 12px;
+      color: var(--gray-text);
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <a href="/" class="logo">
+        <div class="logo-box">MD</div>
+        <span>Build</span>
+      </a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="checkout-card">
+      <h1>Checkout</h1>
+      <p class="subtitle">Complete your purchase of Business Blueprint</p>
+
+      <div class="product-summary">
+        <div class="product-name">Business Blueprint</div>
+        <div class="product-desc">21 guided modules covering strategy, brand, product, marketing, operations, and launch</div>
+        <div class="product-price">$49</div>
+      </div>
+
+      <form id="checkoutForm">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" placeholder="Your Name" required>
+        </div>
+
+        <div class="form-group">
+          <label>Card Details</label>
+          <div id="card-element"></div>
+        </div>
+
+        <div id="cardError" class="error"></div>
+        <div id="cardSuccess" class="success"></div>
+
+        <button type="submit" class="btn" id="submitBtn">
+          <span id="btnText">Complete Purchase</span>
+          <div id="btnLoader" class="loading" style="display:none;"></div>
+        </button>
+
+        <div class="security-badge">
+          🔒 Secured by Stripe
+        </div>
+      </form>
+    </div>
+
+    <footer>
+      <p>© 2026 MD Build. All rights reserved.</p>
+      <p style="margin-top: 12px; font-size: 11px;">Your payment information is secure and encrypted.</p>
+    </footer>
+  </div>
+
+  <script>
+    const stripe = Stripe('pk_test_51Tt0ZkBCymbe4rHQo13LNX1Nzc3VKwvWRexx08GYF3I00W9wtP');
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+
+    const form = document.getElementById('checkoutForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnLoader = document.getElementById('btnLoader');
+    const cardError = document.getElementById('cardError');
+
+    cardElement.addEventListener('change', function(event) {
+      cardError.textContent = event.error ? event.error.message : '';
+      cardError.style.display = event.error ? 'block' : 'none';
+    });
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const name = document.getElementById('name').value;
+
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoader.style.display = 'inline-block';
+
+      try {
+        // Create payment intent on server
+        const response = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            name: name,
+            amount: 4900 // $49 in cents
+          })
+        });
+
+        const { clientSecret } = await response.json();
+
+        // Confirm payment with Stripe
+        const result = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: { email: email, name: name }
+          }
+        });
+
+        if (result.error) {
+          cardError.textContent = result.error.message;
+          cardError.style.display = 'block';
+        } else {
+          // Payment successful
+          window.location.href = `/checkout-success.html?session=${result.paymentIntent.id}`;
+        }
+      } catch (error) {
+        cardError.textContent = 'An error occurred. Please try again.';
+        cardError.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
