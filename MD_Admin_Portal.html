@@ -1489,31 +1489,30 @@
     const table = document.getElementById('ordersTable');
     console.log('loadOrders called, table element:', table ? 'found' : 'NOT FOUND');
     try {
-      const { data: orders, error } = await mdSupabase.from('orders').select('*').order('created_at', { ascending: false });
-      console.log('Supabase query result:', error ? 'error: ' + error.message : 'success, ' + (orders?.length || 0) + ' orders');
+      const { data: purchases, error } = await mdSupabase.from('purchases').select('*').order('created_at', { ascending: false });
+      console.log('Supabase query result:', error ? 'error: ' + error.message : 'success, ' + (purchases?.length || 0) + ' purchases');
 
       if (error) throw error;
 
-      if (!orders || orders.length === 0) {
+      if (!purchases || purchases.length === 0) {
         table.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--gray-text);">No orders yet</td></tr>';
         console.log('No orders found');
         return;
       }
 
-      const html = orders.map((order, idx) => {
-        const date = new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-        const amount = (order.amount_cents / 100).toFixed(2);
-        const statusBadge = order.status === 'completed' ? 'badge-green' : order.status === 'pending' ? 'badge-yellow' : 'badge-gray';
-        const statusLabel = order.status.charAt(0).toUpperCase() + order.status.slice(1);
+      const html = purchases.map((purchase, idx) => {
+        const date = new Date(purchase.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        const amount = purchase.amount.toFixed(2);
+        const transactionId = purchase.stripe_payment_intent_id.substring(0, 16) + '...';
 
         return `
           <tr>
-            <td>#ORD-${String(idx + 1).padStart(3, '0')}</td>
-            <td>${order.customer_name}</td>
-            <td>${order.product_slug === 'business-launch' ? 'MD Business Launch' : order.product_slug === 'studios' ? 'MD Studios' : order.product_slug}</td>
+            <td><code style="font-size:11px;">${transactionId}</code></td>
+            <td>${purchase.name}</td>
+            <td>Business Blueprint</td>
             <td>$${amount}</td>
             <td>${date}</td>
-            <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
+            <td><span class="badge badge-green">Completed</span></td>
           </tr>
         `;
       }).join('');
