@@ -19,6 +19,10 @@
     {
       "source": "/MD_Business_Blueprint_Dashboard",
       "destination": "/MD_Business_Blueprint_Dashboard.html"
+    },
+    {
+      "source": "/customer-portal",
+      "destination": "/MD_Customer_Portal.html"
     }
   ]
 }
