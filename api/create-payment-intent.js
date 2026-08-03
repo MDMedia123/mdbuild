@@ -1,8 +1,6 @@
-import Stripe from 'stripe';
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -12,6 +10,11 @@ export default async function handler(req, res) {
 
     if (!email || !name || !amount) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('STRIPE_SECRET_KEY not set');
+      return res.status(500).json({ error: 'Stripe not configured' });
     }
 
     // Create payment intent
@@ -32,4 +35,4 @@ export default async function handler(req, res) {
     console.error('Error creating payment intent:', error.message);
     return res.status(500).json({ error: error.message });
   }
-}
+};
