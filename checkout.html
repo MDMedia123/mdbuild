@@ -302,8 +302,9 @@
           cardError.textContent = result.error.message;
           cardError.style.display = 'block';
         } else {
-          // Payment successful
-          window.location.href = `/checkout-success.html?session=${result.paymentIntent.id}`;
+          // Payment successful - pass email to success page
+          const encodedEmail = encodeURIComponent(email);
+          window.location.href = `/checkout-success.html?session=${result.paymentIntent.id}&email=${encodedEmail}`;
         }
       } catch (error) {
         cardError.textContent = 'An error occurred. Please try again.';
