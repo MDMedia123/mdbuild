@@ -1,0 +1,13 @@
+{
+  "name": "mdbuild",
+  "version": "1.0.0",
+  "description": "MD Build - Guided systems for building a business",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "@supabase/supabase-js": "^2.40.0"
+  }
+}
