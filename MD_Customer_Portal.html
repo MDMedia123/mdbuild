@@ -461,6 +461,11 @@
 </div>
 
 <script>
+  // Clean up URL - redirect from .html to clean path
+  if (window.location.pathname.includes('.html')) {
+    window.location.href = '/customer-portal';
+  }
+
   async function handleLogin(e){
     e.preventDefault();
     var email = document.getElementById('loginEmail').value.trim();
