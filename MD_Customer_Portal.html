@@ -472,6 +472,20 @@
     loginBtn.textContent = 'Signing in...';
 
     try {
+      // If email matches stored email from checkout, skip password
+      const storedEmail = localStorage.getItem('userEmail');
+      if (storedEmail && storedEmail.toLowerCase() === email.toLowerCase()) {
+        // Auto-sign in from checkout
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('portalShell').style.display = 'flex';
+        localStorage.setItem('portal_user', email);
+        errorEl.textContent = '';
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Sign in';
+        return;
+      }
+
+      // Otherwise require password authentication
       const { data, error } = await mdSupabase.auth.signInWithPassword({
         email: email,
         password: password
@@ -600,13 +614,7 @@
     event.target.closest('.nav-item').classList.add('active');
   }
 
-  function signOut(){
-    document.getElementById('signOutModal').style.display = 'flex';
-  }
-  function closeSignOutModal(){
-    document.getElementById('signOutModal').style.display = 'none';
-  }
-  async function confirmSignOut(){
+  async function signOut(){
     try {
       await mdSupabase.auth.signOut();
     } catch (err) {
@@ -614,12 +622,13 @@
     }
 
     localStorage.removeItem('portal_user');
+    localStorage.removeItem('userEmail');
     document.getElementById('portalShell').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('loginEmail').value = '';
     document.getElementById('loginPassword').value = '';
     document.getElementById('loginError').textContent = '';
-    document.getElementById('signOutModal').style.display = 'none';
+    location.reload();
   }
 
   function openPasswordReset(e){
