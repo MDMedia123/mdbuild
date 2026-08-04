@@ -214,6 +214,10 @@
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg></div>
         <div class="nav-label">Customers</div>
       </div>
+      <div class="nav-item" onclick="showPage('profiles')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+        <div class="nav-label">Profiles</div>
+      </div>
       <div class="nav-item" onclick="showPage('leads')">
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div>
         <div class="nav-label">Leads</div>
@@ -363,6 +367,42 @@
               <!-- Customers loaded here -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profiles Page -->
+    <div id="profiles" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Customer Profiles</h1>
+          <p class="page-header-sub">Manage customer accounts and module access.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Create Customer Profile</h2>
+        <div style="display:grid;gap:16px;">
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Customer Email</label>
+            <input type="email" id="profileCustomerEmail" placeholder="customer@example.com" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Customer Name</label>
+            <input type="text" id="profileCustomerName" placeholder="John Doe" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Password</label>
+            <input type="password" id="profileCustomerPassword" placeholder="Set customer password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <button class="btn btn-gold" onclick="addProfileFromProfiles()" style="width:fit-content;">Create Profile</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">All Profiles</h2>
+        <div id="profilesList" style="display:grid;gap:12px;">
+          <p style="font-size:12px;color:var(--gray-text);">Loading profiles...</p>
         </div>
       </div>
     </div>
@@ -944,6 +984,123 @@
     localStorage.setItem('customerProfiles', JSON.stringify(customers));
     loadCustomerProfiles();
     alert('Customer profile removed successfully');
+  }
+
+  function addProfileFromProfiles() {
+    const email = document.getElementById('profileCustomerEmail').value.trim();
+    const name = document.getElementById('profileCustomerName').value.trim();
+    const password = document.getElementById('profileCustomerPassword').value.trim();
+
+    if(!email || !name || !password){
+      alert('Email, name, and password are required');
+      return;
+    }
+
+    let customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+
+    if(customers.find(c => c.email === email)){
+      alert('Customer with this email already exists');
+      return;
+    }
+
+    customers.push({
+      email,
+      name,
+      password,
+      createdAt: new Date().toLocaleDateString(),
+      moduleAccess: []
+    });
+    localStorage.setItem('customerProfiles', JSON.stringify(customers));
+
+    alert(`Customer profile for "${name}" created successfully!`);
+    document.getElementById('profileCustomerEmail').value = '';
+    document.getElementById('profileCustomerName').value = '';
+    document.getElementById('profileCustomerPassword').value = '';
+    loadProfilesPage();
+  }
+
+  function loadProfilesPage() {
+    const customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+    const listContainer = document.getElementById('profilesList');
+
+    if (customers.length === 0) {
+      listContainer.innerHTML = '<p style="font-size:12px;color:var(--gray-text);">No customer profiles created yet.</p>';
+      return;
+    }
+
+    let html = '';
+    customers.forEach((customer, index) => {
+      const moduleCount = customer.moduleAccess ? customer.moduleAccess.length : 0;
+      html += `
+        <div style="padding:16px;background:var(--paper);border-radius:8px;border-left:4px solid var(--gold);display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;">${customer.name}</div>
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:8px;">Email: ${customer.email}</div>
+            <div style="font-size:12px;color:var(--gray-text);margin-bottom:2px;">Password: ${customer.password}</div>
+            <div style="font-size:11px;color:var(--gray-text);">Modules: ${moduleCount} granted</div>
+            <div style="font-size:10px;color:var(--gray-text);margin-top:4px;">Added: ${customer.createdAt}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <button class="btn btn-gold btn-sm" onclick="manageModuleAccess(${index})">Manage Access</button>
+            <button class="btn btn-red btn-sm" onclick="removeCustomerProfile(${index})">Remove</button>
+          </div>
+        </div>
+      `;
+    });
+    listContainer.innerHTML = html;
+  }
+
+  function manageModuleAccess(index) {
+    const customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+    const customer = customers[index];
+
+    let modules = ['Module 1: Foundation', 'Module 2: Strategy', 'Module 3: Brand', 'Module 4: Product', 'Module 5: Marketing', 'Module 6: Operations', 'Module 7: Launch', 'Module 8: Growth'];
+    const currentAccess = customer.moduleAccess || [];
+
+    let html = `<div style="padding:16px;background:var(--card);border-radius:8px;border:1px solid var(--card-border);margin-bottom:16px;">
+      <h3 style="margin-top:0;margin-bottom:12px;font-size:14px;">Grant Module Access for ${customer.name}</h3>
+      <div style="display:grid;gap:10px;margin-bottom:16px;">`;
+
+    modules.forEach((module, i) => {
+      const isChecked = currentAccess.includes(i);
+      html += `
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px;border-radius:6px;background:var(--paper);">
+          <input type="checkbox" id="module_${i}" ${isChecked ? 'checked' : ''} style="cursor:pointer;width:16px;height:16px;">
+          <span style="flex:1;font-size:12px;">${module}</span>
+        </label>
+      `;
+    });
+
+    html += `</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-gold btn-sm" onclick="saveModuleAccess(${index})">Save Access</button>
+        <button class="btn btn-ghost btn-sm" onclick="cancelModuleAccess()">Cancel</button>
+      </div>
+    </div>`;
+
+    document.getElementById('profilesList').insertAdjacentHTML('beforebegin', html);
+  }
+
+  function saveModuleAccess(index) {
+    const customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+    const moduleAccess = [];
+
+    for(let i = 0; i < 8; i++) {
+      const checkbox = document.getElementById(`module_${i}`);
+      if(checkbox && checkbox.checked) {
+        moduleAccess.push(i);
+      }
+    }
+
+    customers[index].moduleAccess = moduleAccess;
+    localStorage.setItem('customerProfiles', JSON.stringify(customers));
+
+    alert(`Module access updated for ${customers[index].name}!`);
+    location.reload();
+  }
+
+  function cancelModuleAccess() {
+    location.reload();
   }
 
   function togglePasswordVisibility(inputId, iconId) {
@@ -1693,6 +1850,7 @@
       await loadOrders();
       loadAdminUsers();
       loadCustomerProfiles();
+      loadProfilesPage();
     }
 
     // Load leads data on page show
