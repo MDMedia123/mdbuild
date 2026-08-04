@@ -667,6 +667,30 @@
       </div>
 
       <div class="card" style="margin-bottom:24px;">
+        <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Customer Profiles</h2>
+        <div style="display:grid;gap:16px;">
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Customer Email</label>
+            <input type="email" id="customerEmail" placeholder="customer@example.com" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Customer Name</label>
+            <input type="text" id="customerName" placeholder="John Doe" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Business Name (Optional)</label>
+            <input type="text" id="customerBusiness" placeholder="Acme Inc" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+          </div>
+          <button class="btn btn-gold" onclick="addCustomerProfile()" style="width:fit-content;">Add Customer Profile</button>
+        </div>
+
+        <h3 style="font-size:14px;margin-top:24px;margin-bottom:12px;font-weight:600;border-top:1px solid var(--card-border);padding-top:16px;">All Customer Profiles</h3>
+        <div id="customerProfilesList" style="display:grid;gap:10px;">
+          <p style="font-size:12px;color:var(--gray-text);">Loading customer profiles...</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:24px;">
         <h2 style="font-size:16px;margin-bottom:16px;font-family:'Poppins',sans-serif;">Admin Users</h2>
         <div style="display:grid;gap:16px;">
           <div>
@@ -851,6 +875,75 @@
     } else {
       document.getElementById('loginError').textContent = 'Invalid credentials';
     }
+  }
+
+  function addCustomerProfile() {
+    const email = document.getElementById('customerEmail').value.trim();
+    const name = document.getElementById('customerName').value.trim();
+    const business = document.getElementById('customerBusiness').value.trim();
+
+    if(!email || !name){
+      alert('Email and name are required');
+      return;
+    }
+
+    let customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+
+    // Check if customer already exists
+    if(customers.find(c => c.email === email)){
+      alert('Customer with this email already exists');
+      return;
+    }
+
+    // Add new customer
+    customers.push({
+      email,
+      name,
+      business: business || 'N/A',
+      createdAt: new Date().toLocaleDateString()
+    });
+    localStorage.setItem('customerProfiles', JSON.stringify(customers));
+
+    alert(`Customer profile for "${name}" added successfully!`);
+    document.getElementById('customerEmail').value = '';
+    document.getElementById('customerName').value = '';
+    document.getElementById('customerBusiness').value = '';
+    loadCustomerProfiles();
+  }
+
+  function loadCustomerProfiles() {
+    const customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+    const listContainer = document.getElementById('customerProfilesList');
+
+    if (customers.length === 0) {
+      listContainer.innerHTML = '<p style="font-size:12px;color:var(--gray-text);">No customer profiles created yet.</p>';
+      return;
+    }
+
+    let html = '';
+    customers.forEach((customer, index) => {
+      html += `
+        <div style="padding:12px;background:var(--paper);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">${customer.name}</div>
+            <div style="font-size:11px;color:var(--gray-text);margin-top:2px;">${customer.email}</div>
+            <div style="font-size:11px;color:var(--gray-text);margin-top:2px;">Business: ${customer.business}</div>
+            <div style="font-size:10px;color:var(--gray-text);margin-top:4px;">Added: ${customer.createdAt}</div>
+          </div>
+          <button class="btn btn-red btn-sm" onclick="removeCustomerProfile(${index})">Remove</button>
+        </div>
+      `;
+    });
+    listContainer.innerHTML = html;
+  }
+
+  function removeCustomerProfile(index) {
+    if (!confirm('Are you sure you want to remove this customer profile?')) return;
+    let customers = JSON.parse(localStorage.getItem('customerProfiles') || '[]');
+    customers.splice(index, 1);
+    localStorage.setItem('customerProfiles', JSON.stringify(customers));
+    loadCustomerProfiles();
+    alert('Customer profile removed successfully');
   }
 
   function togglePasswordVisibility(inputId, iconId) {
@@ -1599,6 +1692,7 @@
     if(document.getElementById('portalShell').style.display !== 'none'){
       await loadOrders();
       loadAdminUsers();
+      loadCustomerProfiles();
     }
 
     // Load leads data on page show
