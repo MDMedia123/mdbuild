@@ -222,10 +222,10 @@
         <div>You have <strong id="productCount">1 active product</strong> available. Access it anytime from the sidebar.</div>
       </div>
 
-      <div class="row">
+      <div class="row" id="dashboardCards" style="display:none;">
         <div class="card">
           <h3 style="display:flex;align-items:center;gap:8px;margin:0 0 8px;"><svg class="icon" viewBox="0 0 24 24" style="width:20px;height:20px;"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>Your Products</h3>
-          <p style="margin:0;font-size:13px;color:var(--ink-soft);">You have 2 purchased products ready to use.</p>
+          <p style="margin:0;font-size:13px;color:var(--ink-soft);" id="productsCardDesc">You have products ready to use.</p>
           <button class="btn btn-ghost btn-sm" style="margin-top:10px;" onclick="showPage('products')">View products →</button>
         </div>
         <div class="card">
@@ -565,18 +565,22 @@
       }
 
       if (!purchases || purchases.length === 0) {
-        // No purchases - show empty state
+        // No purchases - hide dashboard cards and show empty state
         document.getElementById('productsAlert').style.display = 'none';
-        document.getElementById('productsGrid').innerHTML = '<p style="color: var(--gray-text);">No products purchased yet.</p>';
-        document.getElementById('productsPageGrid').innerHTML = '<p style="color: var(--gray-text);">No products purchased yet.</p>';
+        document.getElementById('dashboardCards').style.display = 'none';
+        document.getElementById('productsGrid').innerHTML = '<p style="color: var(--gray-text);">No products purchased yet. <a href="/" style="color:var(--gold);text-decoration:underline;">Browse our offerings</a></p>';
+        document.getElementById('productsPageGrid').innerHTML = '<p style="color: var(--gray-text);">No products purchased yet. <a href="/" style="color:var(--gold);text-decoration:underline;">Browse our offerings</a></p>';
+        document.getElementById('continueWorkingCard').style.display = 'none';
         return;
       }
 
-      // Show alert and update product count
+      // Show dashboard cards and alert when there are purchases
+      document.getElementById('dashboardCards').style.display = 'flex';
       document.getElementById('productsAlert').style.display = 'block';
       const count = purchases.length;
       document.getElementById('productCount').textContent = count + ' active product' + (count !== 1 ? 's' : '');
       document.getElementById('statusProducts').textContent = count + ' Active Product' + (count !== 1 ? 's' : '');
+      document.getElementById('productsCardDesc').textContent = 'You have ' + count + ' purchased product' + (count !== 1 ? 's' : '') + ' ready to use.';
 
       // Product definitions
       const productDefs = {
