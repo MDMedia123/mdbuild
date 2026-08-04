@@ -647,7 +647,12 @@
         <div style="display:grid;gap:16px;">
           <div>
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">Current Password</label>
-            <input type="password" id="currentPassword" placeholder="Enter current password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
+            <div style="position:relative;display:flex;align-items:center;">
+              <input type="password" id="currentPassword" placeholder="Enter current password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;padding-right:36px;">
+              <button type="button" onclick="togglePasswordVisibility('currentPassword', 'eyeIcon1')" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--gray-text);padding:0;display:flex;align-items:center;">
+                <svg id="eyeIcon1" class="icon" viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+              </button>
+            </div>
           </div>
           <div>
             <label style="display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink);">New Password</label>
@@ -674,6 +679,11 @@
           </div>
           <button class="btn btn-gold" onclick="addAdminUser()" style="width:fit-content;">Add Admin User</button>
           <p style="font-size:12px;color:var(--gray-text);margin:0;">Store admin credentials securely. Current admin login: admin@md.com</p>
+        </div>
+
+        <h3 style="font-size:14px;margin-top:24px;margin-bottom:12px;font-weight:600;border-top:1px solid var(--card-border);padding-top:16px;">All Admin Profiles</h3>
+        <div id="adminUsersList" style="display:grid;gap:10px;">
+          <p style="font-size:12px;color:var(--gray-text);">Loading admin profiles...</p>
         </div>
       </div>
 
@@ -843,6 +853,54 @@
     }
   }
 
+  function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.5"/>';
+    } else {
+      input.type = 'password';
+      icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.5" fill="none"/>';
+    }
+  }
+
+  function loadAdminUsers() {
+    const adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    if (adminUsers.length === 0) {
+      adminUsers.push({email: 'admin@md.com', password: 'admin123'});
+    }
+
+    const listContainer = document.getElementById('adminUsersList');
+    if (adminUsers.length === 0) {
+      listContainer.innerHTML = '<p style="font-size:12px;color:var(--gray-text);">No admin profiles created yet.</p>';
+      return;
+    }
+
+    let html = '';
+    adminUsers.forEach((user, index) => {
+      html += `
+        <div style="padding:12px;background:var(--paper);border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">${user.email}</div>
+            <div style="font-size:11px;color:var(--gray-text);margin-top:2px;">Created admin profile</div>
+          </div>
+          <button class="btn btn-red btn-sm" onclick="removeAdminUser(${index})">Remove</button>
+        </div>
+      `;
+    });
+    listContainer.innerHTML = html;
+  }
+
+  function removeAdminUser(index) {
+    if (!confirm('Are you sure you want to remove this admin profile?')) return;
+    let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
+    adminUsers.splice(index, 1);
+    localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
+    loadAdminUsers();
+    alert('Admin profile removed successfully');
+  }
+
   function addAdminUser(){
     const email = document.getElementById('adminEmail').value.trim();
     const password = document.getElementById('adminPassword').value.trim();
@@ -870,6 +928,7 @@
     alert(`Admin user "${email}" added successfully!`);
     document.getElementById('adminEmail').value = '';
     document.getElementById('adminPassword').value = '';
+    loadAdminUsers();
   }
 
   function loadEmailTemplate(){
@@ -1539,6 +1598,7 @@
     // Always load orders if portal is visible (page may have loaded from cache while logged in)
     if(document.getElementById('portalShell').style.display !== 'none'){
       await loadOrders();
+      loadAdminUsers();
     }
 
     // Load leads data on page show
