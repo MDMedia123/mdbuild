@@ -944,7 +944,7 @@
 
   async function loadProductCards(){
     var slugs = ['business-launch', 'business-launch-pro', 'studios', 'marketing'];
-    var { data, error } = await mdSupabase.from('products').select('id,name,description,enabled,status_note,price_cents,slug,sort_order').order('sort_order');
+    var { data, error } = await mdSupabase.from('products').select('id,name,description,enabled,visible,status_note,price_cents,slug,sort_order').order('sort_order');
     var bySlug = {};
     (data || []).forEach(function(p){ bySlug[p.slug] = p; });
     slugs.forEach(function(slug){
@@ -986,7 +986,7 @@
     });
     var extraSlot = document.getElementById('extraProductCards');
     if (extraSlot) {
-      var extras = (data || []).filter(function(p){ return slugs.indexOf(p.slug) === -1; });
+      var extras = (data || []).filter(function(p){ return slugs.indexOf(p.slug) === -1 && p.visible !== false; });
       extraSlot.innerHTML = extras.map(genericProductCardHtml).join('');
     }
   }
