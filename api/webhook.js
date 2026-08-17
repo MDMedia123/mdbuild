@@ -85,6 +85,12 @@ module.exports = async function handler(req, res) {
         });
 
       if (dbError) {
+        // Stripe retries deliveries, so a repeat of an event we already handled is
+        // expected. Acknowledge it instead of failing into an endless retry loop.
+        if (dbError.code === '23505') {
+          console.log('Purchase already recorded, acknowledging retry');
+          return res.status(200).json({ received: true, duplicate: true });
+        }
         console.error('Database error:', JSON.stringify(dbError));
         return res.status(500).json({ error: 'Failed to save purchase' });
       }
