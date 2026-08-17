@@ -234,11 +234,10 @@
     const dateStr = today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     document.getElementById('purchaseDate').textContent = dateStr;
 
-    // Auto-sign in customer by storing email from URL
+    // Store email temporarily for recovery purposes only, not for auto-signin
     if (email) {
       const decodedEmail = decodeURIComponent(email);
-      localStorage.setItem('userEmail', decodedEmail);
-      localStorage.setItem('portal_user', decodedEmail); // For customer portal recognition
+      sessionStorage.setItem('purchaseEmail', decodedEmail); // Temporary, cleared on session end
     }
   </script>
 </body>

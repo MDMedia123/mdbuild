@@ -477,20 +477,7 @@
     loginBtn.textContent = 'Signing in...';
 
     try {
-      // If email matches stored email from checkout, skip password
-      const storedEmail = localStorage.getItem('userEmail');
-      if (storedEmail && storedEmail.toLowerCase() === email.toLowerCase()) {
-        // Auto-sign in from checkout
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('portalShell').style.display = 'flex';
-        localStorage.setItem('portal_user', email);
-        errorEl.textContent = '';
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Sign in';
-        return;
-      }
-
-      // Otherwise require password authentication
+      // Always require password authentication
       const { data, error } = await mdSupabase.auth.signInWithPassword({
         email: email,
         password: password
