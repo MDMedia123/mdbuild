@@ -1,15 +1,27 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Prices live here, never in the browser: the client used to send the amount, so
+// anyone could edit it in devtools and buy the product for a penny.
+const PRICES = {
+  'business-blueprint': { amount: 4900, currency: 'usd' }
+};
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { email, name, amount } = req.body;
+    const { email, name, product } = req.body;
 
-    if (!email || !name || !amount) {
+    if (!email || !name) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const sku = product || 'business-blueprint';
+    const price = PRICES[sku];
+    if (!price) {
+      return res.status(400).json({ error: 'Unknown product' });
     }
 
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -19,12 +31,12 @@ module.exports = async function handler(req, res) {
 
     // Create payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount),
-      currency: 'usd',
+      amount: price.amount,
+      currency: price.currency,
       metadata: {
         email: email,
         name: name,
-        product: 'business-blueprint'
+        product: sku
       }
     });
 
