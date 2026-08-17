@@ -1,6 +1,9 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { createClient } = require('@supabase/supabase-js');
 
+// Must be the www host: the apex domain 307-redirects and Stripe does not follow redirects.
+const PORTAL_URL = 'https://www.buildbymd.com/customer-portal';
+
 // Stripe signs the exact bytes of the request body, so Vercel must not parse it for us.
 module.exports.config = {
   api: {
@@ -87,7 +90,15 @@ module.exports = async function handler(req, res) {
       }
       console.log('Purchase saved to database');
 
-      await sendConfirmationEmail(email, name, paymentIntent.id);
+      let accessLink = PORTAL_URL;
+      try {
+        accessLink = await createAccessLink(supabase, email, name);
+        console.log('Access link generated');
+      } catch (linkError) {
+        console.error('Could not generate access link:', linkError.message);
+      }
+
+      await sendConfirmationEmail(email, name, paymentIntent.id, accessLink);
       console.log(`Purchase recorded for ${email}: ${paymentIntent.id}`);
     }
 
@@ -98,7 +109,31 @@ module.exports = async function handler(req, res) {
   }
 };
 
-async function sendConfirmationEmail(email, name, transactionId) {
+// Creates the customer's account on first purchase and returns a one-click link that
+// signs them in and drops them straight into setting a password.
+async function createAccessLink(supabase, email, name) {
+  const { error: createError } = await supabase.auth.admin.createUser({
+    email: email,
+    email_confirm: true,
+    user_metadata: { name: name }
+  });
+
+  // A returning customer already has an account; anything else is worth knowing about.
+  if (createError && !/already|registered|exists/i.test(createError.message)) {
+    console.error('createUser:', createError.message);
+  }
+
+  const { data, error } = await supabase.auth.admin.generateLink({
+    type: 'recovery',
+    email: email,
+    options: { redirectTo: PORTAL_URL }
+  });
+
+  if (error) throw error;
+  return data.properties.action_link;
+}
+
+async function sendConfirmationEmail(email, name, transactionId, accessLink) {
   try {
     const MAILGUN_API_KEY = process.env.MAILGUN_API_KEY;
     const MAILGUN_DOMAIN = process.env.MAILGUN_DOMAIN;
@@ -109,9 +144,12 @@ async function sendConfirmationEmail(email, name, transactionId) {
     }
 
     const authHeader = 'Basic ' + Buffer.from(`api:${MAILGUN_API_KEY}`).toString('base64');
-    const portalLink = 'https://buildbymd.com/customer-portal';
+    const link = accessLink || PORTAL_URL;
+    const font = "Arial,'Segoe UI',Helvetica,sans-serif";
 
-    const html = `<html><body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#f7f5f0;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:0;"><table width="100%" style="max-width:600px;background:#fff;" cellpadding="0" cellspacing="0"><tr><td style="padding:0;background:linear-gradient(135deg,#1a2847 0%,#0f1a3a 100%);text-align:center;"><div style="padding:48px 32px;"><div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:24px;"><div style="background:#212B42;padding:8px 12px;border-radius:8px;"><span style="color:#fff;font-size:16px;font-weight:700;">MD</span></div><span style="color:#fff;font-size:18px;font-weight:600;">Build</span></div><h1 style="margin:0 0 12px 0;font-size:36px;font-weight:700;color:#fff;line-height:1.2;">Welcome to Business Blueprint</h1><p style="margin:0;font-size:16px;color:#c1893d;line-height:1.6;">Your purchase is confirmed. Let's build something great.</p></div></td></tr><tr><td style="padding:40px 32px;color:#1a2847;"><p style="margin:0 0 16px 0;font-size:15px;font-weight:600;">Hi ${name},</p><p style="margin:0 0 28px 0;font-size:14px;color:#5B6478;line-height:1.8;">Thank you for purchasing Business Blueprint. Your access is now active, and you're ready to dive into all 21 guided modules covering strategy, branding, product, marketing, operations, and launch.</p><div style="background:#f7f5f0;border-radius:12px;padding:28px;margin:28px 0;border:1px solid #EAE6DA;"><p style="margin:0 0 16px 0;font-size:13px;font-weight:700;color:#1a2847;">Next Steps:</p><ol style="margin:0;padding-left:20px;"><li style="margin:8px 0;font-size:12px;color:#5B6478;"><strong>Go to your portal:</strong> Visit the link below</li><li style="margin:8px 0;font-size:12px;color:#5B6478;"><strong>Click "Forgot password?"</strong> to set your password</li><li style="margin:8px 0;font-size:12px;color:#5B6478;"><strong>Sign in</strong> with your email and new password</li><li style="margin:8px 0;font-size:12px;color:#5B6478;"><strong>Access all 21 modules</strong> instantly</li></ol></div><div style="text-align:center;margin:32px 0;"><a href="${portalLink}" style="display:inline-block;background:#C1893D;color:white;padding:16px 56px;text-decoration:none;font-weight:600;font-size:15px;border-radius:10px;box-shadow:0 8px 24px rgba(33,43,66,0.12);">Go to Customer Portal</a></div><p style="margin:0 0 16px 0;font-size:13px;color:#1a2847;font-weight:600;">What's Included:</p><ul style="margin:0;padding-left:20px;margin-bottom:24px;"><li style="margin:8px 0;font-size:12px;color:#5B6478;">21 guided modules</li><li style="margin:8px 0;font-size:12px;color:#5B6478;">Strategic planning templates</li><li style="margin:8px 0;font-size:12px;color:#5B6478;">Launch checklists</li><li style="margin:8px 0;font-size:12px;color:#5B6478;">Lifetime access</li></ul><p style="margin:20px 0;font-size:12px;color:#6E6D62;text-align:center;font-style:italic;">Transaction ID: ${transactionId}</p></td></tr><tr><td style="padding:28px 32px;text-align:center;border-top:1px solid #EAE6DA;font-size:12px;color:#6E6D62;"><p style="margin:0 0 8px 0;"><strong style="color:#1a2847;">MD Build</strong></p><p style="margin:0;font-size:11px;">© 2026 MD Build. Build Better Businesses.</p></td></tr></table></td></tr></table></body></html>`;
+    // Table layout with solid background colours throughout: Outlook drops CSS
+    // gradients and flexbox, which collapsed the header on the first version.
+    const html = `<html><body style="margin:0;padding:0;font-family:${font};background:#f7f5f0;"><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f5f0;"><tr><td align="center" style="padding:0;"><table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background:#ffffff;"><tr><td bgcolor="#1a2847" align="center" style="background-color:#1a2847;padding:48px 32px;"><p style="margin:0 0 22px 0;font-family:${font};font-size:18px;font-weight:700;color:#ffffff;letter-spacing:1px;">MD BUILD</p><h1 style="margin:0 0 14px 0;font-family:${font};font-size:32px;font-weight:700;color:#ffffff;line-height:1.25;">Welcome to Business Blueprint</h1><p style="margin:0;font-family:${font};font-size:16px;color:#c1893d;line-height:1.6;">Your purchase is confirmed. Let's build something great.</p></td></tr><tr><td style="padding:40px 32px;color:#1a2847;font-family:${font};"><p style="margin:0 0 16px 0;font-size:15px;font-weight:600;">Hi ${name},</p><p style="margin:0 0 28px 0;font-size:14px;color:#5B6478;line-height:1.8;">Thank you for purchasing Business Blueprint. All 21 guided modules are ready for you &mdash; covering strategy, branding, product, marketing, operations, and launch.</p><table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f5f0;border:1px solid #EAE6DA;"><tr><td style="padding:26px 28px;font-family:${font};"><p style="margin:0 0 10px 0;font-size:14px;font-weight:700;color:#1a2847;">One step to get in</p><p style="margin:0;font-size:13px;color:#5B6478;line-height:1.7;">Click the button below to open your account and choose a password. That's it &mdash; you'll go straight to your modules.</p></td></tr></table><table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:32px auto;"><tr><td bgcolor="#C1893D" align="center" style="background-color:#C1893D;"><a href="${link}" style="display:inline-block;padding:17px 52px;font-family:${font};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;">Set Your Password &amp; Get Access</a></td></tr></table><p style="margin:0 0 28px 0;font-size:11px;color:#6E6D62;text-align:center;line-height:1.6;">This link is unique to you and expires in 24 hours.<br>If it has expired, visit ${PORTAL_URL} and choose &ldquo;Forgot password?&rdquo;</p><p style="margin:0 0 12px 0;font-size:13px;color:#1a2847;font-weight:700;">What's included</p><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:5px 0;font-family:${font};font-size:13px;color:#5B6478;">21 guided modules</td></tr><tr><td style="padding:5px 0;font-family:${font};font-size:13px;color:#5B6478;">Strategic planning templates</td></tr><tr><td style="padding:5px 0;font-family:${font};font-size:13px;color:#5B6478;">Launch checklists</td></tr><tr><td style="padding:5px 0;font-family:${font};font-size:13px;color:#5B6478;">Lifetime access</td></tr></table><p style="margin:28px 0 0 0;font-size:11px;color:#6E6D62;text-align:center;">Transaction ID: ${transactionId}</p></td></tr><tr><td bgcolor="#f7f5f0" align="center" style="background-color:#f7f5f0;padding:26px 32px;border-top:1px solid #EAE6DA;font-family:${font};"><p style="margin:0 0 6px 0;font-size:12px;font-weight:700;color:#1a2847;">MD Build</p><p style="margin:0;font-size:11px;color:#6E6D62;">&copy; 2026 MD Build. Build Better Businesses.</p></td></tr></table></td></tr></table></body></html>`;
 
     const formData = new URLSearchParams();
     formData.append('from', `MD Build <noreply@${MAILGUN_DOMAIN}>`);

@@ -466,6 +466,9 @@
     window.location.href = '/customer-portal';
   }
 
+  // True when the page was opened from a "set your password" email link.
+  var isRecoverySession = false;
+
   async function handleLogin(e){
     e.preventDefault();
     var email = document.getElementById('loginEmail').value.trim();
@@ -733,11 +736,20 @@
         return;
       }
 
-      alert('Password reset successful! Please sign in with your new password.');
       closePasswordReset();
-      document.getElementById('loginPassword').value = newPassword;
       resetBtn.disabled = false;
       resetBtn.textContent = 'Reset Password';
+
+      if(isRecoverySession){
+        // They arrived from the purchase email and are already authenticated —
+        // drop them straight into the portal rather than asking them to sign in.
+        localStorage.setItem('portal_user', user.email);
+        location.reload();
+        return;
+      }
+
+      alert('Password reset successful! Please sign in with your new password.');
+      document.getElementById('loginPassword').value = newPassword;
     } catch(err) {
       console.error('Password update error:', err);
       alert('Error: ' + (err.message || 'Unknown error'));
@@ -746,23 +758,43 @@
     }
   }
 
-  // Handle password recovery from email link
+  // Handle the "set your password" link from the purchase email.
+  // Supabase returns the session in the URL hash (#access_token=...&type=recovery),
+  // not the query string, and fires PASSWORD_RECOVERY once it has parsed it.
+  function showSetPasswordStep(user){
+    isRecoverySession = true;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('portalShell').style.display = 'none';
+    openPasswordReset({ preventDefault: function(){} });
+    document.getElementById('resetStep1').style.display = 'none';
+    document.getElementById('resetStep2').style.display = 'block';
+    document.getElementById('resetMessage').textContent =
+      'Welcome! Choose a password for ' + (user && user.email ? user.email : 'your account') + '.';
+    if(user && user.email){
+      document.getElementById('resetEmail').value = user.email;
+    }
+    // Keep the token out of the address bar once it has been consumed.
+    history.replaceState(null, '', window.location.pathname);
+  }
+
   async function handlePasswordRecovery(){
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('mode') === 'recovery'){
-      try {
-        const { data: { user }, error } = await mdSupabase.auth.getUser();
-        if(user){
-          // User is authenticated via recovery link
-          openPasswordReset({ preventDefault: () => {} });
-          document.getElementById('resetStep1').style.display = 'none';
-          document.getElementById('resetStep2').style.display = 'block';
-          document.getElementById('resetMessage').textContent = 'Enter your new password below.';
-          document.getElementById('resetEmail').value = user.email;
-        }
-      } catch(err) {
-        console.error('Recovery link error:', err);
+    const hash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
+    const query = new URLSearchParams(window.location.search);
+    const isRecoveryLink = hash.get('type') === 'recovery' || query.get('mode') === 'recovery';
+
+    mdSupabase.auth.onAuthStateChange(function(event, session){
+      if(event === 'PASSWORD_RECOVERY'){
+        showSetPasswordStep(session ? session.user : null);
       }
+    });
+
+    if(!isRecoveryLink) return;
+
+    try {
+      const { data: { user } } = await mdSupabase.auth.getUser();
+      if(user) showSetPasswordStep(user);
+    } catch(err) {
+      console.error('Recovery link error:', err);
     }
   }
 </script>
