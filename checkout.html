@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout - Business Blueprint | MD Build</title>
-  <script src="https://js.stripe.com/v3/"></script>
   <link rel="stylesheet" href="md_build_styles.css">
   <style>
     :root {
@@ -208,7 +207,7 @@
       <div class="product-summary">
         <div class="product-name">Business Blueprint</div>
         <div class="product-desc">21 guided modules covering strategy, brand, product, marketing, operations, and launch</div>
-        <div class="product-price">$49</div>
+        <div class="product-price">R899</div>
       </div>
 
       <form id="checkoutForm">
@@ -222,21 +221,16 @@
           <input type="text" id="name" name="name" placeholder="Your Name" required>
         </div>
 
-        <div class="form-group">
-          <label>Card Details</label>
-          <div id="card-element"></div>
-        </div>
-
         <div id="cardError" class="error"></div>
         <div id="cardSuccess" class="success"></div>
 
         <button type="submit" class="btn" id="submitBtn">
-          <span id="btnText">Complete Purchase</span>
+          <span id="btnText">Continue to Payment</span>
           <div id="btnLoader" class="loading" style="display:none;"></div>
         </button>
 
         <div class="security-badge">
-          🔒 Secured by Stripe
+          🔒 Card details are entered on Paystack's secure page
         </div>
       </form>
     </div>
@@ -248,68 +242,46 @@
   </div>
 
   <script>
-    const stripe = Stripe('pk_test_51Tt0ZkBCymbFOpHNwRYc78cVTQROsAg86e4rHQol3LNXlN1zc3VKws0ouSZ1VIHjnO7nmAMbec8vWRexx08GYF3i00W9wtFndm');
-    const elements = stripe.elements();
-    const cardElement = elements.create('card', {
-      hidePostalCode: true
-    });
-    cardElement.mount('#card-element');
-
     const form = document.getElementById('checkoutForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
     const btnLoader = document.getElementById('btnLoader');
     const cardError = document.getElementById('cardError');
 
-    cardElement.addEventListener('change', function(event) {
-      cardError.textContent = event.error ? event.error.message : '';
-      cardError.style.display = event.error ? 'block' : 'none';
-    });
-
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value.trim();
+      const name = document.getElementById('name').value.trim();
 
       submitBtn.disabled = true;
       btnText.style.display = 'none';
       btnLoader.style.display = 'inline-block';
+      cardError.style.display = 'none';
 
       try {
-        // Create payment intent on server
-        const response = await fetch('/api/create-payment-intent', {
+        // The server sets the price and starts the transaction; we only get a URL back.
+        const response = await fetch('/api/create-paystack-transaction', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             email: email,
             name: name,
-            product: 'business-blueprint' // the server owns the price
+            product: 'business-blueprint'
           })
         });
 
-        const { clientSecret } = await response.json();
+        const data = await response.json();
 
-        // Confirm payment with Stripe
-        const result = await stripe.confirmCardPayment(clientSecret, {
-          payment_method: {
-            card: cardElement,
-            billing_details: { email: email, name: name }
-          }
-        });
-
-        if (result.error) {
-          cardError.textContent = result.error.message;
-          cardError.style.display = 'block';
-        } else {
-          // Payment successful - pass email to success page
-          const encodedEmail = encodeURIComponent(email);
-          window.location.href = `/checkout-success.html?session=${result.paymentIntent.id}&email=${encodedEmail}`;
+        if (!response.ok || !data.authorizationUrl) {
+          throw new Error(data.error || 'Could not start checkout');
         }
+
+        // Card details are entered on Paystack's page, never here.
+        window.location.href = data.authorizationUrl;
       } catch (error) {
-        cardError.textContent = 'An error occurred. Please try again.';
+        cardError.textContent = error.message || 'An error occurred. Please try again.';
         cardError.style.display = 'block';
-      } finally {
         submitBtn.disabled = false;
         btnText.style.display = 'inline';
         btnLoader.style.display = 'none';

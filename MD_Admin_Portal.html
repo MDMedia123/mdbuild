@@ -1812,7 +1812,8 @@
       const html = purchases.map((purchase, idx) => {
         const date = new Date(purchase.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
         const amount = purchase.amount.toFixed(2);
-        const transactionId = purchase.stripe_payment_intent_id.substring(0, 16) + '...';
+        const reference = purchase.payment_reference || '';
+        const transactionId = reference.length > 16 ? reference.substring(0, 16) + '...' : reference;
 
         return `
           <tr>

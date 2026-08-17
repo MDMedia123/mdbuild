@@ -188,7 +188,7 @@
         </div>
         <div class="detail-item">
           <span class="detail-label">Amount</span>
-          <span class="detail-value">$49.00</span>
+          <span class="detail-value">R899.00</span>
         </div>
         <div class="detail-item">
           <span class="detail-label">Date</span>
@@ -220,13 +220,13 @@
   </div>
 
   <script>
-    // Extract from URL
+    // Paystack returns ?reference= (and ?trxref=) on its callback; Stripe used ?session=.
     const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session');
+    const reference = params.get('reference') || params.get('trxref') || params.get('session');
     const email = params.get('email');
 
-    if (sessionId) {
-      document.getElementById('transactionId').textContent = sessionId;
+    if (reference) {
+      document.getElementById('transactionId').textContent = reference;
     }
 
     // Set purchase date
