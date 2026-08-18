@@ -1,7 +1,17 @@
+import { requireAdmin } from '../lib/require-admin.js';
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  // This sends arbitrary content from a DKIM-signed domain, so it must never be
+  // callable by the public. It was, until now.
+  const admin = await requireAdmin(req);
+  if (!admin.ok) {
+    return res.status(admin.status).json({ error: admin.error });
+  }
+  console.log('Bulk send authorised for', admin.email);
 
   try {
     const { emails, subject, body } = req.body;

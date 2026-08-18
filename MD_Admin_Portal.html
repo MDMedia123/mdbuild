@@ -742,7 +742,7 @@
             <input type="password" id="adminPassword" placeholder="Set admin password" style="border:1px solid var(--card-border);border-radius:8px;padding:10px;width:100%;font-size:13px;font-family:system-ui;">
           </div>
           <button class="btn btn-gold" onclick="addAdminUser()" style="width:fit-content;">Add Admin User</button>
-          <p style="font-size:12px;color:var(--gray-text);margin:0;">Store admin credentials securely. Current admin login: admin@md.com</p>
+          <p style="font-size:12px;color:var(--gray-text);margin:0;">This list is a record only. Sign-in is handled by Supabase Auth, and access is granted by the ADMIN_EMAILS allowlist on the server &mdash; adding someone here does not give them access.</p>
         </div>
 
         <h3 style="font-size:14px;margin-top:24px;margin-bottom:12px;font-weight:600;border-top:1px solid var(--card-border);padding-top:16px;">All Admin Profiles</h3>
@@ -886,35 +886,56 @@
   let currentProductId = null;
   let currentModuleId = null;
 
-  // Authentication
+  // Authentication.
+  //
+  // This page is static, so anything it knows a visitor can read: the previous
+  // version compared credentials in the browser against a list in localStorage,
+  // which anyone could edit. Sign-in now goes through Supabase, and the server
+  // decides who counts as an admin via the ADMIN_EMAILS allowlist.
   async function handleLogin(e){
     e.preventDefault();
     var email = document.getElementById('loginEmail').value.trim();
     var password = document.getElementById('loginPassword').value.trim();
+    var errorEl = document.getElementById('loginError');
 
-    // Get admin users from localStorage, with default fallback
-    let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    if(adminUsers.length === 0){
-      // Initialize with default admin user
-      adminUsers = [{email: 'admin@md.com', password: 'admin123'}];
-    }
+    errorEl.textContent = 'Signing in...';
 
-    // Check if credentials match any admin user
-    const validUser = adminUsers.find(u => u.email === email && u.password === password);
+    try {
+      const { data, error } = await mdSupabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-    if(validUser){
-      localStorage.setItem('admin_user', JSON.stringify({email: email, name: 'Administrator'}));
+      if(error || !data || !data.session){
+        errorEl.textContent = error ? error.message : 'Invalid credentials';
+        return;
+      }
+
+      localStorage.setItem('admin_user', JSON.stringify({ email: data.user.email, name: 'Administrator' }));
+      errorEl.textContent = '';
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('portalShell').style.display = 'flex';
+
       await loadDashboardData();
       await loadProducts();
       await loadModules();
       await loadCustomers();
       await loadOrders();
       loadCampaignStats();
-    } else {
-      document.getElementById('loginError').textContent = 'Invalid credentials';
+    } catch(err) {
+      console.error('Admin sign-in failed:', err);
+      errorEl.textContent = 'Could not sign in. Please try again.';
     }
+  }
+
+  // The access token proves to the server who is calling. Never cached in
+  // localStorage — Supabase manages the session and refreshes it.
+  async function adminAuthHeader(){
+    const { data } = await mdSupabase.auth.getSession();
+    if(!data || !data.session){
+      throw new Error('Your session has expired. Please sign in again.');
+    }
+    return { 'Authorization': 'Bearer ' + data.session.access_token };
   }
 
   function addCustomerProfile() {
@@ -1116,10 +1137,9 @@
   }
 
   function loadAdminUsers() {
+    // No seeded default: this list is a convenience record only. Who can actually
+    // sign in is decided by Supabase Auth plus the server's ADMIN_EMAILS allowlist.
     const adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    if (adminUsers.length === 0) {
-      adminUsers.push({email: 'admin@md.com', password: 'admin123'});
-    }
 
     const listContainer = document.getElementById('adminUsersList');
     if (adminUsers.length === 0) {
@@ -1161,9 +1181,6 @@
     }
 
     let adminUsers = JSON.parse(localStorage.getItem('adminUsers') || '[]');
-    if(adminUsers.length === 0){
-      adminUsers = [{email: 'admin@md.com', password: 'admin123'}];
-    }
 
     // Check if user already exists
     if(adminUsers.find(u => u.email === email)){
@@ -1245,14 +1262,17 @@
     statusEl.textContent = `Sending to ${emails.length} recipients...`;
 
     try {
+      const authHeaders = await adminAuthHeader();
+
       const response = await fetch('/api/send-bulk-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
         body: JSON.stringify({ emails, subject, body })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send emails');
+        const detail = await response.json().catch(function(){ return {}; });
+        throw new Error(detail.error || 'Failed to send emails');
       }
 
       const result = await response.json();
@@ -1295,7 +1315,13 @@
     }
   }
 
-  function handleLogout(){
+  async function handleLogout(){
+    // End the real session, not just the local flag, or the token stays valid.
+    try {
+      await mdSupabase.auth.signOut();
+    } catch(err) {
+      console.error('Sign out error:', err);
+    }
     localStorage.removeItem('admin_user');
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('portalShell').style.display = 'none';
@@ -1837,8 +1863,20 @@
 
   // Initialize
   window.addEventListener('load', async function(){
-    var user = localStorage.getItem('admin_user');
-    if(user){
+    // Trust the Supabase session, not a localStorage flag anyone can set by hand.
+    var session = null;
+    try {
+      const { data } = await mdSupabase.auth.getSession();
+      session = data ? data.session : null;
+    } catch(err) {
+      console.error('Could not read session:', err);
+    }
+
+    if(!session){
+      localStorage.removeItem('admin_user');
+    }
+
+    if(session){
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('portalShell').style.display = 'flex';
       await loadDashboardData();
