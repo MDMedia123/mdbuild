@@ -188,7 +188,7 @@
         </div>
         <div class="detail-item">
           <span class="detail-label">Amount</span>
-          <span class="detail-value">R899.00</span>
+          <span class="detail-value">$49.00</span>
         </div>
         <div class="detail-item">
           <span class="detail-label">Date</span>
@@ -220,9 +220,9 @@
   </div>
 
   <script>
-    // Paystack returns ?reference= (and ?trxref=) on its callback; Stripe used ?session=.
+    // Paddle appends ?_ptxn= on its success URL; Stripe used ?session=.
     const params = new URLSearchParams(window.location.search);
-    const reference = params.get('reference') || params.get('trxref') || params.get('session');
+    const reference = params.get('_ptxn') || params.get('session');
     const email = params.get('email');
 
     if (reference) {

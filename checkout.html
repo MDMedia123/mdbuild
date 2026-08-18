@@ -207,7 +207,7 @@
       <div class="product-summary">
         <div class="product-name">Business Blueprint</div>
         <div class="product-desc">21 guided modules covering strategy, brand, product, marketing, operations, and launch</div>
-        <div class="product-price">R899</div>
+        <div class="product-price" id="productPrice">$49</div>
       </div>
 
       <form id="checkoutForm">
@@ -230,7 +230,7 @@
         </button>
 
         <div class="security-badge">
-          🔒 Card details are entered on Paystack's secure page
+          🔒 Payment handled securely by Paddle
         </div>
       </form>
     </div>
@@ -241,12 +241,59 @@
     </footer>
   </div>
 
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
   <script>
     const form = document.getElementById('checkoutForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
     const btnLoader = document.getElementById('btnLoader');
     const cardError = document.getElementById('cardError');
+    const productPrice = document.getElementById('productPrice');
+
+    let paddleConfig = null;
+
+    function showError(message) {
+      cardError.textContent = message;
+      cardError.style.display = 'block';
+    }
+
+    function setBusy(busy) {
+      submitBtn.disabled = busy;
+      btnText.style.display = busy ? 'none' : 'inline';
+      btnLoader.style.display = busy ? 'inline-block' : 'none';
+    }
+
+    // Tokens come from the server so switching sandbox to production never needs
+    // a code change.
+    async function initPaddle() {
+      const response = await fetch('/api/paddle-config');
+      if (!response.ok) throw new Error('Checkout is temporarily unavailable');
+
+      paddleConfig = await response.json();
+
+      Paddle.Environment.set(paddleConfig.environment);
+      Paddle.Initialize({ token: paddleConfig.clientToken });
+
+      // Show Paddle's own price rather than a hardcoded one: it can never drift
+      // from what is actually charged, and it localises to the visitor's currency.
+      try {
+        const preview = await Paddle.PricePreview({
+          items: [{ priceId: paddleConfig.priceId, quantity: 1 }]
+        });
+        const line = preview.data.details.lineItems[0];
+        if (line && line.formattedTotals && line.formattedTotals.total) {
+          productPrice.textContent = line.formattedTotals.total;
+        }
+      } catch (previewError) {
+        // Not fatal — the displayed fallback stands and checkout still works.
+        console.warn('Price preview unavailable:', previewError);
+      }
+    }
+
+    const ready = initPaddle().catch(function(error) {
+      showError(error.message || 'Checkout is temporarily unavailable');
+      submitBtn.disabled = true;
+    });
 
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -254,37 +301,30 @@
       const email = document.getElementById('email').value.trim();
       const name = document.getElementById('name').value.trim();
 
-      submitBtn.disabled = true;
-      btnText.style.display = 'none';
-      btnLoader.style.display = 'inline-block';
+      setBusy(true);
       cardError.style.display = 'none';
 
       try {
-        // The server sets the price and starts the transaction; we only get a URL back.
-        const response = await fetch('/api/create-paystack-transaction', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            name: name,
-            product: 'business-blueprint'
-          })
+        await ready;
+        if (!paddleConfig) throw new Error('Checkout is temporarily unavailable');
+
+        // Payment is handled entirely inside Paddle's overlay; no card details
+        // touch this page. Fulfilment happens on the webhook, not here, so a
+        // customer closing the tab still gets their access.
+        Paddle.Checkout.open({
+          items: [{ priceId: paddleConfig.priceId, quantity: 1 }],
+          customer: { email: email },
+          customData: { name: name, product: 'business-blueprint' },
+          settings: {
+            displayMode: 'overlay',
+            successUrl: 'https://www.buildbymd.com/checkout-success'
+          }
         });
 
-        const data = await response.json();
-
-        if (!response.ok || !data.authorizationUrl) {
-          throw new Error(data.error || 'Could not start checkout');
-        }
-
-        // Card details are entered on Paystack's page, never here.
-        window.location.href = data.authorizationUrl;
+        setBusy(false);
       } catch (error) {
-        cardError.textContent = error.message || 'An error occurred. Please try again.';
-        cardError.style.display = 'block';
-        submitBtn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoader.style.display = 'none';
+        showError(error.message || 'An error occurred. Please try again.');
+        setBusy(false);
       }
     });
   </script>
