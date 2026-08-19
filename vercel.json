@@ -23,6 +23,10 @@
     {
       "source": "/customer-portal",
       "destination": "/MD_Customer_Portal.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/MD_Terms_Conditions.html"
     }
   ]
 }
