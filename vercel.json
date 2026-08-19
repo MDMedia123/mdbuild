@@ -27,6 +27,14 @@
     {
       "source": "/terms",
       "destination": "/MD_Terms_Conditions.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/MD_Privacy_Policy.html"
+    },
+    {
+      "source": "/refund",
+      "destination": "/MD_Refund_Policy.html"
     }
   ]
 }

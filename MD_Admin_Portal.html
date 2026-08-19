@@ -1976,7 +1976,11 @@
   }
 
   // Settings Functions
-  function updatePassword(){
+  //
+  // This used to write the new password into localStorage in plain text and
+  // report success, while changing nothing. It now changes the real Supabase
+  // password, after confirming the current one still works.
+  async function updatePassword(){
     const current = document.getElementById('currentPassword').value;
     const newPass = document.getElementById('newPassword').value;
     const confirm = document.getElementById('confirmPassword').value;
@@ -1994,12 +1998,41 @@
       return;
     }
 
-    // Store new password in localStorage (demo)
-    localStorage.setItem('admin_password', newPass);
-    alert('✓ Password updated successfully');
-    document.getElementById('currentPassword').value = '';
-    document.getElementById('newPassword').value = '';
-    document.getElementById('confirmPassword').value = '';
+    try {
+      const { data: sessionData } = await mdSupabase.auth.getSession();
+      const email = sessionData && sessionData.session ? sessionData.session.user.email : null;
+      if(!email){
+        alert('Your session has expired. Please sign in again.');
+        return;
+      }
+
+      // Re-authenticate so a walk-up at an unlocked screen cannot change it.
+      const { error: checkError } = await mdSupabase.auth.signInWithPassword({
+        email: email,
+        password: current
+      });
+      if(checkError){
+        alert('Current password is incorrect');
+        return;
+      }
+
+      const { error: updateError } = await mdSupabase.auth.updateUser({ password: newPass });
+      if(updateError){
+        alert('Could not update password: ' + updateError.message);
+        return;
+      }
+
+      // Clear the plaintext password an earlier version of this page stored.
+      localStorage.removeItem('admin_password');
+
+      alert('✓ Password updated. Use it next time you sign in.');
+      document.getElementById('currentPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      document.getElementById('confirmPassword').value = '';
+    } catch(err) {
+      console.error('Password update failed:', err);
+      alert('Could not update password. Please try again.');
+    }
   }
 
   function clearCache(){
