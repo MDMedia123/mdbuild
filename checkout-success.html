@@ -194,23 +194,24 @@
           <span class="detail-label">Date</span>
           <span class="detail-value" id="purchaseDate"></span>
         </div>
-        <div class="detail-item">
+        <div class="detail-item" id="transactionRow" style="display:none;">
           <span class="detail-label">Transaction ID</span>
           <span class="detail-value" id="transactionId" style="font-size: 11px; font-family: monospace;"></span>
         </div>
       </div>
 
       <div class="access-box">
-        <h3>Your Access is Active</h3>
-        <p>Sign in with the email address you used to purchase. Your 21-module blueprint is ready to explore.</p>
+        <h3>One more step — check your email</h3>
+        <p>We've sent you a link to choose a password and open your account. It usually arrives within a minute. If it isn't there, check your spam folder.</p>
         <div class="button-group">
-          <a href="/customer-portal" class="btn">Access Your Account</a>
+          <a href="/customer-portal" class="btn">Go to Your Portal</a>
           <a href="/" class="btn btn-secondary">Back to Home</a>
         </div>
       </div>
 
       <div class="email-notice">
-        📧 A confirmation email has been sent to your inbox with your receipt and access details.
+        You'll receive two emails: a receipt from Paddle, who process our payments, and a welcome email from MD Build with your access link.<br><br>
+        <strong>Link not arrived?</strong> Go to the portal, choose &ldquo;Forgot password?&rdquo;, and enter the same email address you purchased with — that gets you in just as well.
       </div>
     </div>
 
@@ -225,8 +226,11 @@
     const reference = params.get('_ptxn') || params.get('session');
     const email = params.get('email');
 
+    // Only show the reference row when there is one — an empty field beside a
+    // label looks like something failed.
     if (reference) {
       document.getElementById('transactionId').textContent = reference;
+      document.getElementById('transactionRow').style.display = 'flex';
     }
 
     // Set purchase date
