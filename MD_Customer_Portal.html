@@ -777,6 +777,21 @@
     history.replaceState(null, '', window.location.pathname);
   }
 
+  // A dead link should offer a way forward, not strand someone on a login form
+  // with error codes in the address bar. Links expire, and corporate mail
+  // scanners follow them before the customer does, which spends the one-time
+  // token — so this path is not rare.
+  function showExpiredLinkStep(reason){
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('portalShell').style.display = 'none';
+    openPasswordReset({ preventDefault: function(){} });
+    document.getElementById('resetStep1').style.display = 'block';
+    document.getElementById('resetStep2').style.display = 'none';
+    document.getElementById('resetMessage').textContent = reason ||
+      'That link has expired. Enter the email address you purchased with and we will send you a fresh one.';
+    history.replaceState(null, '', window.location.pathname);
+  }
+
   async function handlePasswordRecovery(){
     const hash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
     const query = new URLSearchParams(window.location.search);
@@ -787,6 +802,16 @@
         showSetPasswordStep(session ? session.user : null);
       }
     });
+
+    // Supabase reports a spent or expired link in the hash rather than throwing.
+    const linkError = hash.get('error') || hash.get('error_code');
+    if(linkError){
+      const expired = /expired|otp_expired/i.test(hash.get('error_code') || hash.get('error_description') || '');
+      showExpiredLinkStep(expired
+        ? 'That link has expired or was already used. Enter the email address you purchased with and we will send you a fresh one.'
+        : 'That link could not be used. Enter the email address you purchased with and we will send you a new one.');
+      return;
+    }
 
     if(!isRecoveryLink) return;
 
