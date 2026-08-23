@@ -10,11 +10,13 @@ module.exports = async function handler(req, res) {
   const priceId = process.env.PADDLE_PRICE_ID_BLUEPRINT;
 
   if (!clientToken || !priceId) {
-    console.error('Paddle not configured', {
-      clientToken: !!clientToken,
-      priceId: !!priceId
-    });
-    return res.status(500).json({ error: 'Payments not configured' });
+    // Reports which variable is absent, never its value, so a misconfiguration
+    // can be diagnosed without reading the logs.
+    const missing = [];
+    if (!clientToken) missing.push('PADDLE_CLIENT_TOKEN');
+    if (!priceId) missing.push('PADDLE_PRICE_ID_BLUEPRINT');
+    console.error('Paddle not configured, missing:', missing.join(', '));
+    return res.status(500).json({ error: 'Payments not configured', missing: missing });
   }
 
   // Anything other than an explicit 'production' stays in sandbox, so a missing
