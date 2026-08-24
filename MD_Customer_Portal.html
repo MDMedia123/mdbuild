@@ -219,6 +219,49 @@
         </div>
       </div>
 
+      <!-- Shown until dismissed. A customer arriving for the first time has no
+           idea what any of these sections are for. -->
+      <div class="card" id="welcomePanel" style="display:none;border-left:4px solid var(--gold);">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
+          <div>
+            <h3 style="font-size:16px;margin:0 0 8px;">Welcome to MD Build — here's how this works</h3>
+            <p style="margin:0 0 14px;font-size:13.5px;color:var(--ink-soft);line-height:1.7;">
+              Everything you've bought lives here permanently. There's no subscription and nothing expires, so you can work through it at whatever pace suits you and come back whenever you like.
+            </p>
+            <ul class="list" style="margin:0 0 4px;">
+              <li class="list-item" style="padding:8px 0;">
+                <div class="list-item-left">
+                  <h4>Products</h4>
+                  <div class="list-item-desc">What you own. Open Business Blueprint here and work through its 21 modules in order.</div>
+                </div>
+              </li>
+              <li class="list-item" style="padding:8px 0;">
+                <div class="list-item-left">
+                  <h4>My Workspaces</h4>
+                  <div class="list-item-desc">Your saved work. Progress is kept as you go, so you can stop mid-module and pick up later.</div>
+                </div>
+              </li>
+              <li class="list-item" style="padding:8px 0;">
+                <div class="list-item-left">
+                  <h4>Bonus Resources</h4>
+                  <div class="list-item-desc">Templates, worksheets and checklists included with what you bought.</div>
+                </div>
+              </li>
+              <li class="list-item" style="padding:8px 0;">
+                <div class="list-item-left">
+                  <h4>Account &amp; Support</h4>
+                  <div class="list-item-desc">Change your password, or email us — we reply within two business days.</div>
+                </div>
+              </li>
+            </ul>
+            <p style="margin:14px 0 0;font-size:13px;color:var(--ink-soft);">
+              Best place to start: <strong>Products → Business Blueprint → Module 1</strong>.
+            </p>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="dismissWelcomePanel()" style="flex-shrink:0;">Got it</button>
+        </div>
+      </div>
+
       <div class="alert" id="productsAlert" style="display:none;">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
         <div>You have <strong id="productCount">1 active product</strong> available. Access it anytime from the sidebar.</div>
@@ -546,6 +589,7 @@
 
       // Load user's purchases and products
       loadUserPurchases(userEmail);
+      maybeShowWelcomePanel();
     }
   });
 
@@ -572,10 +616,19 @@
         return;
       }
 
+      // Count distinct products, not payments. Buying the same thing twice —
+      // a duplicate order, or a refund and repurchase — is still one product,
+      // and lifetime access does not stack.
+      const ownedProducts = [];
+      purchases.forEach(function(p){
+        const slug = p.product || 'business-blueprint';
+        if(ownedProducts.indexOf(slug) === -1) ownedProducts.push(slug);
+      });
+
       // Show dashboard cards and alert when there are purchases
       document.getElementById('dashboardCards').style.display = 'flex';
       document.getElementById('productsAlert').style.display = 'block';
-      const count = purchases.length;
+      const count = ownedProducts.length;
       document.getElementById('productCount').textContent = count + ' active product' + (count !== 1 ? 's' : '');
       document.getElementById('statusProducts').textContent = count + ' Active Product' + (count !== 1 ? 's' : '');
       document.getElementById('productsCardDesc').textContent = 'You have ' + count + ' purchased product' + (count !== 1 ? 's' : '') + ' ready to use.';
@@ -598,10 +651,10 @@
         document.getElementById('studiosResourcesCard').style.display = 'block';
       }
 
-      // Generate product grids
+      // Generate product grids — one tile per product owned, not per payment
       let productsHTML = '';
-      purchases.forEach(purchase => {
-        const product = productDefs[purchase.product] || productDefs['business-blueprint'];
+      ownedProducts.forEach(slug => {
+        const product = productDefs[slug] || productDefs['business-blueprint'];
         productsHTML += `
           <div class="grid-item">
             <div class="grid-item-title">${product.title}</div>
@@ -620,6 +673,24 @@
     } catch (err) {
       console.error('Error loading purchases:', err);
     }
+  }
+
+  // The guide stays until the customer says they have read it, per account —
+  // someone who signs in on a second device should not have to dismiss it blind.
+  function welcomePanelKey(){
+    return 'welcome_seen_' + (localStorage.getItem('portal_user') || 'anon');
+  }
+
+  function maybeShowWelcomePanel(){
+    const panel = document.getElementById('welcomePanel');
+    if(!panel) return;
+    if(localStorage.getItem(welcomePanelKey()) === 'yes') return;
+    panel.style.display = 'block';
+  }
+
+  function dismissWelcomePanel(){
+    localStorage.setItem(welcomePanelKey(), 'yes');
+    document.getElementById('welcomePanel').style.display = 'none';
   }
 
   function showPage(pageId){
