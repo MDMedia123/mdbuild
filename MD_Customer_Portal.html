@@ -468,6 +468,8 @@
 
   // True when the page was opened from a "set your password" email link.
   var isRecoverySession = false;
+  // The one-time token from a purchase email, held until the password is set.
+  var welcomeToken = null;
 
   async function handleLogin(e){
     e.preventDefault();
@@ -508,7 +510,11 @@
   }
 
   // Check if already logged in
-  window.addEventListener('load', function(){
+  window.addEventListener('load', async function(){
+    // A purchase email's welcome link takes precedence over everything else.
+    const handledWelcome = await handleWelcomeLink();
+    if(handledWelcome) return;
+
     // Handle password recovery from email link
     handlePasswordRecovery();
 
@@ -809,6 +815,101 @@
     history.replaceState(null, '', window.location.pathname);
   }
 
+  // First-password flow: ?welcome=<token> from the purchase email.
+  //
+  // Checking the token does not spend it, so a mail scanner opening this link
+  // leaves it working for the customer. It is spent only when a password is
+  // actually submitted.
+  async function handleWelcomeLink(){
+    const token = new URLSearchParams(window.location.search).get('welcome');
+    if(!token) return false;
+
+    // Take it out of the address bar either way — no need to leave it in history.
+    history.replaceState(null, '', window.location.pathname);
+
+    try {
+      const response = await fetch('/api/welcome-check?token=' + encodeURIComponent(token));
+      const data = await response.json();
+
+      if(!response.ok || !data.valid){
+        showExpiredLinkStep('This welcome link is no longer valid — it may already have been used. Confirm your address and we will send you a fresh one.');
+        return true;
+      }
+
+      welcomeToken = token;
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('portalShell').style.display = 'none';
+      document.getElementById('welcomeEmail').textContent = data.email;
+      document.getElementById('welcomeName').textContent = data.name ? data.name.split(/\s+/)[0] : 'there';
+      document.getElementById('welcomeOverlay').style.display = 'flex';
+      document.getElementById('welcomePassword').focus();
+      return true;
+    } catch(err) {
+      console.error('Welcome link check failed:', err);
+      showExpiredLinkStep('We could not check that link. Confirm your address and we will send you a fresh one.');
+      return true;
+    }
+  }
+
+  async function submitWelcomePassword(e){
+    e.preventDefault();
+    const pass = document.getElementById('welcomePassword').value;
+    const confirm = document.getElementById('welcomePasswordConfirm').value;
+    const errorEl = document.getElementById('welcomeError');
+    const btn = document.getElementById('welcomeSubmit');
+
+    errorEl.textContent = '';
+
+    if(pass.length < 8){
+      errorEl.textContent = 'Please choose at least 8 characters.';
+      return;
+    }
+    if(pass !== confirm){
+      errorEl.textContent = 'Those two passwords do not match.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Setting up your account...';
+
+    try {
+      const response = await fetch('/api/welcome-set-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: welcomeToken, password: pass })
+      });
+      const data = await response.json();
+
+      if(!response.ok || !data.ok){
+        errorEl.textContent = data.error || 'Could not set your password. Please try again.';
+        btn.disabled = false;
+        btn.textContent = 'Set password and continue';
+        return;
+      }
+
+      // Sign them straight in with what they just chose — no second login screen.
+      const { error: signInError } = await mdSupabase.auth.signInWithPassword({
+        email: data.email,
+        password: pass
+      });
+
+      if(signInError){
+        errorEl.textContent = 'Your password is set. Please sign in with it.';
+        document.getElementById('welcomeOverlay').style.display = 'none';
+        document.getElementById('loginEmail').value = data.email;
+        return;
+      }
+
+      localStorage.setItem('portal_user', data.email);
+      location.reload();
+    } catch(err) {
+      console.error('Welcome password failed:', err);
+      errorEl.textContent = 'Something went wrong. Please try again.';
+      btn.disabled = false;
+      btn.textContent = 'Set password and continue';
+    }
+  }
+
   async function handlePasswordRecovery(){
     const hash = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
     const query = new URLSearchParams(window.location.search);
@@ -840,6 +941,38 @@
     }
   }
 </script>
+
+<!-- First-password screen, shown when arriving from a purchase email.
+     No login form and no way past it: choosing a password is the only action. -->
+<div id="welcomeOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--paper);z-index:1200;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:36px;max-width:420px;width:100%;box-shadow:var(--shadow);">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div style="width:44px;height:44px;border-radius:10px;background:var(--gold);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">MD</div>
+      <p style="font-size:11px;letter-spacing:2px;color:var(--gold-text);font-weight:700;margin:0 0 10px;">PURCHASE CONFIRMED</p>
+      <h1 style="font-size:26px;margin:0 0 10px;">You're in, <span id="welcomeName">there</span>.</h1>
+      <p style="font-size:13px;color:var(--ink-soft);margin:0;line-height:1.6;">
+        Choose a password for <strong id="welcomeEmail"></strong> and your 21 modules open straight away.
+      </p>
+    </div>
+
+    <form onsubmit="submitWelcomePassword(event)" autocomplete="off">
+      <div class="form-field" style="text-align:left;">
+        <label>Create a password</label>
+        <input type="password" id="welcomePassword" required minlength="8" placeholder="At least 8 characters" autocomplete="new-password">
+      </div>
+      <div class="form-field" style="text-align:left;">
+        <label>Confirm password</label>
+        <input type="password" id="welcomePasswordConfirm" required minlength="8" placeholder="Type it again" autocomplete="new-password">
+      </div>
+      <p id="welcomeError" style="color:#B4402F;font-size:12px;min-height:16px;margin:6px 0 10px;text-align:center;"></p>
+      <button type="submit" id="welcomeSubmit" class="btn btn-gold" style="width:100%;justify-content:center;padding:12px;">Set password and continue</button>
+    </form>
+
+    <p style="font-size:11px;color:var(--gray-text);text-align:center;margin:18px 0 0;line-height:1.6;">
+      You'll use this password to sign in from now on.
+    </p>
+  </div>
+</div>
 
 <!-- Password Reset Modal -->
 <div id="passwordResetModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">

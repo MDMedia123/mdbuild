@@ -1792,31 +1792,80 @@
   }
 
   // Customers
-  function loadCustomers(){
+  // Names and emails come from a payment provider and land in markup.
+  function escapeHtml(value){
+    return String(value == null ? '' : value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function productLabel(slug){
+    const known = { 'business-blueprint': 'Business Blueprint' };
+    if(known[slug]) return known[slug];
+    return String(slug || 'Unknown')
+      .split('-')
+      .map(function(w){ return w.charAt(0).toUpperCase() + w.slice(1); })
+      .join(' ');
+  }
+
+  // Real customers, derived from purchases. One row per person, however many
+  // things they have bought.
+  async function loadCustomers(){
     const table = document.getElementById('customersTable');
-    table.innerHTML = `
-      <tr>
-        <td><strong>Sarah Johnson</strong></td>
-        <td>sarah@example.com</td>
-        <td>MD Business Launch</td>
-        <td>Jan 15, 2024</td>
-        <td><span class="badge badge-green">Active</span></td>
-      </tr>
-      <tr>
-        <td><strong>Mike Chen</strong></td>
-        <td>mike@example.com</td>
-        <td>MD Studios</td>
-        <td>Feb 3, 2024</td>
-        <td><span class="badge badge-green">Active</span></td>
-      </tr>
-      <tr>
-        <td><strong>Emily Davis</strong></td>
-        <td>emily@example.com</td>
-        <td>MD Business Launch, MD Studios</td>
-        <td>Feb 8, 2024</td>
-        <td><span class="badge badge-green">Active</span></td>
-      </tr>
-    `;
+    table.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--gray-text);">Loading customers...</td></tr>';
+
+    try {
+      const { data: purchases, error } = await mdSupabase
+        .from('purchases')
+        .select('email,name,product,status,created_at')
+        .order('created_at', { ascending: true });
+
+      if(error) throw error;
+
+      if(!purchases || purchases.length === 0){
+        table.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--gray-text);">No customers yet. They appear here after their first purchase.</td></tr>';
+        return;
+      }
+
+      const byEmail = {};
+      purchases.forEach(function(p){
+        const key = String(p.email || '').toLowerCase();
+        if(!key) return;
+
+        if(!byEmail[key]){
+          byEmail[key] = { name: p.name || '', email: p.email, products: [], joined: p.created_at, active: false };
+        }
+        const entry = byEmail[key];
+
+        if(!entry.name && p.name) entry.name = p.name;
+
+        const label = productLabel(p.product);
+        if(entry.products.indexOf(label) === -1) entry.products.push(label);
+
+        if(new Date(p.created_at) < new Date(entry.joined)) entry.joined = p.created_at;
+        if(String(p.status || '').toLowerCase() === 'completed') entry.active = true;
+      });
+
+      const customers = Object.keys(byEmail).map(function(k){ return byEmail[k]; })
+        .sort(function(a,b){ return new Date(b.joined) - new Date(a.joined); });
+
+      table.innerHTML = customers.map(function(c){
+        const joined = new Date(c.joined).toLocaleDateString('en-GB', { year:'numeric', month:'short', day:'numeric' });
+        const badge = c.active
+          ? '<span class="badge badge-green">Active</span>'
+          : '<span class="badge">Pending</span>';
+        return '<tr>' +
+          '<td><strong>' + escapeHtml(c.name || '—') + '</strong></td>' +
+          '<td>' + escapeHtml(c.email) + '</td>' +
+          '<td>' + escapeHtml(c.products.join(', ')) + '</td>' +
+          '<td>' + joined + '</td>' +
+          '<td>' + badge + '</td>' +
+        '</tr>';
+      }).join('');
+    } catch(err) {
+      console.error('Error loading customers:', err);
+      table.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--red);">Could not load customers</td></tr>';
+    }
   }
 
   // Orders
