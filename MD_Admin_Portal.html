@@ -266,9 +266,9 @@
           <div class="stat-change" id="stat-revenue-change"></div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Active Customers</div>
+          <div class="stat-label">Customers</div>
           <div class="stat-value" id="stat-customers">-</div>
-          <div class="stat-change">Managing your base</div>
+          <div class="stat-change" id="stat-customers-change">People who have purchased</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Total Products</div>
@@ -279,6 +279,16 @@
           <div class="stat-label">Active Modules</div>
           <div class="stat-value" id="stat-modules">-</div>
           <div class="stat-change">Across all products</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px;">
+          <h3 style="margin:0;">Sales by month</h3>
+          <div style="font-size:12px;color:var(--gray-text);" id="chartSummary"></div>
+        </div>
+        <div id="salesChart" style="margin-top:14px;">
+          <p style="font-size:13px;color:var(--gray-text);margin:0;">Loading…</p>
         </div>
       </div>
 
@@ -1347,10 +1357,130 @@
 
       document.getElementById('stat-products').textContent = (products || []).length;
       document.getElementById('stat-modules').textContent = (modules || []).length;
-      document.getElementById('stat-customers').textContent = '143';
+
+      // Revenue and customer counts come from actual purchases. The customer
+      // figure used to be the string '143', which was never true.
+      const { data: purchases, error } = await mdSupabase
+        .from('purchases')
+        .select('email,amount,status,created_at')
+        .order('created_at', { ascending: true });
+
+      if(error) throw error;
+
+      const completed = (purchases || []).filter(function(p){
+        return String(p.status || '').toLowerCase() === 'completed';
+      });
+
+      const revenue = completed.reduce(function(sum, p){ return sum + Number(p.amount || 0); }, 0);
+      document.getElementById('stat-revenue').textContent =
+        '$' + revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('stat-revenue-change').textContent =
+        completed.length + (completed.length === 1 ? ' order' : ' orders');
+
+      const emails = [];
+      completed.forEach(function(p){
+        const key = String(p.email || '').toLowerCase();
+        if(key && emails.indexOf(key) === -1) emails.push(key);
+      });
+      document.getElementById('stat-customers').textContent = emails.length;
+      document.getElementById('stat-customers-change').textContent =
+        emails.length === completed.length
+          ? 'People who have purchased'
+          : emails.length + ' of ' + completed.length + ' orders are repeat buyers';
+
+      renderSalesChart(completed);
     } catch(err) {
       console.error('Error loading dashboard:', err);
     }
+  }
+
+  // Twelve-month bar chart, drawn as inline SVG. No charting library: one fewer
+  // dependency to load, and nothing to break if a CDN is unreachable.
+  function renderSalesChart(completed){
+    const host = document.getElementById('salesChart');
+    const summary = document.getElementById('chartSummary');
+    if(!host) return;
+
+    const MONTHS = 12;
+    const buckets = [];
+    const now = new Date();
+
+    for(let i = MONTHS - 1; i >= 0; i--){
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      buckets.push({
+        key: d.getFullYear() + '-' + d.getMonth(),
+        label: d.toLocaleDateString('en-GB', { month: 'short' }),
+        year: d.getFullYear(),
+        orders: 0,
+        revenue: 0
+      });
+    }
+
+    completed.forEach(function(p){
+      const d = new Date(p.created_at);
+      const key = d.getFullYear() + '-' + d.getMonth();
+      const bucket = buckets.find(function(b){ return b.key === key; });
+      if(bucket){
+        bucket.orders += 1;
+        bucket.revenue += Number(p.amount || 0);
+      }
+    });
+
+    const totalRevenue = buckets.reduce(function(s,b){ return s + b.revenue; }, 0);
+    const totalOrders = buckets.reduce(function(s,b){ return s + b.orders; }, 0);
+
+    if(totalOrders === 0){
+      host.innerHTML = '<p style="font-size:13px;color:var(--gray-text);margin:0;">No sales yet. Orders will appear here as they come in.</p>';
+      if(summary) summary.textContent = '';
+      return;
+    }
+
+    if(summary){
+      summary.textContent = '$' + totalRevenue.toFixed(2) + ' from ' + totalOrders +
+        (totalOrders === 1 ? ' order' : ' orders') + ' in the last 12 months';
+    }
+
+    const maxRevenue = Math.max.apply(null, buckets.map(function(b){ return b.revenue; })) || 1;
+    const W = 720, H = 200, padL = 44, padB = 30, padT = 10;
+    const plotW = W - padL - 10, plotH = H - padB - padT;
+    const slot = plotW / buckets.length;
+    const barW = Math.min(38, slot * 0.6);
+
+    let bars = '';
+    buckets.forEach(function(b, i){
+      const h = b.revenue > 0 ? Math.max(3, (b.revenue / maxRevenue) * plotH) : 0;
+      const x = padL + i * slot + (slot - barW) / 2;
+      const y = padT + plotH - h;
+
+      if(h > 0){
+        bars += '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + barW.toFixed(1) +
+          '" height="' + h.toFixed(1) + '" rx="4" fill="#C1893D"><title>' +
+          b.label + ' ' + b.year + ': $' + b.revenue.toFixed(2) + ' from ' + b.orders +
+          (b.orders === 1 ? ' order' : ' orders') + '</title></rect>';
+        bars += '<text x="' + (x + barW/2).toFixed(1) + '" y="' + (y - 5).toFixed(1) +
+          '" text-anchor="middle" font-size="10" fill="#5B6478">' + b.orders + '</text>';
+      }
+
+      bars += '<text x="' + (padL + i * slot + slot/2).toFixed(1) + '" y="' + (H - 10) +
+        '" text-anchor="middle" font-size="10" fill="#8a827a">' + b.label + '</text>';
+    });
+
+    let gridlines = '';
+    [0, 0.5, 1].forEach(function(f){
+      const y = padT + plotH - f * plotH;
+      gridlines += '<line x1="' + padL + '" y1="' + y.toFixed(1) + '" x2="' + (W - 10) + '" y2="' + y.toFixed(1) +
+        '" stroke="#EFEDE4" stroke-width="1"/>';
+      gridlines += '<text x="' + (padL - 8) + '" y="' + (y + 3).toFixed(1) +
+        '" text-anchor="end" font-size="10" fill="#8a827a">$' + Math.round(maxRevenue * f) + '</text>';
+    });
+
+    host.innerHTML =
+      '<div style="overflow-x:auto;">' +
+        '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="min-width:520px;display:block;" role="img" aria-label="Revenue by month">' +
+          gridlines + bars +
+        '</svg>' +
+      '</div>' +
+      '<p style="font-size:11px;color:var(--gray-text);margin:8px 0 0;">Bar height is revenue; the number above each bar is the order count. Hover a bar for detail.</p>';
   }
 
   // Campaign Stats
