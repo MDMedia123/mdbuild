@@ -644,6 +644,12 @@
     document.getElementById('resetEmail').value = document.getElementById('loginEmail').value;
     document.getElementById('resetStep1').style.display = 'block';
     document.getElementById('resetStep2').style.display = 'none';
+
+    // Restore the default wording; showExpiredLinkStep overwrites it afterwards
+    // when the customer arrived here from a dead link.
+    document.getElementById('resetStep1Title').textContent = 'Reset Password';
+    document.getElementById('resetStep1Text').textContent = "Enter your email address and we'll send you a reset link.";
+    document.getElementById('resetSendBtn').textContent = 'Send Reset Link';
   }
 
   function closePasswordReset(){
@@ -787,8 +793,19 @@
     openPasswordReset({ preventDefault: function(){} });
     document.getElementById('resetStep1').style.display = 'block';
     document.getElementById('resetStep2').style.display = 'none';
-    document.getElementById('resetMessage').textContent = reason ||
-      'That link has expired. Enter the email address you purchased with and we will send you a fresh one.';
+
+    // Step 1 has its own heading and copy. Writing to resetMessage here put the
+    // explanation inside step 2, which is hidden — so the customer saw generic
+    // "Reset Password" boilerplate after clicking "Choose Your Password".
+    document.getElementById('resetStep1Title').textContent = 'That link has expired';
+    document.getElementById('resetStep1Text').textContent = reason ||
+      'Links can only be used once, and email security scanners sometimes open them first. Confirm your address and we will send a fresh one straight away.';
+    document.getElementById('resetSendBtn').textContent = 'Send me a new link';
+
+    // Save them retyping it if we already know who they are.
+    var known = sessionStorage.getItem('purchaseEmail') || localStorage.getItem('portal_user');
+    if(known) document.getElementById('resetEmail').value = known;
+
     history.replaceState(null, '', window.location.pathname);
   }
 
@@ -831,15 +848,15 @@
 
     <!-- Step 1: Enter Email -->
     <div id="resetStep1">
-      <h2 style="font-size:20px;margin-bottom:8px;">Reset Password</h2>
-      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px;">Enter your email address and we'll send you a reset link.</p>
+      <h2 id="resetStep1Title" style="font-size:20px;margin-bottom:8px;">Reset Password</h2>
+      <p id="resetStep1Text" style="font-size:13px;color:var(--ink-soft);margin-bottom:20px;">Enter your email address and we'll send you a reset link.</p>
 
       <form onsubmit="startPasswordReset(event)">
         <div class="form-field" style="text-align:left;">
           <label>Email Address</label>
           <input type="email" id="resetEmail" required>
         </div>
-        <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;padding:11px;margin-top:16px;">Send Reset Link</button>
+        <button type="submit" id="resetSendBtn" class="btn btn-gold" style="width:100%;justify-content:center;padding:11px;margin-top:16px;">Send Reset Link</button>
         <button type="button" class="btn btn-ghost" style="width:100%;justify-content:center;padding:11px;margin-top:8px;" onclick="closePasswordReset()">Cancel</button>
       </form>
     </div>
