@@ -372,6 +372,16 @@
   }
   @page{size:landscape;margin:0;}
 
+  /* Every printed page is signed, so a page that travels still says where
+     it came from. */
+  .report-foot{display:flex;align-items:center;justify-content:center;gap:7px;
+    margin-top:26px;padding-top:10px;border-top:1px solid #E7E2D6;font-size:9pt;color:#6E6D62;}
+  .report-foot-tile{width:16px;height:16px;border-radius:4px;background:#1a2847;color:#fff;
+    font-size:6.5pt;font-weight:700;display:inline-flex;align-items:center;justify-content:center;}
+  .report-foot b{color:#1a2847;font-weight:600;}
+  @media print{ .report-foot{-webkit-print-color-adjust:exact;print-color-adjust:exact;} }
+  
+
   /* Welcome modal */
   .welcome-modal{
     position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);
@@ -959,7 +969,14 @@
     container.innerHTML = html;
     window.print();
   }
-  function loadAnswer(key){
+  function reportFooter(){
+      return '<div class="report-foot">'
+           +   '<span class="report-foot-tile">MD</span>'
+           +   '<span><b>MD Build</b> &middot; Business Blueprint</span>'
+           + '</div>';
+    }
+
+    function loadAnswer(key){
     try { return localStorage.getItem(key) || ''; } catch(e) { return ''; }
   }
   function normalizeFocusItem(item){
@@ -1064,6 +1081,8 @@
         localStorage.setItem('mdbl_unlocked', 'true');
         showApp();
     unlockCustomerFields();
+    applyCoverText();
+    wireCoverText();
       } else {
         errEl.textContent = "That key didn't check out. Check it and try again.";
       }
@@ -1308,7 +1327,42 @@
   // The cover vision, subtitle and footer were editable but never saved —
   // mdbl_cover records which cover design is chosen, not its words — so
   // typing into them was lost on reload, which reads as a broken product.
-  var CUSTOMER_FIELDS = '.biz-name';
+  var CUSTOMER_FIELDS = '.biz-name, .cover-vision, .cover-sub, .cover-footer';
+
+  // The cover page is what a customer prints or shows someone, so its wording is
+  // theirs. Each field appears once per cover design, so one saved value is
+  // mirrored across every copy — as the business name already is.
+  var COVER_TEXT_FIELDS = [
+    { sel: '.cover-vision', key: 'mdbl_cover_vision' },
+    { sel: '.cover-sub',    key: 'mdbl_cover_sub' },
+    { sel: '.cover-footer', key: 'mdbl_cover_footer' }
+  ];
+
+  function applyCoverText(){
+    COVER_TEXT_FIELDS.forEach(function(field){
+      var saved = null;
+      try { saved = localStorage.getItem(field.key); } catch(e) {}
+      if (saved === null) return;
+      document.querySelectorAll(field.sel).forEach(function(el){
+        if (document.activeElement !== el) el.textContent = saved;
+      });
+    });
+  }
+
+  function wireCoverText(){
+    COVER_TEXT_FIELDS.forEach(function(field){
+      document.querySelectorAll(field.sel).forEach(function(el){
+        el.addEventListener('input', function(){
+          var value = el.textContent;
+          try { localStorage.setItem(field.key, value); } catch(e) {}
+          document.querySelectorAll(field.sel).forEach(function(other){
+            if (other !== el) other.textContent = value;
+          });
+        });
+      });
+    });
+  }
+
 
   function unlockCustomerFields(){
     document.querySelectorAll('[contenteditable]').forEach(function(el){
