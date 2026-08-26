@@ -1154,7 +1154,7 @@
       var activityLog = JSON.parse(localStorage.getItem('mdbl_activity') || '[]');
       var completions = activityLog.filter(function(a){ return a.type === 'completed'; });
       var recent = completions.slice(-3).reverse();
-      var ul = document.querySelector('.card h3:contains("Recent activity")');
+      var ul = null;
       if(!ul){
         var cards = document.querySelectorAll('.card');
         for(var i = 0; i < cards.length; i++){
@@ -1442,6 +1442,7 @@
   var PROGRESS_KEY_PREFIX = 'mdbl_';
   var progressEmail = null;
   var saveTimer = null;
+  var progressReady = false;
 
   function localProgressKeys(){
     return Object.keys(localStorage).filter(function(k){
@@ -1491,6 +1492,10 @@
   // Debounced: typing into a module fires many writes, and each one should not
   // become a round trip.
   function scheduleSave(){
+    // Nothing may be written before the initial load completes. An early write
+    // pushes whatever the browser happens to be holding up to the customer's
+    // account — which is how stale local data got saved as real progress.
+    if (!progressReady) return;
     clearTimeout(saveTimer);
     saveTimer = setTimeout(saveProgress, 1200);
   }
@@ -1520,6 +1525,7 @@
     } catch (err) {
       console.error('Could not restore your saved work:', err);
     }
+    progressReady = true;
 
     await loadModulesFromDB();
     stageOrder = MODULES.map(function(m){ return m.id; });
