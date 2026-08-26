@@ -388,7 +388,9 @@
     font-size:24px;cursor:pointer;color:var(--gray-text);padding:0;width:28px;height:28px;
     display:flex;align-items:center;justify-content:center;
   }
-  .welcome-icon{font-size:40px;margin-bottom:12px;}
+  .welcome-logo{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:16px;}
+  .welcome-logo-tile{width:34px;height:34px;border-radius:8px;background:var(--ink);color:#fff;font-family:'Poppins',sans-serif;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;}
+  .welcome-logo-word{font-family:'Poppins',sans-serif;font-weight:600;font-size:18px;color:var(--ink);}
   .welcome-content h2{font-size:22px;font-weight:700;margin:0 0 4px;color:var(--ink);}
   .welcome-subtitle{font-size:13px;color:var(--gray-text);margin:0 0 20px;}
   .welcome-steps{text-align:left;margin-bottom:20px;}
@@ -462,7 +464,7 @@
 <div id="welcomeModal" class="welcome-modal hidden">
   <div class="welcome-content">
     <button class="welcome-close" onclick="closeWelcome()">×</button>
-    <div class="welcome-icon"><svg viewBox="0 0 24 24" style="width:40px;height:40px;stroke:var(--gold);stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;"><rect x="8" y="1" width="8" height="3" rx="0.5"></rect><rect x="2" y="4" width="20" height="18" rx="1"></rect><line x1="7" y1="9" x2="17" y2="9"></line><line x1="7" y1="14" x2="17" y2="14"></line><line x1="7" y1="19" x2="14" y2="19"></line></svg></div>
+    <div class="welcome-logo"><span class="welcome-logo-tile">MD</span><span class="welcome-logo-word">Build</span></div>
     <h2>Welcome to Business Blueprint</h2>
     <p class="welcome-subtitle">Your guided path from idea to launch-ready business</p>
 
