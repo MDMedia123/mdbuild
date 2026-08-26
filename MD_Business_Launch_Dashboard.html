@@ -1304,7 +1304,11 @@
   //
   // Only the fields describing their own business stay editable, and they no
   // longer need a mode switch to reach them.
-  var CUSTOMER_FIELDS = '.biz-name, .cover-vision, .cover-sub, .cover-footer';
+  // Business name only. The logo has its own upload control, and both persist.
+  // The cover vision, subtitle and footer were editable but never saved —
+  // mdbl_cover records which cover design is chosen, not its words — so
+  // typing into them was lost on reload, which reads as a broken product.
+  var CUSTOMER_FIELDS = '.biz-name';
 
   function unlockCustomerFields(){
     document.querySelectorAll('[contenteditable]').forEach(function(el){
