@@ -374,6 +374,7 @@
 
   /* Every printed page is signed, so a page that travels still says where
      it came from. */
+  .nav-hint{font-size:11.5px;line-height:1.55;color:var(--gray-text);margin:0 4px 14px;padding:9px 10px;background:var(--gray-soft);border-radius:8px;}
   .report-foot{display:flex;align-items:center;justify-content:center;gap:7px;
     margin-top:26px;padding-top:10px;border-top:1px solid #E7E2D6;font-size:9pt;color:#6E6D62;}
   .report-foot-tile{width:16px;height:16px;border-radius:4px;background:#1a2847;color:#fff;
@@ -569,6 +570,7 @@
     </div>
   </div>
 
+  <p class="nav-hint">Not relevant to your business? Switch a module off to leave it out of your plan and progress. Nothing is deleted &mdash; switch it back on any time.</p>
   <div id="navGroupsRoot"></div>
     </nav>
 
@@ -1239,7 +1241,13 @@
     var bar = document.getElementById('progressFill');
     if(bar) bar.style.width = pct + '%';
     var label = document.getElementById('progressLabel');
-    if(label) label.textContent = completedEnabled + ' of ' + enabled.length + ' modules complete';
+    if(label){
+        // Say why the total is lower than the 21 modules people bought, so a
+        // shrinking denominator reads as a choice rather than a fault.
+        var skipped = stageOrder.length - enabled.length;
+        label.textContent = completedEnabled + ' of ' + enabled.length + ' modules complete'
+          + (skipped > 0 ? '  ·  ' + skipped + ' skipped' : '');
+      }
     var heroPill = document.querySelector('.hero-pill');
     if(heroPill) heroPill.textContent = 'Module ' + (enabled.indexOf(currentStage) + 1) + ' of ' + enabled.length;
     var focusTitle = document.querySelector('.focus-title');
