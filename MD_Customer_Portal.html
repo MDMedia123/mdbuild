@@ -551,10 +551,9 @@
         return;
       }
 
-      // Login successful
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('portalShell').style.display = 'flex';
-      localStorage.setItem('portal_user', email);
+        // Login successful
+        localStorage.setItem('portal_user', email);
+        enterPortal(email);
       errorEl.textContent = '';
       loginBtn.disabled = false;
       loginBtn.textContent = 'Sign in';
@@ -582,27 +581,33 @@
       if (loginPassword) loginPassword.value = '';
     }, 100);
 
-    if(localStorage.getItem('portal_user')){
+      if(localStorage.getItem('portal_user')){
+        enterPortal(localStorage.getItem('portal_user'));
+      }
+    });
+
+    // Everything that must happen once someone is signed in.
+    //
+    // This used to sit inline in the load handler, so it only ran for people who
+    // were already signed in when the page opened. Signing in showed the portal
+    // shell and loaded nothing — no products, no workspaces, no name — until the
+    // page happened to be refreshed.
+    function enterPortal(userEmail){
+      if(!userEmail) return;
+
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('portalShell').style.display = 'flex';
-      var userEmail = localStorage.getItem('portal_user');
       document.getElementById('userEmail').textContent = userEmail;
 
-      var userNames = {
-        'test@gmail.com': 'Michael',
-        'michaeltdownes@gmail.com': 'Michael'
-      };
-      var firstName = userNames[userEmail] || userEmail.split('@')[0].split('.')[0];
-      if(!userNames[userEmail]){
-        firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-      }
+      // Derive a first name from the address rather than a lookup table that
+      // only ever knew two people.
+      var firstName = userEmail.split('@')[0].split(/[._-]/)[0];
+      firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
       document.getElementById('welcomeHeading').textContent = 'Welcome, ' + firstName + '!';
 
-      // Load user's purchases and products
       loadUserPurchases(userEmail);
       maybeShowWelcomePanel();
     }
-  });
 
   async function loadUserPurchases(userEmail) {
     try {
