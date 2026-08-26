@@ -17,8 +17,8 @@
       "destination": "/checkout-success.html"
     },
     {
-      "source": "/MD_Business_Blueprint_Dashboard",
-      "destination": "/MD_Business_Blueprint_Dashboard.html"
+      "source": "/business-blueprint",
+      "destination": "/MD_Business_Launch_Dashboard.html"
     },
     {
       "source": "/customer-portal",
