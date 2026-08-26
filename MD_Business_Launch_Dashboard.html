@@ -11,9 +11,9 @@
   How this works:
   - The sidebar lists all 21 modules, grouped by stage. Click any of them to
     jump straight there. "Continue" buttons move you through them in order.
-  - Click "Edit content" (bottom of sidebar) to unlock the text on this page.
-    Click any unlocked text to change it, then click "Edit content" again to
-    lock it back down.
+  - The customer can edit the fields describing their own business — the name,
+    logo and cover page. Module titles and teaching text come from the modules
+    table in Supabase and are edited in the admin portal, not here.
   - "Download PDF" opens your browser's print dialog with every module set
     to print as its own landscape page, in order. Choose "Save as PDF".
   - Everything here is plain HTML/CSS/JS in one file — open it in any
@@ -563,10 +563,6 @@
     </nav>
 
     <div class="sidebar-footer no-print">
-      <button class="btn btn-ghost" id="editToggle" onclick="toggleEdit()">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-        Edit content
-      </button>
     </div>
   </aside>
 
@@ -1067,6 +1063,7 @@
       if(data && data.success){
         localStorage.setItem('mdbl_unlocked', 'true');
         showApp();
+    unlockCustomerFields();
       } else {
         errEl.textContent = "That key didn't check out. Check it and try again.";
       }
@@ -1298,12 +1295,22 @@
     document.getElementById(id + '-fill').style.width = pct + '%';
     document.getElementById(id + '-pct').textContent = pct + '%';
   }
-  function toggleEdit(){
-    var on = document.body.classList.toggle('edit-mode');
-    document.getElementById('editToggle').classList.toggle('active', on);
+  // The customer's plan is theirs to write; the teaching content is not.
+  //
+  // This page began as a single-file authoring tool, where one button unlocked
+  // every piece of text so the author could rewrite it. Sold as a product, that
+  // button let a customer edit the module titles and guidance they had paid to
+  // read — reverting on reload, which reads as a fault rather than a feature.
+  //
+  // Only the fields describing their own business stay editable, and they no
+  // longer need a mode switch to reach them.
+  var CUSTOMER_FIELDS = '.biz-name, .cover-vision, .cover-sub, .cover-footer';
+
+  function unlockCustomerFields(){
     document.querySelectorAll('[contenteditable]').forEach(function(el){
-      el.setAttribute('contenteditable', on ? 'true' : 'false');
+      el.setAttribute('contenteditable', el.matches(CUSTOMER_FIELDS) ? 'true' : 'false');
     });
+    document.body.classList.add('edit-mode');
   }
   function handleLogo(e){
     var file = e.target.files[0];
