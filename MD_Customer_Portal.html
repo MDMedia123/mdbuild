@@ -681,6 +681,8 @@
       document.getElementById('productsGrid').innerHTML = productsHTML;
       document.getElementById('productsPageGrid').innerHTML = productsHTML;
 
+      renderWorkspaces(ownedProducts, productDefs, userEmail);
+
     } catch (err) {
       console.error('Error loading purchases:', err);
     }
@@ -702,6 +704,61 @@
   function dismissWelcomePanel(){
     localStorage.setItem(welcomePanelKey(), 'yes');
     document.getElementById('welcomePanel').style.display = 'none';
+  }
+
+  // "My Workspaces" is the way back into work already started. It lists each
+  // product owned alongside how far through it the customer is, read from the
+  // progress saved against their account rather than from this browser — so it
+  // is accurate on a machine they have never opened the workspace on.
+  async function renderWorkspaces(ownedProducts, productDefs, userEmail){
+    const list = document.getElementById('workspacesList');
+    if(!list) return;
+
+    if(!ownedProducts || ownedProducts.length === 0){
+      list.innerHTML = '<li class="list-item"><div class="list-item-left">' +
+        '<div class="list-item-desc">Nothing to work on yet. Your workspaces appear here once you buy a product.</div>' +
+        '</div></li>';
+      return;
+    }
+
+    let done = 0, total = 0;
+    try {
+      const { data: progress } = await mdSupabase
+        .from('workspace_progress')
+        .select('data')
+        .eq('email', userEmail)
+        .maybeSingle();
+
+      if(progress && progress.data && progress.data.mdbl_done){
+        const parsed = JSON.parse(progress.data.mdbl_done);
+        if(Array.isArray(parsed)) done = parsed.length;
+      }
+
+      const { count } = await mdSupabase
+        .from('modules')
+        .select('id', { count: 'exact', head: true });
+      total = count || 0;
+    } catch(err) {
+      console.error('Could not read workspace progress:', err);
+    }
+
+    list.innerHTML = ownedProducts.map(function(slug){
+      const product = productDefs[slug] || productDefs['business-blueprint'];
+      const started = done > 0;
+      const summary = started
+        ? done + (total ? ' of ' + total : '') + ' modules complete'
+        : 'Not started yet — open it whenever you are ready';
+
+      return '<li class="list-item">' +
+        '<div class="list-item-left">' +
+          '<h4>' + product.title + '</h4>' +
+          '<div class="list-item-desc">' + summary + '</div>' +
+        '</div>' +
+        '<a href="' + product.url + '" class="btn btn-gold btn-sm">' +
+          (started ? 'Continue' : 'Start') +
+        '</a>' +
+      '</li>';
+    }).join('');
   }
 
   function showPage(pageId){
