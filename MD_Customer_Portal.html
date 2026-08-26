@@ -720,6 +720,13 @@
 
     localStorage.removeItem('portal_user');
     localStorage.removeItem('userEmail');
+
+    // Leave nothing of this customer's workspace behind. Their plan is saved to
+    // their account and reloads when they sign back in — on a shared computer,
+    // the next person must not open the workspace and find it waiting.
+    Object.keys(localStorage)
+      .filter(function(k){ return k.indexOf('mdbl_') === 0 || k.indexOf('businessPlan_') === 0; })
+      .forEach(function(k){ localStorage.removeItem(k); });
     document.getElementById('portalShell').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
     document.getElementById('loginEmail').value = '';

@@ -452,7 +452,7 @@
     <a class="btn btn-gold paywall-buy" id="buyLink" href="MD_Checkout.html?product=business-launch">Buy now &mdash; $49</a>
     <div class="paywall-divider">Already have access?</div>
     <p style="font-size:13px;color:var(--gray-text);margin:12px 0;">Sign in to your account to unlock this workspace</p>
-    <a class="btn btn-ghost" href="MD_Customer_Portal.html" style="width:100%;justify-content:center;">Sign in</a>
+    <a class="btn btn-ghost" href="/customer-portal" style="width:100%;justify-content:center;">Sign in</a>
   </div>
 </div>
 
@@ -501,7 +501,7 @@
       </div>
     </div>
     <div class="profile-body">
-      <a href="MD_Customer_Portal.html" class="profile-link">Back to Portal</a>
+      <a href="/customer-portal" class="profile-link">Back to Portal</a>
       <a href="#" class="profile-link" onclick="event.preventDefault(); alert('Settings coming soon')">Settings</a>
       <a href="#" class="profile-link" onclick="event.preventDefault(); alert('Help & Support coming soon')">Help & Support</a>
     </div>
@@ -527,7 +527,7 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a class="nav-item home" href="MD_Customer_Portal.html" style="margin-bottom:12px;opacity:0.5;font-size:12px;" title="Back to portal">
+      <a class="nav-item home" href="/customer-portal" style="margin-bottom:12px;opacity:0.5;font-size:12px;" title="Back to portal">
         <span class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg></span>
         <span class="nav-label">Portal</span>
       </a>
@@ -1425,8 +1425,96 @@
       '</div>';
   }
 
+  // ---- Progress that belongs to the customer, not the browser ----
+  //
+  // The workspace reads and writes its state synchronously through
+  // localStorage in a dozen places, so that stays the working store. What
+  // changes is that it is now loaded from, and mirrored back to, the customer's
+  // own row in the database. Their plan follows them to another device,
+  // survives a cleared browser, and is never left behind for the next person on
+  // a shared computer.
+
+  var PROGRESS_KEY_PREFIX = 'mdbl_';
+  var progressEmail = null;
+  var saveTimer = null;
+
+  function localProgressKeys(){
+    return Object.keys(localStorage).filter(function(k){
+      return k.indexOf(PROGRESS_KEY_PREFIX) === 0;
+    });
+  }
+
+  function clearLocalProgress(){
+    localProgressKeys().forEach(function(k){ localStorage.removeItem(k); });
+  }
+
+  async function loadProgress(email){
+    const { data, error } = await mdSupabase
+      .from('workspace_progress')
+      .select('data')
+      .eq('email', email)
+      .maybeSingle();
+
+    // On a failed read, leave whatever is in the browser alone — wiping someone's
+    // work because the network blinked would be unforgivable.
+    if (error) { console.error('Could not load your saved work:', error.message); return; }
+
+    // Clear first, so signing in as a different person never inherits the
+    // previous account's plan.
+    clearLocalProgress();
+
+    if (data && data.data) {
+      Object.keys(data.data).forEach(function(k){
+        try { localStorage.setItem(k, data.data[k]); } catch (e) {}
+      });
+    }
+  }
+
+  async function saveProgress(){
+    if (!progressEmail) return;
+    var blob = {};
+    localProgressKeys().forEach(function(k){ blob[k] = localStorage.getItem(k); });
+
+    const { error } = await mdSupabase
+      .from('workspace_progress')
+      .upsert({ email: progressEmail, data: blob, updated_at: new Date().toISOString() },
+              { onConflict: 'email' });
+
+    if (error) console.error('Could not save your work:', error.message);
+  }
+
+  // Debounced: typing into a module fires many writes, and each one should not
+  // become a round trip.
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveProgress, 1200);
+  }
+
+  // Hook the existing writes rather than editing a dozen call sites, which
+  // keeps this change to one place and means new ones are covered too.
+  (function hookLocalStorage(){
+    var nativeSetItem = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = function(key, value){
+      nativeSetItem(key, value);
+      if (String(key).indexOf(PROGRESS_KEY_PREFIX) === 0) scheduleSave();
+    };
+  })();
+
+  // Don't lose the last few seconds of typing when the tab closes.
+  window.addEventListener('beforeunload', function(){
+    if (saveTimer) { clearTimeout(saveTimer); saveProgress(); }
+  });
+
   async function initApp(){
     if (!(await hasAccess())) { showAccessWall(); return; }
+
+    try {
+      const { data: sessionData } = await mdSupabase.auth.getSession();
+      progressEmail = sessionData && sessionData.session ? sessionData.session.user.email : null;
+      if (progressEmail) await loadProgress(progressEmail);
+    } catch (err) {
+      console.error('Could not restore your saved work:', err);
+    }
 
     await loadModulesFromDB();
     stageOrder = MODULES.map(function(m){ return m.id; });
