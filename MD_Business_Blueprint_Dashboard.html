@@ -178,7 +178,7 @@
       <div class="not-authenticated">
         <h2>Access Your Business Blueprint</h2>
         <p>Sign in with the email you used to purchase.</p>
-        <a href="/MD_Customer_Portal.html" class="btn-signin">Sign In</a>
+        <a href="/customer-portal" class="btn-signin">Sign In</a>
       </div>
     </div>
   </div>
@@ -208,17 +208,55 @@
       { num: 21, title: "Post-Launch Growth", desc: "Scale, optimize, and grow your business" }
     ];
 
+    function denyAccess() {
+      document.getElementById('authenticatedView').style.display = 'none';
+      document.getElementById('notAuthenticatedView').style.display = 'block';
+    }
+
+    // Gate on the real Supabase session and an actual purchase.
+    //
+    // This used to read localStorage.getItem('userEmail') — a key nothing sets
+    // any more, which is why signing in sent people round in a loop. It was also
+    // no protection: anyone could type that key into devtools and read the paid
+    // modules. A session cannot be faked, and the purchase check means access
+    // follows what someone actually bought.
     async function checkAuth() {
-      const email = localStorage.getItem('userEmail');
+      try {
+        const { data: sessionData } = await mdSupabase.auth.getSession();
+        const session = sessionData ? sessionData.session : null;
 
-      if (!email) {
-        document.getElementById('authenticatedView').style.display = 'none';
-        document.getElementById('notAuthenticatedView').style.display = 'block';
-        return;
+        if (!session || !session.user || !session.user.email) {
+          denyAccess();
+          return;
+        }
+
+        const email = session.user.email;
+
+        const { data: purchases, error } = await mdSupabase
+          .from('purchases')
+          .select('product,status')
+          .eq('email', email);
+
+        if (error) throw error;
+
+        const owned = (purchases || []).some(function (p) {
+          return p.product === 'business-blueprint' &&
+                 String(p.status || '').toLowerCase() === 'completed';
+        });
+
+        if (!owned) {
+          denyAccess();
+          return;
+        }
+
+        document.getElementById('userEmail').textContent = email;
+        document.getElementById('authenticatedView').style.display = 'block';
+        document.getElementById('notAuthenticatedView').style.display = 'none';
+        renderModules();
+      } catch (err) {
+        console.error('Access check failed:', err);
+        denyAccess();
       }
-
-      document.getElementById('userEmail').textContent = email;
-      renderModules();
     }
 
     function renderModules() {
@@ -232,8 +270,13 @@
       `).join('');
     }
 
-    function logout() {
-      localStorage.removeItem('userEmail');
+    async function logout() {
+      try {
+        await mdSupabase.auth.signOut();
+      } catch (err) {
+        console.error('Sign out error:', err);
+      }
+      localStorage.removeItem('portal_user');
       window.location.href = '/';
     }
 
