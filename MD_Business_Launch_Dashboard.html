@@ -353,15 +353,62 @@
 
   /* curated PDF report (built fresh from saved answers when Download PDF is clicked) */
   #printableReport{display:none;}
-  .report-page{padding:0.6in 0.7in;}
-  .report-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:6in;}
-  .report-cover h1{font-size:36px;margin-bottom:10px;}
-  .report-cover p{font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--gold-text);}
-  .report-kicker{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--gold-text);margin-bottom:8px;}
-  .report-page h2{font-size:24px;margin-bottom:20px;}
-  .report-item{margin-bottom:18px;}
-  .report-item h4{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:4px;}
-  .report-item p{font-size:13px;color:var(--ink-soft);line-height:1.65;margin:0;white-space:pre-wrap;}
+
+  .report-page{
+    padding:0.55in 0.7in 0.85in;position:relative;
+    display:flex;flex-direction:column;min-height:7.1in;
+  }
+
+  /* Running header: the customer's own logo and name, so a page that gets
+     separated from the rest still belongs to their business. */
+  .report-head{
+    display:flex;align-items:center;gap:9px;
+    padding-bottom:9px;margin-bottom:22px;border-bottom:1px solid #E7E2D6;
+  }
+  .report-head img{height:22px;width:auto;max-width:120px;object-fit:contain;}
+  .report-head-name{font-size:11px;font-weight:600;color:#1a2847;letter-spacing:0.2px;}
+  .report-head-doc{margin-left:auto;font-size:9.5px;color:#8a827a;letter-spacing:0.6px;text-transform:uppercase;}
+
+  /* Cover */
+  .report-cover{align-items:center;justify-content:center;text-align:center;min-height:7.1in;}
+  .report-cover .report-head{display:none;}
+  .report-cover-logo{margin-bottom:26px;}
+  .report-cover-logo img{height:64px;width:auto;max-width:260px;object-fit:contain;}
+  .report-cover-mark{
+    width:56px;height:56px;border-radius:14px;background:#1a2847;color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-size:19px;font-weight:700;letter-spacing:0.5px;margin:0 auto;
+  }
+  .report-cover h1{font-size:40px;line-height:1.15;margin:0 0 12px;color:#1a2847;}
+  .report-cover-rule{width:64px;height:3px;background:#C1893D;margin:0 auto 18px;}
+  .report-cover-doc{font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#8A5A1E;margin:0 0 22px;}
+  .report-cover-vision{font-size:14px;font-style:italic;color:#5B6478;line-height:1.7;max-width:4.6in;margin:0 auto 30px;}
+  .report-cover-meta{font-size:10.5px;color:#8a827a;letter-spacing:0.4px;}
+
+  /* Module pages */
+  .report-kicker{font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#8A5A1E;margin-bottom:6px;}
+  .report-page h2{font-size:25px;margin:0 0 4px;color:#1a2847;}
+  .report-title-rule{width:40px;height:2px;background:#C1893D;margin:10px 0 22px;}
+  .report-body{flex:1;}
+  .report-item{margin-bottom:17px;break-inside:avoid;}
+  .report-item h4{font-size:12px;font-weight:700;color:#1a2847;margin:0 0 5px;}
+  .report-item p{
+    font-size:12.5px;color:#3f4653;line-height:1.7;margin:0;white-space:pre-wrap;
+    padding-left:11px;border-left:2px solid #EFEDE4;
+  }
+
+  /* Signed foot on every page */
+  .report-foot{
+    display:flex;align-items:center;gap:7px;
+    margin-top:22px;padding-top:9px;border-top:1px solid #E7E2D6;
+    font-size:8.5pt;color:#8a827a;
+  }
+  .report-foot-tile{
+    width:15px;height:15px;border-radius:4px;background:#1a2847;color:#fff;
+    font-size:6pt;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .report-foot b{color:#1a2847;font-weight:600;}
+  .report-foot-right{margin-left:auto;}
 
   @media print{
     body *{visibility:hidden;}
@@ -369,8 +416,12 @@
     #printableReport{display:block !important;position:absolute;top:0;left:0;width:100%;}
     .report-page{page-break-after:always;}
     .report-page:last-child{page-break-after:auto;}
+    .report-head, .report-foot, .report-cover-mark, .report-cover-rule,
+    .report-title-rule, .report-foot-tile, .report-item p{
+      -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    }
   }
-  @page{size:landscape;margin:0;}
+  @page{size:portrait;margin:0;}
 
   /* Every printed page is signed, so a page that travels still says where
      it came from. */
@@ -965,12 +1016,32 @@
   function generateReport(){
     var container = document.getElementById('printableReport');
     if (!container) return;
+
     var bizNameEl = document.querySelector('.biz-name');
-    var bizName = bizNameEl ? bizNameEl.textContent : 'Business Plan';
+    var bizName = (bizNameEl ? bizNameEl.textContent : '').trim() || 'Your Business';
+
+    var logo = null;
+    try { logo = localStorage.getItem(BIZ_LOGO_KEY); } catch(e) {}
+
+    var visionEl = document.querySelector('.cover-vision');
+    var vision = visionEl ? visionEl.textContent.trim() : '';
+
+    var dated = new Date().toLocaleDateString('en-GB', { year:'numeric', month:'long', day:'numeric' });
+
+    // Cover: their logo if they have uploaded one, our mark if not, then the
+    // business name, the document type and their vision.
     var html = ''
       + '<div class="report-page report-cover">'
+      +   '<div class="report-cover-logo">'
+      +     (logo ? '<img src="' + logo + '" alt="">'
+                  : '<div class="report-cover-mark">MD</div>')
+      +   '</div>'
       +   '<h1>' + esc(bizName) + '</h1>'
-      +   '<p>Business Plan</p>'
+      +   '<div class="report-cover-rule"></div>'
+      +   '<p class="report-cover-doc">Business Plan</p>'
+      +   (vision ? '<p class="report-cover-vision">' + esc(vision) + '</p>' : '')
+      +   '<p class="report-cover-meta">Prepared ' + dated + '</p>'
+      +   reportFooter()
       + '</div>';
 
     MODULES.forEach(function(m){
@@ -988,9 +1059,14 @@
       }
       if (itemsHtml) {
         html += '<div class="report-page">'
-          +   '<div class="report-kicker">' + esc(m.group) + '</div>'
-          +   '<h2>' + esc(m.title) + '</h2>'
-          +   itemsHtml
+          +   reportHeader(bizName, logo)
+          +   '<div class="report-body">'
+          +     '<div class="report-kicker">' + esc(m.group) + '</div>'
+          +     '<h2>' + esc(m.title) + '</h2>'
+          +     '<div class="report-title-rule"></div>'
+          +     itemsHtml
+          +   '</div>'
+          +   reportFooter()
           + '</div>';
       }
     });
@@ -999,14 +1075,22 @@
     window.print();
   }
   function reportFooter(){
-      return '<div class="report-foot">'
-           +   '<span class="report-foot-tile">MD</span>'
-           +   '<span><b>MD Build</b> &middot; Business Blueprint</span>'
-           + '</div>';
-    }
+    return '<div class="report-foot">'
+         +   '<span class="report-foot-tile">MD</span>'
+         +   '<span><b>MD Build</b> \u00B7 Business Blueprint</span>'
+         + '</div>';
+  }
 
-    function loadAnswer(key){
-    try { return localStorage.getItem(key) || ''; } catch(e) { return ''; }
+  // Running header carrying the customer's own logo and business name.
+  function reportHeader(bizName, logo){
+    var left = logo
+      ? '<img src="' + logo + '" alt="">'
+      : '';
+    return '<div class="report-head">'
+         +   left
+         +   '<span class="report-head-name">' + esc(bizName) + '</span>'
+         +   '<span class="report-head-doc">Business Plan</span>'
+         + '</div>';
   }
   function normalizeFocusItem(item){
     if (typeof item === 'string') return { prompt: item, guidance: '', placeholder: 'Type your answer here...' };
