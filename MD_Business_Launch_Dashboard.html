@@ -397,6 +397,13 @@
     padding-left:11px;border-left:2px solid #EFEDE4;
   }
 
+  /* The chosen cover is cloned into the report, so it needs to sit flush on
+     the page rather than inside the usual margins. */
+  .report-cover-live{padding:0;min-height:9.5in;display:block;}
+  .report-cover-live .cover-page,
+  .report-cover-live .cover-b{margin:0;max-width:none;min-height:9.5in;border-radius:0;border:0;}
+  .report-cover-live [contenteditable]{outline:0 !important;background:transparent !important;}
+
   /* Signed foot on every page */
   .report-foot{
     display:flex;align-items:center;gap:7px;
@@ -1023,26 +1030,33 @@
     var logo = null;
     try { logo = localStorage.getItem(BIZ_LOGO_KEY); } catch(e) {}
 
-    var visionEl = document.querySelector('.cover-vision');
-    var vision = visionEl ? visionEl.textContent.trim() : '';
+    // Print the cover the customer picked, exactly as they see it — including
+    // its contents list. Rebuilding a simpler one from scratch meant the cover
+    // they had chosen and personalised never reached the PDF.
+    var html = '';
+    var chosenEl = document.getElementById('page-' + chosenCover);
+    var coverEl = chosenEl ? chosenEl.querySelector('.cover-page, .cover-b') : null;
 
-    var dated = new Date().toLocaleDateString('en-GB', { year:'numeric', month:'long', day:'numeric' });
-
-    // Cover: their logo if they have uploaded one, our mark if not, then the
-    // business name, the document type and their vision.
-    var html = ''
-      + '<div class="report-page report-cover">'
-      +   '<div class="report-cover-logo">'
-      +     (logo ? '<img src="' + logo + '" alt="">'
-                  : '<div class="report-cover-mark">MD</div>')
-      +   '</div>'
-      +   '<h1>' + esc(bizName) + '</h1>'
-      +   '<div class="report-cover-rule"></div>'
-      +   '<p class="report-cover-doc">Business Plan</p>'
-      +   (vision ? '<p class="report-cover-vision">' + esc(vision) + '</p>' : '')
-      +   '<p class="report-cover-meta">Prepared ' + dated + '</p>'
-      +   reportFooter()
-      + '</div>';
+    if (coverEl) {
+      var clone = coverEl.cloneNode(true);
+      // Nothing in a printed document should look editable.
+      clone.querySelectorAll('[contenteditable]').forEach(function(el){
+        el.setAttribute('contenteditable', 'false');
+      });
+      clone.querySelectorAll('.no-print').forEach(function(el){ el.remove(); });
+      html += '<div class="report-page report-cover-live">' + clone.outerHTML + '</div>';
+    } else {
+      // Fallback if the chosen cover cannot be found.
+      html += '<div class="report-page report-cover">'
+           +    '<div class="report-cover-logo">'
+           +      (logo ? '<img src="' + logo + '" alt="">' : '<div class="report-cover-mark">MD</div>')
+           +    '</div>'
+           +    '<h1>' + esc(bizName) + '</h1>'
+           +    '<div class="report-cover-rule"></div>'
+           +    '<p class="report-cover-doc">Business Plan</p>'
+           +    reportFooter()
+           + '</div>';
+    }
 
     MODULES.forEach(function(m){
       var itemsHtml = '';
