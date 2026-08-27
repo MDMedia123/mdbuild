@@ -1060,7 +1060,6 @@
   try { disabledSteps = JSON.parse(localStorage.getItem('mdbl_disabled') || '[]'); } catch(e) { disabledSteps = []; }
   var currentStage = localStorage.getItem('mdbl_current') || '';
 
-  var GUMROAD_PRODUCT_PERMALINK = "psbua";
   function showApp(){
     document.getElementById('paywall').style.display = 'none';
     document.getElementById('appShell').style.display = 'flex';
@@ -1069,34 +1068,15 @@
     document.getElementById('paywall').style.display = 'flex';
     document.getElementById('appShell').style.display = 'none';
   }
-  function verifyLicense(){
-    var key = document.getElementById('licenseKeyInput').value.trim();
-    var errEl = document.getElementById('licenseError');
-    errEl.textContent = '';
-    if(!key){ errEl.textContent = 'Enter your license key.'; return; }
-    fetch('https://api.gumroad.com/v2/licenses/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'product_permalink=' + encodeURIComponent(GUMROAD_PRODUCT_PERMALINK) + '&license_key=' + encodeURIComponent(key)
-    }).then(function(res){ return res.json(); }).then(function(data){
-      if(data && data.success){
-        localStorage.setItem('mdbl_unlocked', 'true');
-        showApp();
-    unlockCustomerFields();
-    applyCoverText();
-    wireCoverText();
-      } else {
-        errEl.textContent = "That key didn't check out. Check it and try again.";
-      }
-    }).catch(function(){
-      errEl.textContent = "Couldn't reach the license server. Check your connection and try again.";
-    });
-  }
   // Access is decided in initApp by hasAccess(): a signed-in account with a
   // completed purchase. This used to unlock on a localStorage flag left over
   // from selling through Gumroad, which meant clearing site data locked a
   // paying customer out and asked them to buy the product a second time.
-  showPaywall();
+  // Neither view is shown until hasAccess() has answered. Calling showPaywall()
+  // here meant every paying customer saw "Buy now — $49" flash past on the way
+  // into a workspace they already own.
+  document.getElementById('paywall').style.display = 'none';
+  document.getElementById('appShell').style.display = 'none';
 
   function toggleGroup(btn){
     var group = btn.closest('.nav-group');
@@ -1622,6 +1602,9 @@
     updateFocusCard();
     updateRecentActivity();
     updateHeaderInfo();
+      unlockCustomerFields();
+      applyCoverText();
+      wireCoverText();
     showWelcomeIfNeeded();
   }
   initApp();
