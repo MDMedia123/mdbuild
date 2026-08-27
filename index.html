@@ -161,7 +161,7 @@
   .section-head p{font-size:15px;color:var(--ink-soft);line-height:1.6;margin:0;}
 
   /* ---- product cards ---- */
-  .products-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;}
+  .products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;}
   .product-card{
     background:var(--card);border:1px solid var(--card-border);border-radius:20px;
     box-shadow:var(--shadow);padding:32px;display:flex;flex-direction:column;
@@ -181,7 +181,7 @@
   .product-sub{font-size:14px;font-weight:700;color:var(--gold-text);margin-bottom:16px;}
   .product-card.soon .product-sub{color:var(--gray-text);}
   .product-desc{font-size:14.5px;line-height:1.7;color:var(--ink-soft);margin-bottom:24px;font-weight:500;}
-  .product-features{list-style:none;margin:0 0 26px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;}
+  .product-features{list-style:none;margin:0 0 26px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px 14px;}
   .product-features li{display:flex;align-items:center;gap:11px;font-size:13px;font-weight:500;color:var(--ink);}
   .feat-dot{width:30px;height:30px;border-radius:9px;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .feat-dot .icon{width:16px;height:16px;stroke:var(--gold-text);stroke-width:2;}
@@ -192,7 +192,7 @@
   .stars{display:flex;gap:2px;}
   .stars .icon{width:15px;height:15px;fill:var(--gold);stroke:var(--gold);}
   .rating-score{font-size:13.5px;font-weight:600;color:var(--ink);}
-  .reviews-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;}
   .review-card{background:var(--card);border:1px solid var(--card-border);border-radius:16px;padding:24px;box-shadow:var(--shadow);}
   .review-stars{margin-bottom:12px;}
   .review-quote{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:0 0 18px;}
@@ -258,13 +258,13 @@
   .mock-step-line{flex:1;height:2px;background:var(--gray-soft);}
 
   .why-tagline{text-align:center;font-family:'Poppins',sans-serif;font-weight:600;font-size:14px;color:var(--gold-text);margin:0 0 16px;}
-  .why-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 20px;}
+  .why-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:0 0 20px;}
   .why-tile{background:var(--paper);border:1px solid var(--card-border);border-radius:12px;padding:14px 16px;}
   .why-tile-icon{width:28px;height:28px;border-radius:8px;background:var(--gold-soft);display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
   .why-tile-icon .icon{width:14px;height:14px;stroke:var(--gold-text);}
   .why-tile h4{font-size:13px;font-weight:600;margin-bottom:4px;}
   .why-tile p{font-size:12px;color:var(--ink-soft);line-height:1.5;margin:0;}
-  .preview-list{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;}
+  .preview-list{list-style:none;margin:0 0 16px;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px 20px;}
   .preview-list li{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink-soft);}
   .lock-note{
     background:var(--gold-soft);color:var(--gold-text);border-radius:12px;padding:12px 14px;
@@ -455,12 +455,12 @@
   <!-- Built from Real Experience -->
   <section id="social-proof" style="padding:80px 0;background:#fff;">
     <div class="wrap">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:80px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:clamp(24px,5vw,60px);align-items:center;margin-bottom:80px;">
         <div>
           <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:var(--gold);margin-bottom:16px;text-transform:uppercase;">Built from real experience</div>
           <h2 style="font-size:48px;line-height:1.2;margin-bottom:24px;max-width:500px;">Built on proven business frameworks.</h2>
           <p style="font-size:16px;color:var(--ink-soft);line-height:1.6;margin-bottom:32px;max-width:500px;">MD Build isn't based on theory. Every workspace has been developed using practical systems from branding, marketing, operations, finance and business development.</p>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;">
             <div style="display:flex;align-items:center;gap:12px;">
               <span style="width:40px;height:40px;background:var(--gold-soft);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
               <span style="font-size:13px;font-weight:600;">Step-by-step workspaces</span>
@@ -485,7 +485,7 @@
           </div>
           <div style="font-size:18px;font-weight:600;margin-bottom:8px;">MD Build</div>
           <div style="font-size:12px;color:var(--ink-soft);font-weight:400;margin-bottom:32px;">Your business. Built better.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px;">
             <div style="background:#fff;border-radius:8px;padding:16px;"><svg class="icon" viewBox="0 0 24 24" style="width:32px;height:32px;color:var(--gold);margin:0 auto;margin-bottom:8px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><div style="font-size:12px;margin-top:8px;font-weight:600;">Plan</div></div>
             <div style="background:#fff;border-radius:8px;padding:16px;"><svg class="icon" viewBox="0 0 24 24" style="width:32px;height:32px;color:var(--gold);margin:0 auto;margin-bottom:8px;"><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path></svg><div style="font-size:12px;margin-top:8px;font-weight:600;">Launch</div></div>
             <div style="background:#fff;border-radius:8px;padding:16px;"><svg class="icon" viewBox="0 0 24 24" style="width:32px;height:32px;color:var(--gold);margin:0 auto;margin-bottom:8px;"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path></svg><div style="font-size:12px;margin-top:8px;font-weight:600;">Brand</div></div>
@@ -497,7 +497,7 @@
       </div>
 
       <!-- Three value cards -->
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-bottom:80px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:clamp(20px,4vw,32px);margin-bottom:80px;">
         <div style="background:#fff;border:1px solid var(--card-border);border-radius:16px;padding:40px;">
           <div style="font-size:48px;margin-bottom:16px;">01</div>
           <div style="width:56px;height:56px;background:var(--gold-soft);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;"><svg class="icon" viewBox="0 0 24 24"><path d="M9.5 2C8.1 2 7 3.1 7 4.5s1.1 2.5 2.5 2.5 2.5-1.1 2.5-2.5S10.9 2 9.5 2zm0 9C7.6 11 6 12.6 6 14.5S7.6 18 9.5 18s3.5-1.6 3.5-3.5S11.4 11 9.5 11zm9-9c-1.4 0-2.5 1.1-2.5 2.5s1.1 2.5 2.5 2.5 2.5-1.1 2.5-2.5-1.1-2.5-2.5-2.5zm0 9c-1.9 0-3.5 1.6-3.5 3.5s1.6 3.5 3.5 3.5 3.5-1.6 3.5-3.5-1.6-3.5-3.5-3.5z"></path></svg></div>
