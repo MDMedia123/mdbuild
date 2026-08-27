@@ -168,6 +168,42 @@
     .container { padding: 20px; }
   }
 </style>
+
+<style>
+  /* Download bar and print treatment, shared across the MD Build resources. */
+  .md-bar{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin:0 0 26px;padding:12px 16px;
+    background:#f4f1ea;border:1px solid #e7e2d6;border-radius:10px;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  }
+  .md-bar-note{font-size:12.5px;color:#5B6478;}
+  .md-bar-btn{
+    margin-left:auto;padding:9px 20px;border:0;border-radius:8px;
+    background:#C1893D;color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .md-bar-btn:hover{background:#a87730;}
+
+  .md-foot{
+    display:none;align-items:center;gap:7px;
+    margin-top:30px;padding-top:10px;border-top:1px solid #e7e2d6;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+    font-size:9pt;color:#8a827a;
+  }
+  .md-foot-tile{
+    width:15px;height:15px;border-radius:4px;background:#1a2847;color:#fff;
+    font-size:6pt;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .md-foot b{color:#1a2847;font-weight:600;}
+
+  @media print{
+    .md-bar{display:none !important;}
+    .md-foot{display:flex !important;}
+    body{background:#fff !important;}
+    .md-foot, .md-foot-tile{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    section, .section, table, .card{page-break-inside:avoid;}
+  }
+</style>
 </head>
 <body>
 
@@ -175,6 +211,10 @@
   <div class="header">
     <div class="logo">MD</div>
     <h1>Business Plan Template</h1>
+<div class="md-bar no-print">
+  <span class="md-bar-note">Fill this in, then save a copy for your records.</span>
+  <button type="button" class="md-bar-btn" onclick="window.print()">Save as PDF</button>
+</div>
     <p>Create a comprehensive roadmap for your business success</p>
   </div>
 
@@ -381,14 +421,55 @@
       el.value = localStorage.getItem(key);
     }
   });
-
-  // Print functionality
-  window.print = function() {
-    if (confirm('Ready to download as PDF? Use your browser\'s print function (Ctrl+P) and select "Save as PDF"')) {
-      window.print();
-    }
-  };
 </script>
 
+
+<script>
+(function(){
+  // Everything entered here is kept in this browser, so a half-finished sheet
+  // is still there tomorrow. Keyed by position because these fields have no
+  // names of their own.
+  var KEY = 'mdres_' + (location.pathname.split('/').pop() || 'resource') + '_';
+
+  function fields(){
+    return document.querySelectorAll('input, textarea');
+  }
+
+  function save(){
+    fields().forEach(function(el, i){
+      try {
+        localStorage.setItem(KEY + i, el.type === 'checkbox' ? (el.checked ? '1' : '') : el.value);
+      } catch(e) {}
+    });
+  }
+
+  function load(){
+    fields().forEach(function(el, i){
+      try {
+        var v = localStorage.getItem(KEY + i);
+        if (v === null) return;
+        if (el.type === 'checkbox') el.checked = (v === '1');
+        else el.value = v;
+      } catch(e) {}
+    });
+  }
+
+  function start(){
+    load();
+    fields().forEach(function(el){
+      el.addEventListener('change', save);
+      el.addEventListener('input', save);
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
+
+<div class="md-foot">
+  <span class="md-foot-tile">MD</span>
+  <span><b>MD Build</b> &middot; buildbymd.com</span>
+</div>
 </body>
 </html>
