@@ -1128,7 +1128,13 @@
     updateProgressUI();
     updateHeaderInfo();
   }
-  function continueJourney(){ goTo(currentStage); }
+  function continueJourney(){
+    // Go to the module the card is actually offering. currentStage can lag
+    // behind it, or point at a module that has since been switched off.
+    var enabled = enabledStages();
+    var next = enabled.find(function(id){ return doneSteps.indexOf(id) === -1; });
+    goTo(next || currentStage || enabled[0]);
+  }
   function completeStage(id){
     if(doneSteps.indexOf(id) === -1){
       doneSteps.push(id);
@@ -1196,7 +1202,7 @@
 
       var moduleName = stageNames[nextModule] || 'Next Module';
       var moduleObj = MODULES.find(function(m){ return m.id === nextModule; });
-      var desc = moduleObj ? moduleObj.teaching_text : 'Get started with this module';
+      var desc = moduleObj ? moduleObj.teach : 'Get started with this module';
 
       var isFirstModule = doneSteps.length === 0;
       var action = isFirstModule ? 'Start with' : 'Continue with';
@@ -1235,8 +1241,11 @@
       }
     var heroPill = document.querySelector('.hero-pill');
     if(heroPill) heroPill.textContent = 'Module ' + (enabled.indexOf(currentStage) + 1) + ' of ' + enabled.length;
-    var focusTitle = document.querySelector('.focus-title');
-    if(focusTitle) focusTitle.textContent = 'Continue with ' + (stageNames[currentStage] || '');
+    // The Next up card is owned by updateFocusCard(), which picks the next
+    // module the customer has not finished. Writing to it here as well meant a
+    // toggle overwrote it using currentStage, which may be a module they just
+    // switched off — producing "Continue with" and no name.
+    updateFocusCard();
     var ring = document.getElementById('focusRing');
     var ringText = document.getElementById('focusRingText');
     if(ring && ringText){
