@@ -377,6 +377,8 @@
   .nav-hint{display:flex;align-items:flex-start;gap:6px;font-size:11px;line-height:1.5;color:var(--gray-text);margin:0 4px 10px;padding:7px 8px;background:var(--gray-soft);border-radius:7px;}
   .nav-hint-x{flex-shrink:0;background:none;border:0;cursor:pointer;color:var(--gray-text);font-size:14px;line-height:1;padding:0 2px;opacity:0.6;}
   .nav-hint-x:hover{opacity:1;}
+  .resource-list a{color:var(--gold-text);text-decoration:none;border-bottom:1px solid transparent;}
+  .resource-list a:hover{border-bottom-color:var(--gold);}
   .report-foot{display:flex;align-items:center;justify-content:center;gap:7px;
     margin-top:26px;padding-top:10px;border-top:1px solid #E7E2D6;font-size:9pt;color:#6E6D62;}
   .report-foot-tile{width:16px;height:16px;border-radius:4px;background:#1a2847;color:#fff;
@@ -834,7 +836,9 @@
   }
   function resourceCard(title, items){
     return '<div class="card"><h3>' + esc(title) + '</h3><ul class="resource-list">'
-      + items.map(function(i){ return '<li contenteditable="false">' + esc(i) + '</li>'; }).join('')
+      + items.map(function(i){
+          return '<li><a href="' + i.href + '" target="_blank" rel="noopener">' + esc(i.label) + '</a></li>';
+        }).join('')
       + '</ul></div>';
   }
 
@@ -844,7 +848,25 @@
     return '<div class="card stage-card"><h3>Your KPI board</h3><div class="kpi-grid">' + kpiCard('revenue','Revenue (monthly)') + kpiCard('customers','Customers') + kpiCard('conversion','Conversion rate (%)') + kpiCard('runway','Cash runway (months)') + '</div></div>';
   }
   function resourcesExtra(){
-    return '<div class="resource-grid">' + resourceCard('Legal',['Business registration checklist','Simple contract template','Terms & conditions template']) + resourceCard('Finance',['Startup budget spreadsheet','Invoice template','Pricing calculator']) + resourceCard('Marketing',['Social media planner','Launch announcement templates','Local marketing checklist']) + resourceCard('Branding',['Logo brief template','Brand colour palette guide','Tagline worksheet']) + '</div>';
+    // Every item here is a file that exists and is served. Listing anything else
+    // would promise a download that never arrives, on the last module of a paid
+    // product.
+    return '<div class="resource-grid">'
+      + resourceCard('Planning', [
+          { label: 'Business plan template',    href: '/downloads/Business_Plan_Template.html' },
+          { label: 'Business launch checklist', href: '/Business_Launch_Checklist.html' }
+        ])
+      + resourceCard('Finance', [
+          { label: 'Financial planning spreadsheet', href: '/downloads/Financial_Planning_Spreadsheet.html' }
+        ])
+      + resourceCard('Brand', [
+          { label: 'Brand guidelines template', href: '/downloads/Brand_Guidelines_Template.html' },
+          { label: 'Logo asset pack',           href: '/downloads/Logo_Asset_Pack.html' }
+        ])
+      + resourceCard('Research', [
+          { label: 'Market research guide', href: '/downloads/Market_Research_Guide.html' }
+        ])
+      + '</div>';
   }
   // Icons are matched by module title since the database doesn't store one per module.
   // Modules added later through the admin panel fall back to DEFAULT_ICON.
