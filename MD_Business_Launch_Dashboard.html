@@ -1092,6 +1092,10 @@
          +   '<span class="report-head-doc">Business Plan</span>'
          + '</div>';
   }
+  function loadAnswer(key){
+    try { return localStorage.getItem(key) || ''; } catch(e) { return ''; }
+  }
+
   function normalizeFocusItem(item){
     if (typeof item === 'string') return { prompt: item, guidance: '', placeholder: 'Type your answer here...' };
     return {
