@@ -154,6 +154,21 @@
     body { background: white; }
     .table-container { box-shadow: none; }
   }
+
+    .fp-toolbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 22px;
+      padding:12px 14px;background:#f4f1ea;border:1px solid #e7e2d6;border-radius:10px;}
+    .fp-toolbar label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#1a2847;}
+    .fp-toolbar select{padding:6px 8px;border:1px solid #d9d3c4;border-radius:6px;
+      font-size:13px;background:#fff;color:#1a2847;}
+    .fp-print{margin-left:auto;padding:8px 18px;border:0;border-radius:8px;background:#C1893D;
+      color:#fff;font-size:13px;font-weight:600;cursor:pointer;}
+    .fp-print:hover{background:#a87730;}
+    @media print{
+      .no-print{display:none !important;}
+      body{background:#fff;}
+      table{page-break-inside:avoid;}
+      input{border:0 !important;background:transparent !important;}
+    }
 </style>
 </head>
 <body>
@@ -181,46 +196,46 @@
           <tr>
             <td rowspan="3"><strong>Equipment & Technology</strong></td>
             <td>Computer/Laptop</td>
-            <td class="number"><input type="number" placeholder="0" value="1200"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td>Software Licenses</td>
-            <td class="number"><input type="number" placeholder="0" value="500"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td>Office Equipment</td>
-            <td class="number"><input type="number" placeholder="0" value="400"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td rowspan="3"><strong>Business Setup</strong></td>
             <td>Legal/Registration</td>
-            <td class="number"><input type="number" placeholder="0" value="300"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td>Business Insurance</td>
-            <td class="number"><input type="number" placeholder="0" value="600"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td>Branding/Logo</td>
-            <td class="number"><input type="number" placeholder="0" value="500"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td rowspan="2"><strong>Marketing</strong></td>
             <td>Website Development</td>
-            <td class="number"><input type="number" placeholder="0" value="1500"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td>Initial Marketing</td>
-            <td class="number"><input type="number" placeholder="0" value="800"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr>
             <td rowspan="1"><strong>Working Capital</strong></td>
             <td>3-Month Operating Reserve</td>
-            <td class="number"><input type="number" placeholder="0" value="3000"></td>
+            <td class="number"><input type="number" placeholder="0"></td>
           </tr>
           <tr class="total-row">
             <td colspan="2">TOTAL STARTUP COSTS</td>
-            <td class="number">$8,700</td>
+            <td class="number"><span id="startupTotal">—</span></td>
           </tr>
         </tbody>
       </table>
@@ -243,79 +258,79 @@
         <tbody>
           <tr>
             <td>January</td>
-            <td><input type="number" placeholder="0" value="5"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$995</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev1">—</span></td>
           </tr>
           <tr>
             <td>February</td>
-            <td><input type="number" placeholder="0" value="8"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$1,592</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev2">—</span></td>
           </tr>
           <tr>
             <td>March</td>
-            <td><input type="number" placeholder="0" value="12"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$2,388</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev3">—</span></td>
           </tr>
           <tr>
             <td>April</td>
-            <td><input type="number" placeholder="0" value="15"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$2,985</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev4">—</span></td>
           </tr>
           <tr>
             <td>May</td>
-            <td><input type="number" placeholder="0" value="18"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$3,582</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev5">—</span></td>
           </tr>
           <tr>
             <td>June</td>
-            <td><input type="number" placeholder="0" value="20"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$3,980</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev6">—</span></td>
           </tr>
           <tr>
             <td>July</td>
-            <td><input type="number" placeholder="0" value="22"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$4,378</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev7">—</span></td>
           </tr>
           <tr>
             <td>August</td>
-            <td><input type="number" placeholder="0" value="25"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$4,975</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev8">—</span></td>
           </tr>
           <tr>
             <td>September</td>
-            <td><input type="number" placeholder="0" value="28"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$5,572</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev9">—</span></td>
           </tr>
           <tr>
             <td>October</td>
-            <td><input type="number" placeholder="0" value="30"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$5,970</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev10">—</span></td>
           </tr>
           <tr>
             <td>November</td>
-            <td><input type="number" placeholder="0" value="32"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$6,368</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev11">—</span></td>
           </tr>
           <tr>
             <td>December</td>
-            <td><input type="number" placeholder="0" value="35"></td>
-            <td><input type="number" placeholder="0" value="199"></td>
-            <td class="number">$6,965</td>
+            <td><input type="number" placeholder="0"></td>
+            <td><input type="number" placeholder="0"></td>
+            <td class="number"><span id="rev12">—</span></td>
           </tr>
           <tr class="total-row">
             <td colspan="3">TOTAL ANNUAL REVENUE</td>
-            <td class="number">$49,750</td>
+            <td class="number"><span id="revTotal">—</span></td>
           </tr>
         </tbody>
       </table>
@@ -337,48 +352,48 @@
         <tbody>
           <tr>
             <td>Salary/Owner Draw</td>
-            <td class="number"><input type="number" placeholder="0" value="3000"></td>
-            <td class="number">$36,000</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann1">—</span></td>
           </tr>
           <tr>
             <td>Software & Subscriptions</td>
-            <td class="number"><input type="number" placeholder="0" value="200"></td>
-            <td class="number">$2,400</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann2">—</span></td>
           </tr>
           <tr>
             <td>Hosting & Domain</td>
-            <td class="number"><input type="number" placeholder="0" value="50"></td>
-            <td class="number">$600</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann3">—</span></td>
           </tr>
           <tr>
             <td>Marketing & Advertising</td>
-            <td class="number"><input type="number" placeholder="0" value="300"></td>
-            <td class="number">$3,600</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann4">—</span></td>
           </tr>
           <tr>
             <td>Professional Services</td>
-            <td class="number"><input type="number" placeholder="0" value="150"></td>
-            <td class="number">$1,800</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann5">—</span></td>
           </tr>
           <tr>
             <td>Office/Workspace</td>
-            <td class="number"><input type="number" placeholder="0" value="200"></td>
-            <td class="number">$2,400</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann6">—</span></td>
           </tr>
           <tr>
             <td>Utilities & Internet</td>
-            <td class="number"><input type="number" placeholder="0" value="100"></td>
-            <td class="number">$1,200</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann7">—</span></td>
           </tr>
           <tr>
             <td>Insurance</td>
-            <td class="number"><input type="number" placeholder="0" value="150"></td>
-            <td class="number">$1,800</td>
+            <td class="number"><input type="number" placeholder="0"></td>
+            <td class="number"><span id="ann8">—</span></td>
           </tr>
           <tr class="total-row">
             <td>TOTAL MONTHLY EXPENSES</td>
-            <td class="number">$4,150</td>
-            <td class="number">$49,800</td>
+            <td class="number"><span id="expMonthly">—</span></td>
+            <td class="number"><span id="expAnnual">—</span></td>
           </tr>
         </tbody>
       </table>
@@ -403,19 +418,19 @@
         <tbody>
           <tr>
             <td><strong>Total Revenue</strong></td>
-            <td class="number"><strong>$49,750</strong></td>
+            <td class="number"><strong><span id="plRevenue">—</span></strong></td>
           </tr>
           <tr>
             <td><strong>Total Expenses</strong></td>
-            <td class="number"><strong>$49,800</strong></td>
+            <td class="number"><strong><span id="plExpenses">—</span></strong></td>
           </tr>
           <tr>
             <td>Cost of Goods Sold (if applicable)</td>
-            <td class="number">$0</td>
+            <td class="number"><input type="number" placeholder="0" id="cogsInput"></td>
           </tr>
           <tr class="total-row">
             <td>NET PROFIT/LOSS (Year 1)</td>
-            <td class="number">-$50</td>
+            <td class="number"><strong><span id="plNet">—</span></strong></td>
           </tr>
         </tbody>
       </table>
@@ -440,23 +455,23 @@
         <tbody>
           <tr>
             <td>Fixed Costs (Monthly)</td>
-            <td class="number">$4,150</td>
+            <td class="number"><span id="beFixed">—</span></td>
           </tr>
           <tr>
             <td>Variable Cost per Unit</td>
-            <td class="number">$0</td>
+            <td class="number"><input type="number" placeholder="0" id="variableInput"></td>
           </tr>
           <tr>
             <td>Contribution Margin per Unit</td>
-            <td class="number">$199</td>
+            <td class="number"><span id="beMargin">—</span></td>
           </tr>
           <tr class="total-row">
             <td>Break-Even Point (Units)</td>
-            <td class="number">21 units/month</td>
+            <td class="number"><span id="beUnits">—</span></td>
           </tr>
           <tr class="total-row">
             <td>Break-Even Point (Revenue)</td>
-            <td class="number">$4,179/month</td>
+            <td class="number"><span id="beRevenue">—</span></td>
           </tr>
         </tbody>
       </table>
@@ -465,19 +480,171 @@
 
   <div class="footer">
     <p>Created with MD Build • Financial Planning Framework</p>
-    <p>Download as Excel to enable automatic calculations and formulas</p>
+    <p>Totals update as you type, and everything you enter is saved in this browser.</p>
   </div>
 </div>
 
-<script>
-  // Save input values to localStorage
-  document.querySelectorAll('input').forEach(el => {
-    el.addEventListener('change', function() {
-      const key = 'fp_' + this.name || this.id || Math.random();
-      localStorage.setItem(key, this.value);
-    });
-  });
-</script>
+  <script>
+  (function(){
+    // ---- Currency -------------------------------------------------------
+    // A planning sheet that can only think in dollars is no use to someone
+    // budgeting in rand or pounds.
+    var CURRENCIES = [
+      { code: 'USD', symbol: '$' },
+      { code: 'ZAR', symbol: 'R' },
+      { code: 'GBP', symbol: '\u00A3' },
+      { code: 'EUR', symbol: '\u20AC' },
+      { code: 'AUD', symbol: 'A$' },
+      { code: 'CAD', symbol: 'C$' }
+    ];
+    var currency = CURRENCIES[0];
+    var DASH = '\u2014';
+
+    function money(n){
+      if (!isFinite(n)) return DASH;
+      var sign = n < 0 ? '-' : '';
+      return sign + currency.symbol + Math.abs(Math.round(n)).toLocaleString('en-US');
+    }
+
+    function num(el){ var v = parseFloat(el && el.value); return isFinite(v) ? v : 0; }
+    function allTables(){ return Array.prototype.slice.call(document.querySelectorAll('table')); }
+    function inputsIn(t){ return Array.prototype.slice.call(t.querySelectorAll('input[type=number]')); }
+    function set(id, text){ var el = document.getElementById(id); if (el) el.textContent = text; }
+
+    // ---- The model ------------------------------------------------------
+    // Every figure below is derived from what the customer typed. Nothing here
+    // was calculated before: all eight totals were hardcoded text.
+    function recalc(){
+      var t = allTables();
+      if (t.length < 5) return;
+
+      var startup = inputsIn(t[0]).reduce(function(sum, el){ return sum + num(el); }, 0);
+      set('startupTotal', money(startup));
+
+      var revInputs = inputsIn(t[1]);
+      var revTotal = 0, priceSum = 0, priced = 0;
+      for (var m = 0; m < 12; m++){
+        var units = num(revInputs[m * 2]);
+        var price = num(revInputs[m * 2 + 1]);
+        var revenue = units * price;
+        revTotal += revenue;
+        if (price > 0){ priceSum += price; priced++; }
+        set('rev' + (m + 1), revenue ? money(revenue) : DASH);
+      }
+      set('revTotal', money(revTotal));
+
+      var expMonthly = 0;
+      inputsIn(t[2]).forEach(function(el, i){
+        var v = num(el);
+        expMonthly += v;
+        set('ann' + (i + 1), v ? money(v * 12) : DASH);
+      });
+      set('expMonthly', money(expMonthly));
+      set('expAnnual', money(expMonthly * 12));
+
+      var cogs = num(document.getElementById('cogsInput'));
+      var expAnnual = expMonthly * 12;
+      set('plRevenue', money(revTotal));
+      set('plExpenses', money(expAnnual));
+      var net = revTotal - expAnnual - cogs;
+      set('plNet', money(net));
+      var netEl = document.getElementById('plNet');
+      if (netEl) netEl.style.color = net < 0 ? '#B4402F' : (net > 0 ? '#2F8577' : '');
+
+      var variable = num(document.getElementById('variableInput'));
+      var avgPrice = priced ? priceSum / priced : 0;
+      var margin = avgPrice - variable;
+      set('beFixed', money(expMonthly));
+      set('beMargin', margin > 0 ? money(margin) : DASH);
+      if (margin > 0 && expMonthly > 0){
+        var beUnits = Math.ceil(expMonthly / margin);
+        set('beUnits', beUnits.toLocaleString('en-US') + ' units/month');
+        set('beRevenue', money(beUnits * avgPrice) + '/month');
+      } else {
+        set('beUnits', DASH);
+        set('beRevenue', DASH);
+      }
+    }
+
+    // ---- Saving ---------------------------------------------------------
+    // Keyed by position, because these fields have no names. The previous
+    // version wrote every input to the same key and never read any back.
+    function fields(){ return document.querySelectorAll('input[type=number]'); }
+
+    function save(){
+      fields().forEach(function(el, i){
+        try { localStorage.setItem('fp_field_' + i, el.value); } catch(e) {}
+      });
+      try { localStorage.setItem('fp_currency', currency.code); } catch(e) {}
+    }
+
+    function load(){
+      fields().forEach(function(el, i){
+        try {
+          var v = localStorage.getItem('fp_field_' + i);
+          if (v !== null) el.value = v;
+        } catch(e) {}
+      });
+      try {
+        var saved = localStorage.getItem('fp_currency');
+        for (var i = 0; i < CURRENCIES.length; i++){
+          if (CURRENCIES[i].code === saved) currency = CURRENCIES[i];
+        }
+      } catch(e) {}
+    }
+
+    // ---- Toolbar --------------------------------------------------------
+    function buildToolbar(){
+      var bar = document.createElement('div');
+      bar.className = 'fp-toolbar no-print';
+
+      var label = document.createElement('label');
+      label.appendChild(document.createTextNode('Currency'));
+
+      var select = document.createElement('select');
+      CURRENCIES.forEach(function(c){
+        var opt = document.createElement('option');
+        opt.value = c.code;
+        opt.textContent = c.code + '  ' + c.symbol;
+        if (c.code === currency.code) opt.selected = true;
+        select.appendChild(opt);
+      });
+      select.addEventListener('change', function(){
+        for (var i = 0; i < CURRENCIES.length; i++){
+          if (CURRENCIES[i].code === select.value) currency = CURRENCIES[i];
+        }
+        recalc();
+        save();
+      });
+      label.appendChild(select);
+
+      var printBtn = document.createElement('button');
+      printBtn.type = 'button';
+      printBtn.className = 'fp-print';
+      printBtn.textContent = 'Save as PDF';
+      printBtn.addEventListener('click', function(){ window.print(); });
+
+      bar.appendChild(label);
+      bar.appendChild(printBtn);
+
+      var anchor = document.querySelector('h1');
+      if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+      else document.body.insertBefore(bar, document.body.firstChild);
+    }
+
+    function start(){
+      load();
+      buildToolbar();
+      recalc();
+      fields().forEach(function(el){
+        el.addEventListener('input', function(){ recalc(); save(); });
+      });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+    else start();
+  })();
+  </script>
 
 </body>
 </html>
