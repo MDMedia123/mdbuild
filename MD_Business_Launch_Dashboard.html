@@ -640,6 +640,10 @@
     </nav>
 
     <div class="sidebar-footer no-print">
+    <button class="btn btn-gold" onclick="generateReport()" title="Download everything you have written as a PDF">
+      <svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      Download plan
+    </button>
     </div>
   </aside>
 
@@ -840,10 +844,10 @@
         <div class="card" style="flex:1 1 33%;">
           <h3>Quick links</h3>
           <ul>
-            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Templates</li>
-            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Business tools</li>
-            <li contenteditable="false" style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Downloads</li>
-          </ul>
+              <li style="cursor:pointer;" onclick="generateReport()"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Download your plan (PDF)</li>
+              <li style="cursor:pointer;" onclick="goToByTitle('Resources')"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Templates &amp; resources</li>
+              <li style="cursor:pointer;" onclick="goTo(chosenCover)"><span class="link-icon"><svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></span>Your cover page</li>
+            </ul>
         </div>
         <div class="card quote-card" style="flex:1 1 33%;">
           <p contenteditable="false">"The best time to start was yesterday. The second best time is today."</p>
@@ -1163,7 +1167,7 @@
       + (m.extra || '')
       + '<div class="stage-nav no-print">'
       +   '<button class="btn btn-ghost" onclick="goTo(\'' + backTarget + '\')">Back</button>'
-      +   '<button class="btn btn-gold" onclick="completeStage(\'' + m.id + '\')">' + (isLast ? 'Finish' : 'Continue') + '</button>'
+      +   '<button class="btn btn-gold" onclick="completeStage(\'' + m.id + '\')">' + (isLast ? 'Finish &amp; review' : 'Continue') + '</button>'
       + '</div>';
   }
   function renderModules(){
