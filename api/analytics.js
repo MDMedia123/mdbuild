@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
 
     // All the aggregation happens in Postgres, so this stays one round trip
     // however many events accumulate.
-    const { data, error } = await supabase.rpc('analytics_summary', { days: days });
+    const { data, error } = await supabase.rpc('analytics_summary', { window_days: days });
 
     if (error) {
       // The most likely cause by far is the migration not having been run.

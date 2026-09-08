@@ -32,13 +32,13 @@ alter table public.events enable row level security;
 
 -- One round trip that returns the whole dashboard, aggregated in the database
 -- rather than by pulling every row into a serverless function.
-create or replace function public.analytics_summary(days int default 30)
+create or replace function public.analytics_summary(window_days int default 30)
 returns json
 language sql
 stable
 as $$
   with bounds as (
-    select (now() - make_interval(days => greatest(days, 1))) as since
+    select (now() - make_interval(days => greatest(window_days, 1))) as since
   ),
   ev as (
     select e.* from public.events e, bounds b where e.created_at >= b.since
@@ -48,7 +48,7 @@ as $$
     where p.created_at >= b.since and p.status = 'completed'
   )
   select json_build_object(
-    'days', days,
+    'days', window_days,
     'since', (select since from bounds),
 
     -- The four funnel stages. The first three count distinct visits; the last
