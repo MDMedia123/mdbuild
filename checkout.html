@@ -188,6 +188,7 @@
       gap: 6px;
     }
   </style>
+  <script src="/analytics.js" defer></script>
 </head>
 <body>
   <header>
@@ -311,6 +312,10 @@
         // Payment is handled entirely inside Paddle's overlay; no card details
         // touch this page. Fulfilment happens on the webhook, not here, so a
         // customer closing the tab still gets their access.
+        // Recorded here rather than on submit: this is the point that separates
+        // someone who never tried from someone who tried and did not finish.
+        if (window.mdTrack) window.mdTrack('checkout_opened');
+
         Paddle.Checkout.open({
           items: [{ priceId: paddleConfig.priceId, quantity: 1 }],
           customer: { email: email },

@@ -156,6 +156,25 @@
     .shell{flex-direction:column;}
     .sidebar{width:100%;height:auto;border-right:none;border-bottom:1px solid var(--card-border);}
     .content{padding:20px;}
+    /* Funnel bars: width encodes the drop-off, so the shape reads before the numbers do. */
+    .fn-row{display:grid;grid-template-columns:150px 1fr 130px;gap:14px;align-items:center;margin-bottom:10px;}
+    .fn-name{font-size:13px;color:var(--ink-soft);}
+    .fn-track{background:var(--gray-soft);border-radius:8px;height:34px;overflow:hidden;}
+    .fn-fill{height:100%;border-radius:8px;display:flex;align-items:center;padding:0 12px;
+      color:#fff;font-size:13px;font-weight:600;min-width:44px;transition:width .5s ease;}
+    .fn-drop{font-size:12px;color:var(--ink-soft);text-align:right;font-variant-numeric:tabular-nums;}
+    .fn-drop b{color:var(--red-text);font-weight:600;}
+    .fn-list{list-style:none;}
+    .fn-list li{display:flex;justify-content:space-between;gap:12px;padding:7px 0;
+      border-bottom:1px solid var(--card-border);font-size:13px;}
+    .fn-list li:last-child{border-bottom:none;}
+    .fn-list span:last-child{color:var(--ink-soft);font-variant-numeric:tabular-nums;}
+    .fn-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+    .fn-empty{color:var(--ink-soft);font-size:13px;padding:6px 0;}
+    @media (max-width:640px){
+      .fn-row{grid-template-columns:1fr;gap:4px;}
+      .fn-drop{text-align:left;}
+    }
     .stat-grid{grid-template-columns:1fr;}
     .table{font-size:12px;}
   }
@@ -201,6 +220,10 @@
       <div class="nav-item active" onclick="showPage('dashboard')">
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg></div>
         <div class="nav-label">Dashboard</div>
+      </div>
+      <div class="nav-item" onclick="showPage('traffic')">
+        <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg></div>
+        <div class="nav-label">Traffic</div>
       </div>
       <div class="nav-item" onclick="showPage('products')">
         <div class="nav-icon"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg></div>
@@ -303,6 +326,78 @@
     </div>
 
     <!-- Products Page -->
+    <div id="traffic" class="page">
+      <div class="page-header">
+        <div>
+          <h1>Traffic</h1>
+          <p class="page-header-sub">Where visitors come from and where they stop.</p>
+        </div>
+        <div>
+          <select id="traffic-range" onchange="loadTrafficData()"
+                  style="padding:9px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--card);font-size:13px;">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Visitors</div>
+          <div class="stat-value" id="tr-visitors">-</div>
+          <div class="stat-change" id="tr-pageviews">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reached checkout</div>
+          <div class="stat-value" id="tr-checkout">-</div>
+          <div class="stat-change" id="tr-checkout-rate">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Purchases</div>
+          <div class="stat-value" id="tr-purchases">-</div>
+          <div class="stat-change" id="tr-conversion">&nbsp;</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Revenue</div>
+          <div class="stat-value" id="tr-revenue">-</div>
+          <div class="stat-change">In the selected period</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Where people stop</h3>
+        <div id="tr-funnel"></div>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:12px;">
+          The first three steps count visits. Purchases come from the payments table, so that figure is the real one.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Visitors per day</h3>
+        <div id="tr-chart" style="overflow-x:auto;"></div>
+      </div>
+
+      <div class="fn-cols">
+        <div class="card">
+          <h3>Where they came from</h3>
+          <ul class="fn-list" id="tr-referrers"></ul>
+        </div>
+        <div class="card">
+          <h3>Campaign tags</h3>
+          <ul class="fn-list" id="tr-sources"></ul>
+        </div>
+        <div class="card">
+          <h3>Device</h3>
+          <ul class="fn-list" id="tr-devices"></ul>
+        </div>
+        <div class="card">
+          <h3>Most visited pages</h3>
+          <ul class="fn-list" id="tr-pages"></ul>
+        </div>
+      </div>
+    </div>
+
     <div id="products" class="page">
       <div class="page-header">
         <div>
@@ -1347,6 +1442,151 @@
     var navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(n => n.classList.remove('active'));
     event.target.closest('.nav-item') && event.target.closest('.nav-item').classList.add('active');
+  }
+
+
+  // ---------------------------------------------------------------- Traffic --
+  // Visitor journeys are read through the admin endpoint rather than straight
+  // from the browser: the anon key on this page must not be able to read them.
+  async function loadTrafficData(){
+    var days = document.getElementById('traffic-range').value;
+    var funnelEl = document.getElementById('tr-funnel');
+    funnelEl.innerHTML = '<p class="fn-empty">Loading&hellip;</p>';
+
+    try {
+      var headers = await authHeaders();
+      var res = await fetch('/api/analytics?days=' + encodeURIComponent(days), { headers: headers });
+
+      if(!res.ok){
+        var detail = await res.json().catch(function(){ return {}; });
+        throw new Error(detail.detail || detail.error || 'Could not load traffic');
+      }
+
+      renderTraffic(await res.json());
+    } catch(err){
+      funnelEl.innerHTML = '<p class="fn-empty">' + escapeTraffic(err.message) + '</p>';
+      console.error('Traffic load failed:', err);
+    }
+  }
+
+  function escapeTraffic(v){
+    return String(v == null ? '' : v).replace(/[&<>"]/g, function(c){
+      if(c === '&') return '&amp;';
+      if(c === '<') return '&lt;';
+      if(c === '>') return '&gt;';
+      return '&quot;';
+    });
+  }
+
+  function trafficPct(part, whole){
+    if(!whole) return '0%';
+    return (Math.round((part / whole) * 1000) / 10) + '%';
+  }
+
+  function renderTraffic(d){
+    var visitors = d.visitors || 0;
+    var reached  = d.reached_checkout || 0;
+    var opened   = d.opened_paddle || 0;
+    var paid     = d.purchases || 0;
+
+    document.getElementById('tr-visitors').textContent = visitors.toLocaleString();
+    document.getElementById('tr-pageviews').textContent = (d.pageviews || 0).toLocaleString() + ' page views';
+    document.getElementById('tr-checkout').textContent = reached.toLocaleString();
+    document.getElementById('tr-checkout-rate').textContent = trafficPct(reached, visitors) + ' of visitors';
+    document.getElementById('tr-purchases').textContent = paid.toLocaleString();
+    document.getElementById('tr-conversion').textContent = trafficPct(paid, visitors) + ' of visitors';
+    document.getElementById('tr-revenue').textContent = '$' + Number(d.revenue || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // Bar widths are relative to the first step, so the drop-off is visible as
+    // a shape even when the absolute numbers are still small.
+    var steps = [
+      { name:'Visited the site', n:visitors, colour:'#2F8577' },
+      { name:'Reached checkout', n:reached,  colour:'#3E7FA8' },
+      { name:'Opened payment',   n:opened,   colour:'#C1893D' },
+      { name:'Paid',             n:paid,     colour:'#212B42' }
+    ];
+
+    var html = '';
+    steps.forEach(function(step, i){
+      var width = visitors ? Math.max((step.n / visitors) * 100, 3) : 3;
+      var drop = '&nbsp;';
+      if(i > 0){
+        var prev = steps[i-1].n;
+        var lost = prev - step.n;
+        if(prev){
+          drop = trafficPct(step.n, prev) + ' of previous';
+          if(lost > 0) drop += ' &middot; <b>' + lost + ' lost</b>';
+        }
+      }
+      html += '<div class="fn-row">'
+           +    '<div class="fn-name">' + step.name + '</div>'
+           +    '<div class="fn-track"><div class="fn-fill" style="width:' + width + '%;background:' + step.colour + ';">' + step.n + '</div></div>'
+           +    '<div class="fn-drop">' + drop + '</div>'
+           +  '</div>';
+    });
+    document.getElementById('tr-funnel').innerHTML = html;
+
+    renderTrafficChart(d.daily || []);
+    fillTrafficList('tr-referrers', d.referrers, 'No visits recorded yet');
+    fillTrafficList('tr-sources',   d.sources,   'No campaign tags yet');
+    fillTrafficList('tr-devices',   d.devices,   'No visits recorded yet');
+    fillTrafficList('tr-pages',     d.pages,     'No visits recorded yet');
+  }
+
+  function fillTrafficList(id, rows, emptyText){
+    var el = document.getElementById(id);
+    if(!rows || !rows.length){
+      el.innerHTML = '<li class="fn-empty">' + emptyText + '</li>';
+      return;
+    }
+    el.innerHTML = rows.map(function(r){
+      return '<li><span>' + escapeTraffic(r.label) + '</span><span>' + r.n + '</span></li>';
+    }).join('');
+  }
+
+  // Inline SVG, to match the revenue chart already on the dashboard.
+  function renderTrafficChart(daily){
+    var el = document.getElementById('tr-chart');
+    if(!daily.length){
+      el.innerHTML = '<p class="fn-empty">Nothing recorded yet. Numbers appear here as people visit.</p>';
+      return;
+    }
+
+    var w = Math.max(daily.length * 26, 560), h = 190, pad = 30;
+    var max = 1;
+    daily.forEach(function(r){ max = Math.max(max, r.visitors, r.checkouts); });
+
+    var x = function(i){ return pad + (i * (w - pad * 2)) / Math.max(daily.length - 1, 1); };
+    var y = function(v){ return h - pad - (v / max) * (h - pad * 2); };
+
+    var line = '', checkoutLine = '';
+    daily.forEach(function(r, i){
+      line += (i ? 'L' : 'M') + x(i) + ' ' + y(r.visitors) + ' ';
+      checkoutLine += (i ? 'L' : 'M') + x(i) + ' ' + y(r.checkouts) + ' ';
+    });
+    var area = line + 'L' + x(daily.length - 1) + ' ' + (h - pad) + ' L' + x(0) + ' ' + (h - pad) + ' Z';
+
+    var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="Visitors per day">'
+      + '<line x1="' + pad + '" y1="' + (h - pad) + '" x2="' + (w - pad) + '" y2="' + (h - pad) + '" stroke="#E5E2D6"/>'
+      + '<line x1="' + pad + '" y1="' + pad + '" x2="' + (w - pad) + '" y2="' + pad + '" stroke="#F0EDE1" stroke-dasharray="3 3"/>'
+      + '<text x="4" y="' + (pad + 4) + '" font-size="10" fill="#8A8F9C">' + max + '</text>'
+      + '<text x="4" y="' + (h - pad + 4) + '" font-size="10" fill="#8A8F9C">0</text>'
+      + '<path d="' + area + '" fill="#2F8577" opacity="0.10"/>'
+      + '<path d="' + line + '" fill="none" stroke="#2F8577" stroke-width="2"/>'
+      + '<path d="' + checkoutLine + '" fill="none" stroke="#C1893D" stroke-width="2" stroke-dasharray="4 3"/>';
+
+    daily.forEach(function(r, i){
+      svg += '<circle cx="' + x(i) + '" cy="' + y(r.visitors) + '" r="2.5" fill="#2F8577"><title>'
+          + r.day + ': ' + r.visitors + ' visitors, ' + r.checkouts + ' opened checkout</title></circle>';
+    });
+
+    svg += '</svg>'
+      + '<div style="display:flex;gap:18px;margin-top:8px;font-size:12px;color:var(--ink-soft);">'
+      +   '<span><span style="display:inline-block;width:14px;height:2px;background:#2F8577;vertical-align:middle;"></span> Visitors</span>'
+      +   '<span><span style="display:inline-block;width:14px;height:2px;background:#C1893D;vertical-align:middle;"></span> Opened checkout</span>'
+      + '</div>';
+
+    el.innerHTML = svg;
   }
 
   // Dashboard

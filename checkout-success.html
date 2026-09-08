@@ -164,6 +164,7 @@
       margin-top: 40px;
     }
   </style>
+  <script src="/analytics.js" defer></script>
 </head>
 <body>
   <header>
@@ -239,6 +240,13 @@
       const decodedEmail = decodeURIComponent(email);
       sessionStorage.setItem('purchaseEmail', decodedEmail); // Temporary, cleared on session end
     }
+  </script>
+  <script>
+    // Fulfilment is driven by the webhook, not this page. This is only so
+    // the funnel can close the loop on the visit that led to the sale.
+    window.addEventListener('load', function(){
+      if (window.mdTrack) window.mdTrack('purchase_success');
+    });
   </script>
 </body>
 </html>
