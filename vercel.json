@@ -36,5 +36,11 @@
       "source": "/refund",
       "destination": "/MD_Refund_Policy.html"
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/keep-alive",
+      "schedule": "0 7 * * *"
+    }
   ]
 }

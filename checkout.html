@@ -268,7 +268,12 @@
     // a code change.
     async function initPaddle() {
       const response = await fetch('/api/paddle-config');
-      if (!response.ok) throw new Error('Checkout is temporarily unavailable');
+      if (!response.ok) {
+        // The server says why when it can. "Try again in a few minutes" is far
+        // more use to someone holding a card than a flat refusal.
+        const reason = await response.json().catch(function () { return {}; });
+        throw new Error(reason.error || 'Checkout is temporarily unavailable');
+      }
 
       paddleConfig = await response.json();
 
